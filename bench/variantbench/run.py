@@ -47,7 +47,17 @@ def _git(*args: str, cwd: Path | None = None, timeout: int = 900) -> subprocess.
     )
 
 
-def run_case(case: dict, model, engine, workdir: Path, max_attempts: int) -> dict:
+def run_case(
+    case: dict,
+    model,
+    engine,
+    workdir: Path,
+    max_attempts: int,
+    *,
+    narrow: bool = True,
+    review_siblings: bool = True,
+    max_siblings: int = 8,
+) -> dict:
     out: dict = {
         "id": case["id"],
         "advisory": case["advisory"],
@@ -67,11 +77,22 @@ def run_case(case: dict, model, engine, workdir: Path, max_attempts: int) -> dic
         commit = load_fix_commit(repo, sha)
     except GitError as exc:
         return {**out, "status": "error", "stage": "git", "error": str(exc)}
+    # The codebase as of the fix commit is where siblings are measured (and narrowed against).
+    _git("checkout", "-q", sha, cwd=repo, timeout=1800)
     try:
-        result = synthesize(commit, model, engine, max_attempts=max_attempts)
+        result = synthesize(
+            commit,
+            model,
+            engine,
+            max_attempts=max_attempts,
+            breadth_root=repo if narrow else None,
+            max_siblings=max_siblings,
+        )
     except ModelError as exc:
         return {**out, "status": "error", "stage": "model", "error": str(exc)}
-    out["attempts"] = len(result.attempts)
+    out["attempts"] = len([a for a in result.attempts if a.purpose == "write"])
+    out["narrowing_attempts"] = len([a for a in result.attempts if a.purpose == "narrow"])
+    out["breadth"] = result.breadth
     out["failures"] = [
         (a.problem or (a.acceptance.feedback() if a.acceptance else ""))[:300]
         for a in result.attempts
@@ -86,18 +107,52 @@ def run_case(case: dict, model, engine, workdir: Path, max_attempts: int) -> dic
     out["unfixed_in_fix_commit"] = [
         {"fixture": f.path.name, "line": f.start_line} for f in result.unfixed
     ]
-    # Sweep the whole repository as of the fix commit for siblings.
-    _git("checkout", "-q", sha, cwd=repo, timeout=1800)
     from cairn.lesson import load
 
-    findings, errors = hunt(engine, [load(lesson_dir)], repo, exclude=[workdir / "lessons"])
+    lesson = load(lesson_dir)
+    out["confidence"] = lesson.confidence
+    findings, errors = hunt(engine, [lesson], repo, exclude=[workdir / "lessons"])
+    if review_siblings and findings:
+        from cairn.review import review
+
+        findings = review(lesson, findings, repo, model)
     fixed = {f.path for f in commit.files}
-    out["sibling_hits"] = [{"path": f.relpath(repo), "line": f.start_line} for f in findings]
+    out["sibling_hits"] = [
+        {
+            "path": f.relpath(repo),
+            "line": f.start_line,
+            "review": f.review_verdict,
+            "reason": f.review_reason,
+        }
+        for f in findings
+    ]
     out["sibling_hits_outside_fixed_files"] = sum(
         1 for f in findings if f.relpath(repo) not in fixed
     )
     out["engine_errors"] = errors[:5]
     return out
+
+
+def _label_index(case: dict) -> dict[tuple[str, int], str]:
+    return {(lab["path"], int(lab["line"])): lab["verdict"] for lab in case.get("labels") or []}
+
+
+def _precision(hits: list[dict], labels: dict) -> tuple[int, int, int]:
+    """(true positives, false positives, unlabelled) among the given hits."""
+    tp = fp = unl = 0
+    for h in hits:
+        verdict = labels.get((h["path"], int(h["line"])))
+        if verdict == "tp":
+            tp += 1
+        elif verdict == "fp":
+            fp += 1
+        else:
+            unl += 1
+    return tp, fp, unl
+
+
+def _pct(a: int, b: int) -> str:
+    return f"{a / b:.0%} ({a}/{b})" if b else "-"
 
 
 def summarize(results: list[dict], cases: dict[str, dict]) -> str:
@@ -108,30 +163,37 @@ def summarize(results: list[dict], cases: dict[str, dict]) -> str:
             continue
         done = [r for r in rs if r["status"] in ("lesson", "no-lesson")]
         passed = [r for r in done if r["status"] == "lesson"]
-        rate = len(passed) / len(done) if done else 0
         attempts = [r["attempts"] for r in passed]
-        hits = sum(len(r.get("sibling_hits", [])) for r in passed)
-        tp = fp = 0
+        all_hits = shown_hits = 0
+        tp_all = fp_all = tp_shown = fp_shown = unl_shown = known_tp = kept_tp = 0
         for r in passed:
-            for lab in cases.get(r["id"], {}).get("labels", []) or []:
-                if lab.get("verdict") == "tp":
-                    tp += 1
-                elif lab.get("verdict") == "fp":
-                    fp += 1
+            labels = _label_index(cases.get(r["id"], {}))
+            hits = r.get("sibling_hits", [])
+            shown = [h for h in hits if h.get("review") != "different"]
+            all_hits += len(hits)
+            shown_hits += len(shown)
+            t, f, _ = _precision(hits, labels)
+            tp_all, fp_all = tp_all + t, fp_all + f
+            t, f, u = _precision(shown, labels)
+            tp_shown, fp_shown, unl_shown = tp_shown + t, fp_shown + f, unl_shown + u
+            known_tp += sum(1 for v in labels.values() if v == "tp")
+            kept_tp += t
+        low = sum(1 for r in passed if r.get("confidence") == "low")
         lines += [
             f"## {split}",
             "",
             "| metric | value |",
             "|---|---|",
             f"| cases run | {len(rs)} ({len(rs) - len(done)} errored) |",
-            f"| rule pass rate | {rate:.1%} ({len(passed)}/{len(done)}) |",
+            f"| rule pass rate | {_pct(len(passed), len(done))} |",
             f"| median attempts (passing) | {statistics.median(attempts) if attempts else '-'} |",
-            f"| sibling hits to label | {hits} |",
-            (
-                f"| labelled precision | {tp / (tp + fp):.1%} ({tp}/{tp + fp}) |"
-                if tp + fp
-                else "| labelled precision | not labelled yet |"
-            ),
+            f"| lessons marked low-confidence (too broad) | {low} |",
+            f"| sibling matches (raw) | {all_hits} |",
+            f"| siblings shown after review | {shown_hits} |",
+            f"| precision of raw matches (labelled) | {_pct(tp_all, tp_all + fp_all)} |",
+            f"| precision of shown siblings (labelled) | {_pct(tp_shown, tp_shown + fp_shown)} |",
+            f"| shown siblings not yet labelled | {unl_shown} |",
+            f"| labelled true siblings still shown | {_pct(kept_tp, known_tp)} |",
             "",
         ]
         by_lang: dict[str, list[dict]] = {}
@@ -142,6 +204,10 @@ def summarize(results: list[dict], cases: dict[str, dict]) -> str:
             p = sum(1 for r in items if r["status"] == "lesson")
             lines.append(f"| {lang} | {p}/{len(items)} |")
         lines.append("")
+    lines.append(
+        "Labels are per (path, line) at the fix commit. Labels marked `by: claude-prelabel` are a "
+        "model's reading of the code and still need human confirmation."
+    )
     return "\n".join(lines)
 
 
@@ -154,6 +220,9 @@ def main(argv=None) -> int:
     ap.add_argument("--out", type=Path, default=Path("runs"))
     ap.add_argument("--limit", type=int)
     ap.add_argument("--max-attempts", type=int, default=4)
+    ap.add_argument("--no-narrow", action="store_true", help="Skip the breadth check (baseline).")
+    ap.add_argument("--no-review", action="store_true", help="Skip sibling review (baseline).")
+    ap.add_argument("--ids", help="Comma-separated case ids to run (e.g. to rerun a previous set).")
     ap.add_argument(
         "--max-usd",
         type=float,
@@ -177,6 +246,9 @@ def main(argv=None) -> int:
     model = from_spec()
     engine = find_engine()
     selected = [c for c in cases.values() if args.split == "all" or c.get("split") == args.split]
+    if args.ids:
+        wanted = {i.strip().lower() for i in args.ids.split(",") if i.strip()}
+        selected = [c for c in selected if c["id"] in wanted]
     if args.limit:
         selected = selected[: args.limit]
     run_id = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -212,7 +284,15 @@ def main(argv=None) -> int:
             break
         before_in, before_out = model.usage.input_tokens, model.usage.output_tokens
         with tempfile.TemporaryDirectory(prefix="vbrun-") as tmp:
-            r = run_case(case, model, engine, Path(tmp), args.max_attempts)
+            r = run_case(
+                case,
+                model,
+                engine,
+                Path(tmp),
+                args.max_attempts,
+                narrow=not args.no_narrow,
+                review_siblings=not args.no_review,
+            )
         r["tokens"] = {
             "input": model.usage.input_tokens - before_in,
             "output": model.usage.output_tokens - before_out,

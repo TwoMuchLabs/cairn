@@ -14,4 +14,9 @@ files:
 - src/lfx/src/lfx/components/langchain_utilities/csv_agent.py
 changed_lines: 27
 split: dev
-labels: []
+labels:
+- path: src/lfx/src/lfx/base/agents/agent.py
+  line: 108
+  verdict: tp
+  by: claude-prelabel
+  note: 'base agent kwargs hard-code allow_dangerous_code: True'

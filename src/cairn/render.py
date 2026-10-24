@@ -102,6 +102,20 @@ def findings(console: Console, items: Sequence[Finding], root: Path) -> None:
             if f.also_matched:
                 loc.append("   also matched " + ", ".join(f.also_matched), style="dim")
             console.print(loc)
+            if f.review_verdict:
+                label = {
+                    "same": "likely the same flaw",
+                    "unsure": "needs a human look",
+                    "different": "review says not the same flaw",
+                }[f.review_verdict]
+                style = {"same": "bold red", "unsure": "yellow", "different": "dim"}[
+                    f.review_verdict
+                ]
+                note = Text("    ")
+                note.append(label, style=style)
+                if f.review_reason:
+                    note.append(": " + f.review_reason, style="dim")
+                console.print(note)
             console.print(_code_block(f))
         console.print()
         console.print(_lesson_footer(lesson, min(console.width, 100)))

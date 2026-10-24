@@ -15,4 +15,38 @@ files:
 - jato-shaded/src/main/java/com/iplanet/jato/util/Encoder.java
 changed_lines: 49
 split: dev
-labels: []
+labels:
+- path: openam-core/src/main/java/com/sun/identity/authentication/share/AuthXMLUtils.java
+  line: 1787
+  verdict: tp
+  by: claude-prelabel
+  note: Base64-decoded serialized Subject read with plain ObjectInputStream
+- path: openam-core/src/main/java/org/openidentityplatform/openam/click/util/ClickUtils.java
+  line: 1790
+  verdict: tp
+  by: claude-prelabel
+  note: Click page-state style Base64+GZIP deserialization without filter
+- path: openam-schema/openam-liberty-schema/src/main/java/com/sun/identity/federation/jaxb/entityconfig/impl/runtime/GrammarInfoImpl.java
+  line: 149
+  verdict: fp
+  by: claude-prelabel
+- path: openam-schema/openam-saml2-schema/src/main/java/com/sun/identity/saml2/jaxb/assertion/impl/runtime/GrammarInfoImpl.java
+  line: 149
+  verdict: fp
+  by: claude-prelabel
+- path: openam-schema/openam-wsfederation-schema/src/main/java/com/sun/identity/wsfederation/jaxb/entityconfig/impl/runtime/GrammarInfoImpl.java
+  line: 149
+  verdict: fp
+  by: claude-prelabel
+- path: openam-shared/src/main/java/org/forgerock/openam/utils/IOUtils.java
+  line: 261
+  verdict: fp
+  by: claude-prelabel
+- path: openam-tools/openam-installtools/src/main/java/com/sun/identity/install/tools/configurator/InstallDataStore.java
+  line: 68
+  verdict: fp
+  by: claude-prelabel
+- path: openam-tools/openam-installtools/src/main/java/com/sun/identity/install/tools/configurator/MigrateFromInstallDataStore.java
+  line: 77
+  verdict: fp
+  by: claude-prelabel

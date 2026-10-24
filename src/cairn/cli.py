@@ -277,7 +277,18 @@ def validate_cmd(paths):
 )
 @click.option("--max-attempts", default=4, show_default=True, type=click.IntRange(1, 10))
 @click.option("--no-hunt", is_flag=True, help="Save the lesson without hunting for variants.")
-def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
+@click.option(
+    "--max-siblings",
+    default=8,
+    show_default=True,
+    type=click.IntRange(1, 1000),
+    help="A rule matching more places than this is sent back to be narrowed.",
+)
+@click.option("--no-review", is_flag=True, help="Show every sibling without the model's review.")
+@click.option("--show-dismissed", is_flag=True, help="Also show siblings the review dismissed.")
+def learn_cmd(
+    ref, repo, out_dir, model_spec, max_attempts, no_hunt, max_siblings, no_review, show_dismissed
+):
     """Turn a security fix commit into a lesson, then hunt for its siblings.
 
     The model proposes a rule; cairn accepts it only if it matches the pre-fix code near the
@@ -316,6 +327,8 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
 
     def progress(a):
         t = Text(f"  attempt {a.number}  ")
+        if a.purpose == "narrow":
+            t.append("narrowing  ", style="cyan")
         if a.acceptance and a.acceptance.passed and not a.problem:
             t.append("✓ matches the vulnerable code, silent on the fix", style="green")
         else:
@@ -333,7 +346,13 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
     try:
         with err.status("Asking the model for a rule…", spinner="dots"):
             result = synthesize(
-                commit, model, engine, max_attempts=max_attempts, on_attempt=progress
+                commit,
+                model,
+                engine,
+                max_attempts=max_attempts,
+                on_attempt=progress,
+                breadth_root=None if no_hunt else repo_path,
+                max_siblings=max_siblings,
             )
     except ModelError as exc:
         raise CairnError(str(exc)) from exc
@@ -359,7 +378,19 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
         )
         sys.exit(EXIT_FINDINGS)
 
-    err.print(Text(f"Model usage: {model.usage.describe()}", style="dim"))
+    if len(result.breadth) > 1:
+        trail = " → ".join(str(b) for b in result.breadth)
+        if result.lesson.confidence == "low":
+            err.print(
+                Text(
+                    f"  still broad after narrowing (matches: {trail}); saved as low-confidence",
+                    style="yellow",
+                )
+            )
+        else:
+            err.print(
+                Text(f"  narrowed the rule (matches across the codebase: {trail})", style="cyan")
+            )
     dest_root = (repo_path / out_dir) if not Path(out_dir).is_absolute() else Path(out_dir)
     dest = save(result, dest_root)
     lesson = load(dest)
@@ -387,17 +418,38 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
                 )
             )
         elif findings:
-            n = len(findings)
-            plural = "s" if n != 1 else ""
-            out.print(
-                Text(f"Found {n} possible sibling{plural} in the current code:", style="bold")
+            if not no_review:
+                from .review import review
+
+                with err.status("Reviewing each sibling…", spinner="dots"):
+                    findings = review(lesson, findings, repo_path, model)
+            shown = [f for f in findings if show_dismissed or f.review_verdict != "different"]
+            dismissed = len(findings) - len(
+                [f for f in findings if f.review_verdict != "different"]
             )
-            out.print()
-            render.findings(out, findings, repo_path)
+            n = len(shown)
+            plural = "s" if n != 1 else ""
+            if shown:
+                out.print(
+                    Text(f"Found {n} possible sibling{plural} in the current code:", style="bold")
+                )
+                out.print()
+                render.findings(out, shown, repo_path)
+            else:
+                out.print(Text("No siblings that look like the same flaw."))
+            if dismissed and not show_dismissed:
+                out.print(
+                    Text(
+                        f"{dismissed} other match{'es' if dismissed != 1 else ''} dismissed by review "
+                        "(--show-dismissed to see them).",
+                        style="dim",
+                    )
+                )
         else:
             out.print(
                 Text("No siblings in the current code. The lesson will guard future changes.")
             )
+    err.print(Text(f"Model usage: {model.usage.describe()}", style="dim"))
     out.print()
     out.print(
         Text(

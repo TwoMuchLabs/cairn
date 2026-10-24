@@ -1,0 +1,18 @@
+- "```yaml\nid: python-flask-idor-get-by-id\ntitle: Record loaded by URL ID without\
+  \ scoping to the current user\nsummary: A route loads a model instance by the ID\
+  \ from the URL and uses it without checking ownership, so any logged-in user can\
+  \ access other users' records.\ncwe: [CWE-639]\nseverity: high\nconfidence: medium\n\
+  rule:\n  message: Unscoped lookup by ID\n  pattern: $MODEL.query.$GET(...)\nfix:\n\
+  \  guidance: Filter by owner_id=current_user.id.\n```\n"
+- "```yaml\nid: python-flask-idor-get-by-id\ntitle: Record loaded by URL ID without\
+  \ scoping to the current user\nsummary: >\n  A route loads a model instance by the\
+  \ ID from the URL with Model.query.get or get_or_404\n  and uses it without checking\
+  \ ownership, so any logged-in user can read or change other\n  users' records by\
+  \ editing the ID.\ncwe: [CWE-639, CWE-862]\nseverity: high\nconfidence: medium\n\
+  rule:\n  message: $MODEL loaded by URL parameter $ID without scoping to current_user.\n\
+  \  patterns:\n    - pattern-inside: |\n        @$BP.$VERB(...)\n        def $FUNC(...,\
+  \ $ID, ...):\n            ...\n    - pattern-either:\n        - pattern: $MODEL.query.get($ID)\n\
+  \        - pattern: $MODEL.query.get_or_404($ID)\nfix:\n  guidance: Use $MODEL.query.filter_by(id=...,\
+  \ owner_id=current_user.id).first_or_404().\n  example: order = Order.query.filter_by(id=order_id,\
+  \ owner_id=current_user.id).first_or_404()\n```\n"
+- '[{"n": 1, "verdict": "different", "reason": "address is loaded by its owner elsewhere"}]'

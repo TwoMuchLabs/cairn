@@ -19,4 +19,12 @@ files:
 - src/mcp/handlers-n8n-manager.ts
 changed_lines: 36
 split: dev
-labels: []
+labels:
+- path: src/mcp/handlers-n8n-manager.ts
+  line: 928
+  verdict: fp
+  by: claude-prelabel
+- path: src/mcp/handlers-workflow-diff.ts
+  line: 153
+  verdict: fp
+  by: claude-prelabel
