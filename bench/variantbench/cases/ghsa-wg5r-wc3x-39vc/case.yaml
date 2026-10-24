@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-wg5r-wc3x-39vc
+advisory: GHSA-wg5r-wc3x-39vc
+aliases:
+- CVE-2026-62379
+summary: 'OpenAM: Unauthenticated Remote Code Execution via Class.forName in AuthXMLUtils.createCustomCallback'
+language: java
+cwe:
+- CWE-470
+- CWE-94
+severity: critical
+repository: https://github.com/OpenIdentityPlatform/OpenAM
+fix_commit: edcf968cad91a78b932dba4ad559ef94cbf35f5a
+files:
+- openam-core/src/main/java/com/sun/identity/authentication/share/AuthXMLUtils.java
+changed_lines: 59
+split: holdout
+labels: []

@@ -1,0 +1,49 @@
+schema: cairn/lesson/v0.1
+id: python-subprocess-shell-with-request-data
+title: Request data reaches a shell command
+summary: >
+  Data from the HTTP request is placed into a command string that a shell interprets
+  (subprocess with shell=True, os.system or os.popen). Characters such as ; | $( ) let an
+  attacker run arbitrary commands on the server with the application's privileges.
+cwe: [CWE-78]
+severity: critical
+confidence: high
+languages: [python]
+source:
+  kind: manual
+  notes: Reference lesson.
+rule:
+  mode: taint
+  message: Request data flows into a shell command string.
+  pattern-sources:
+    - pattern-either:
+        - pattern: request.args
+        - pattern: request.form
+        - pattern: request.values
+        - pattern: request.json
+        - pattern: request.get_json(...)
+        - pattern: request.headers
+        - pattern: request.cookies
+  pattern-sinks:
+    - patterns:
+        - pattern-either:
+            - pattern: subprocess.$FN($CMD, ..., shell=True, ...)
+            - pattern: os.system($CMD)
+            - pattern: os.popen($CMD, ...)
+        - focus-metavariable: $CMD
+fix:
+  guidance: >
+    Pass the command as a list of arguments without shell=True, put "--" before
+    user-supplied values, and validate them against what the feature actually needs.
+  example: subprocess.run(["ping", "-c", "1", "--", host], capture_output=True, text=True)
+fixtures:
+  vulnerable: [fixtures/vulnerable/tools.py]
+  patched: [fixtures/patched/tools.py]
+  clean: [fixtures/clean/maintenance.py]
+provenance:
+  author: twomuchlabs
+  created: "2026-10-24"
+  approved_by: twomuchlabs
+  approved: "2026-10-24"
+status: approved
+tags: [command-injection]

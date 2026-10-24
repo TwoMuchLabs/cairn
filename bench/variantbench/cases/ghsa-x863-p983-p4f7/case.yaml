@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-x863-p983-p4f7
+advisory: GHSA-x863-p983-p4f7
+aliases:
+- CVE-2026-41855
+summary: Spring Framework Unsafe Deserialization via Jackson JMS Converters
+language: java
+cwe:
+- CWE-502
+severity: high
+repository: https://github.com/spring-projects/spring-framework
+fix_commit: 9bec52b1ec741976658e916850b31f41afd2da2d
+files:
+- spring-jms/src/main/java/org/springframework/jms/support/converter/MappingJackson2MessageConverter.java
+changed_lines: 46
+split: dev
+labels: []

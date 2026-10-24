@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-r543-q48m-4c9j
+advisory: GHSA-r543-q48m-4c9j
+aliases:
+- CVE-2026-106443
+summary: 'WeasyPrint: EPS images reach the Ghostscript interpreter resulting in RCE'
+language: python
+cwe:
+- CWE-20
+severity: high
+repository: https://github.com/Kozea/WeasyPrint
+fix_commit: 39cd37ce1610bd890388e26591c569db1cbab542
+files:
+- weasyprint/images.py
+changed_lines: 15
+split: dev
+labels: []

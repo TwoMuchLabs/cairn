@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-58cw-g322-p94v
+advisory: GHSA-58cw-g322-p94v
+aliases:
+- CVE-2026-44896
+summary: Mistune has XSS via unescaped figclass/figwidth in Figure directive
+language: python
+cwe:
+- CWE-79
+severity: moderate
+repository: https://github.com/lepture/mistune
+fix_commit: a3cb6e5655308797e8be021d6c7b5bab13cbace2
+files:
+- src/mistune/directives/admonition.py
+- src/mistune/directives/image.py
+- src/mistune/renderers/html.py
+changed_lines: 10
+split: dev
+labels: []

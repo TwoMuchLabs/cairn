@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-xq3r-2qv5-vqqm
+advisory: GHSA-xq3r-2qv5-vqqm
+aliases:
+- CVE-2026-23734
+summary: XWiki Platform has path traversal via resources parameter in ssx and jsx
+  endpoints when using leading slash
+language: java
+cwe:
+- CWE-23
+severity: critical
+repository: https://github.com/xwiki/xwiki-commons
+fix_commit: a979cafd89f6a9c9c0b9ab19744d672df64429bf
+files:
+- xwiki-commons-core/xwiki-commons-classloader/xwiki-commons-classloader-api/src/main/java/org/xwiki/classloader/internal/ClassLoaderUtils.java
+changed_lines: 20
+split: holdout
+labels: []

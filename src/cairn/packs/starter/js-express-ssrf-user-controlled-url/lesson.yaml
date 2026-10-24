@@ -1,0 +1,54 @@
+schema: cairn/lesson/v0.1
+id: js-express-ssrf-user-controlled-url
+title: Server fetches a URL taken from the request
+summary: >
+  A handler passes a URL from the request (query, body, params or headers) to fetch or axios.
+  An attacker can make the server call internal services, cloud metadata endpoints such as
+  169.254.169.254, or other hosts that are only reachable from inside your network, and read
+  or trigger them with the server's network position and credentials.
+cwe: [CWE-918]
+severity: high
+confidence: high
+languages: [javascript, typescript]
+source:
+  kind: manual
+  notes: Reference lesson; replace assertPublicHttpUrl with your own egress guard.
+rule:
+  mode: taint
+  message: >
+    Outbound request URL comes from request data without passing through assertPublicHttpUrl().
+  pattern-sources:
+    - pattern-either:
+        - pattern: $REQ.query
+        - pattern: $REQ.body
+        - pattern: $REQ.params
+        - pattern: $REQ.headers
+  pattern-sanitizers:
+    - pattern: assertPublicHttpUrl(...)
+  pattern-sinks:
+    - patterns:
+        - pattern-either:
+            - pattern: fetch($URL, ...)
+            - pattern: axios($URL, ...)
+            - pattern: axios.$METHOD($URL, ...)
+            - pattern: got($URL, ...)
+            - pattern: got.$METHOD($URL, ...)
+        - focus-metavariable: $URL
+fix:
+  guidance: >
+    Resolve and validate the URL before any outbound request: allow only http(s), resolve the
+    host and reject private, loopback and link-local addresses, and prefer an allowlist of
+    domains when the feature allows it. Do not follow redirects to unvalidated hosts.
+  references:
+    - https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html
+fixtures:
+  vulnerable: [fixtures/vulnerable/preview.js]
+  patched: [fixtures/patched/preview.js]
+  clean: [fixtures/clean/clients.js]
+provenance:
+  author: twomuchlabs
+  created: "2026-10-24"
+  approved_by: twomuchlabs
+  approved: "2026-10-24"
+status: approved
+tags: [ssrf, egress]

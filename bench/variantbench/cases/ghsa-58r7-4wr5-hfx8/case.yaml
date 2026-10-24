@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-58r7-4wr5-hfx8
+advisory: GHSA-58r7-4wr5-hfx8
+aliases:
+- CVE-2026-33981
+summary: Changedetection.io Discloses Environment Variables via jq env Builtin in
+  Include Filters
+language: python
+cwe:
+- CWE-200
+severity: high
+repository: https://github.com/dgtlmoon/changedetection.io
+fix_commit: 65517a9c74a0cbe1a4661314470b28131ef5557f
+files:
+- changedetectionio/forms.py
+- changedetectionio/html_tools.py
+changed_lines: 54
+split: dev
+labels: []

@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-mcv8-8m8x-48pg
+advisory: GHSA-mcv8-8m8x-48pg
+aliases:
+- CVE-2026-35166
+summary: 'Hugo: Certain markdown links are not properly escaped'
+language: go
+cwe:
+- CWE-79
+severity: moderate
+repository: https://github.com/gohugoio/hugo
+fix_commit: 479fe6c654937a850b65e74551dc4e857d52898f
+files:
+- markup/goldmark/render_hooks.go
+changed_lines: 17
+split: dev
+labels: []

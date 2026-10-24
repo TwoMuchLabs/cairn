@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-75mw-h36v-2jv7
+advisory: GHSA-75mw-h36v-2jv7
+aliases: []
+summary: Dosage Vulnerable to Stored Cross-Site Scripting (XSS) in HTML/RSS Output
+  Handlers
+language: python
+cwe:
+- CWE-79
+severity: moderate
+repository: https://github.com/webcomics/dosage
+fix_commit: b91fd5cc3889aed3d9cc81b98834648197b2859a
+files:
+- dosagelib/events.py
+changed_lines: 6
+split: dev
+labels: []

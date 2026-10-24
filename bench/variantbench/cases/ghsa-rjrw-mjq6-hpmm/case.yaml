@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-rjrw-mjq6-hpmm
+advisory: GHSA-rjrw-mjq6-hpmm
+aliases:
+- CVE-2026-62325
+summary: goshs SFTP authentication bypass via empty password (incomplete fix of CVE-2026-40884)
+language: go
+cwe:
+- CWE-306
+severity: critical
+repository: https://github.com/goshs-labs/goshs
+fix_commit: 32f4a0e1790a709f722d0f3b2341f139d003180a
+files:
+- sftpserver/sftpserver.go
+changed_lines: 2
+split: holdout
+labels: []

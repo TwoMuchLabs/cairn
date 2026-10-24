@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-qmcv-hh7c-3m56
+advisory: GHSA-qmcv-hh7c-3m56
+aliases:
+- CVE-2026-3960
+summary: H2O-3 is Vulnerable to Code Injection
+language: java
+cwe:
+- CWE-94
+severity: moderate
+repository: https://github.com/h2oai/h2o-3
+fix_commit: b9ae2d3c5220db2dc53753357a783e590364d044
+files:
+- h2o-core/src/main/java/water/jdbc/SQLManager.java
+changed_lines: 7
+split: holdout
+labels: []

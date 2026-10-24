@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-9qhq-v63v-fv3j
+advisory: GHSA-9qhq-v63v-fv3j
+aliases:
+- CVE-2026-41497
+summary: 'PraisonAI has an incomplete fix for CVE-2026-34935 - OS Command Injection '
+language: python
+cwe:
+- CWE-77
+- CWE-78
+severity: critical
+repository: https://github.com/MervinPraison/PraisonAI
+fix_commit: 47bff65413beaa3c21bf633c1fae4e684348368c
+files:
+- src/praisonai/praisonai/cli/features/mcp.py
+changed_lines: 36
+split: dev
+labels: []

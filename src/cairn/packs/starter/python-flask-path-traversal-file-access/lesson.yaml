@@ -1,0 +1,51 @@
+schema: cairn/lesson/v0.1
+id: python-flask-path-traversal-file-access
+title: File path built from request data
+summary: >
+  A file path is assembled from request data and then opened or sent. Values such as
+  ../../etc/passwd or an absolute path let an attacker read (or overwrite) files outside the
+  intended directory, including configuration files and credentials.
+cwe: [CWE-22]
+severity: high
+confidence: high
+languages: [python]
+source:
+  kind: manual
+  notes: Reference lesson.
+rule:
+  mode: taint
+  message: Request data is used to build a file path that is opened or sent.
+  pattern-sources:
+    - pattern-either:
+        - pattern: request.args
+        - pattern: request.form
+        - pattern: request.values
+        - pattern: request.json
+        - pattern: request.get_json(...)
+  pattern-sanitizers:
+    - pattern-either:
+        - pattern: safe_join(...)
+        - pattern: werkzeug.security.safe_join(...)
+        - pattern: secure_filename(...)
+  pattern-sinks:
+    - patterns:
+        - pattern-either:
+            - pattern: send_file($P, ...)
+            - pattern: open($P, ...)
+        - focus-metavariable: $P
+fix:
+  guidance: >
+    Serve user-named files with send_from_directory, or build paths with safe_join and reject
+    None. Never join request data into a path with os.path.join or string formatting.
+  example: return send_from_directory(UPLOAD_DIR, name)
+fixtures:
+  vulnerable: [fixtures/vulnerable/files.py]
+  patched: [fixtures/patched/files.py]
+  clean: [fixtures/clean/static.py]
+provenance:
+  author: twomuchlabs
+  created: "2026-10-24"
+  approved_by: twomuchlabs
+  approved: "2026-10-24"
+status: approved
+tags: [path-traversal, flask]

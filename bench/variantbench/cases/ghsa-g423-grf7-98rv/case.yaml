@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-g423-grf7-98rv
+advisory: GHSA-g423-grf7-98rv
+aliases:
+- CVE-2026-70484
+summary: 'Open WebUI: Users denied the image-generation permission can still generate
+  images via chat completions'
+language: python
+cwe:
+- CWE-862
+- CWE-863
+severity: moderate
+repository: https://github.com/open-webui/open-webui
+fix_commit: 897d69a35c65f8ab54583bb9ca8dc74eab7bcd29
+files:
+- backend/open_webui/utils/middleware.py
+changed_lines: 24
+split: holdout
+labels: []

@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-hjh7-r5w8-5872
+advisory: GHSA-hjh7-r5w8-5872
+aliases:
+- CVE-2026-41894
+summary: 'SiYuan: Path Traversal via Double URL Encoding in `/export/` Endpoint (Incomplete
+  Fix Bypass for CVE-2026-30869)'
+language: go
+cwe:
+- CWE-22
+severity: high
+repository: https://github.com/siyuan-note/siyuan
+fix_commit: bb481e1290c4a34255652ede85a546504505d2a7
+files:
+- kernel/server/serve.go
+- kernel/util/path.go
+changed_lines: 12
+split: dev
+labels: []

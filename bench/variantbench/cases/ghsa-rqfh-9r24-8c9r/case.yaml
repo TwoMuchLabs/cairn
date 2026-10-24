@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-rqfh-9r24-8c9r
+advisory: GHSA-rqfh-9r24-8c9r
+aliases:
+- CVE-2026-24400
+summary: AssertJ has XML External Entity (XXE) vulnerability when parsing untrusted
+  XML via isXmlEqualTo assertion
+language: java
+cwe:
+- CWE-611
+severity: high
+repository: https://github.com/assertj/assertj
+fix_commit: 85ca7eb6609bb179c043b85ae7d290523b1ba79a
+files:
+- assertj-core/src/main/java/org/assertj/core/util/xml/XmlStringPrettyFormatter.java
+changed_lines: 7
+split: holdout
+labels: []

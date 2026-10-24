@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-2m8m-jhrm-w6j2
+advisory: GHSA-2m8m-jhrm-w6j2
+aliases:
+- CVE-2026-71312
+summary: 'rclone: PowerShell Smart-Quote Filename Injection Enables SFTP Server-Side
+  Command Execution'
+language: go
+cwe:
+- CWE-78
+severity: high
+repository: https://github.com/rclone/rclone
+fix_commit: e122fba1a57641b63a580aa26c026903a84e2e88
+files:
+- backend/sftp/sftp.go
+changed_lines: 18
+split: dev
+labels: []

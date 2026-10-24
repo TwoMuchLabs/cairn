@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-m6w7-qv66-g3mf
+advisory: GHSA-m6w7-qv66-g3mf
+aliases:
+- CVE-2026-27905
+summary: BentoML Vulnerable to Arbitrary File Write via Symlink Path Traversal in
+  Tar Extraction
+language: python
+cwe:
+- CWE-22
+- CWE-59
+severity: high
+repository: https://github.com/bentoml/BentoML
+fix_commit: 4e0eb007765ac04c7924220d643f264715cc9670
+files:
+- src/bentoml/_internal/utils/filesystem.py
+changed_lines: 27
+split: dev
+labels: []

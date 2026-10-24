@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import random
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -55,6 +56,8 @@ def check(
         fc = load_fix_commit(repo_dir, sha, max_files=max_files)
     except GitError as exc:
         return None, str(exc)[:160]
+    finally:
+        shutil.rmtree(repo_dir, ignore_errors=True)
     langs = set(fc.languages)
     want = {"javascript": {"javascript", "typescript"}}.get(
         candidate["language"], {candidate["language"]}
@@ -110,33 +113,53 @@ def main(argv=None) -> int:
     args.out.mkdir(parents=True, exist_ok=True)
     kept: dict[str, int] = defaultdict(int)
     rejected: dict[str, int] = defaultdict(int)
+    # Resume: cases already written count toward the target and are not re-checked.
+    done = set()
+    for existing in args.out.glob("*/case.yaml"):
+        c = yaml.safe_load(existing.read_text())
+        done.add(c["id"])
+        kept[c["language"]] += 1
+    queues = {lang: [c for c in v if c["id"] not in done] for lang, v in by_lang.items()}
+
+    def next_batch() -> list[dict]:
+        """Round-robin across languages so a time-limited run stays balanced."""
+        batch: list[dict] = []
+        while len(batch) < args.jobs * 2:
+            progressed = False
+            for lang, q in queues.items():
+                if q and kept[lang] < args.per_language and len(batch) < args.jobs * 2:
+                    batch.append(q.pop())
+                    progressed = True
+            if not progressed:
+                break
+        return batch
+
     with tempfile.TemporaryDirectory(prefix="vb-") as tmp, ThreadPoolExecutor(args.jobs) as pool:
-        for lang, pool_cands in by_lang.items():
-            queue = list(pool_cands)
-            while kept[lang] < args.per_language and queue:
-                batch = [queue.pop() for _ in range(min(args.jobs * 2, len(queue)))]
-                futures = {
-                    pool.submit(check, c, Path(tmp), args.max_files, args.max_changed_lines): c
-                    for c in batch
-                }
-                for fut in as_completed(futures):
-                    c = futures[fut]
-                    try:
-                        case, why = fut.result()
-                    except Exception as exc:  # network flakiness should not stop the run
-                        case, why = None, f"error: {exc}"
-                    if case and kept[lang] < args.per_language:
-                        case["split"] = "holdout" if rng.random() < args.holdout else "dev"
-                        d = args.out / case["id"]
-                        d.mkdir(exist_ok=True)
-                        (d / "case.yaml").write_text(yaml.safe_dump(case, sort_keys=False))
-                        kept[lang] += 1
-                        print(
-                            f"keep   {lang:10s} {c['advisory']}  {', '.join(case['files'])}",
-                            file=sys.stderr,
-                        )
-                    else:
-                        rejected[why.split(":")[0][:40]] += 1
+        while batch := next_batch():
+            futures = {
+                pool.submit(check, c, Path(tmp), args.max_files, args.max_changed_lines): c
+                for c in batch
+            }
+            for fut in as_completed(futures):
+                c = futures[fut]
+                lang = c["language"]
+                try:
+                    case, why = fut.result()
+                except Exception as exc:  # network flakiness should not stop the run
+                    case, why = None, f"error: {exc}"
+                if case and kept[lang] < args.per_language:
+                    case["split"] = "holdout" if rng.random() < args.holdout else "dev"
+                    d = args.out / case["id"]
+                    d.mkdir(exist_ok=True)
+                    (d / "case.yaml").write_text(yaml.safe_dump(case, sort_keys=False))
+                    kept[lang] += 1
+                    print(
+                        f"keep   {lang:10s} {c['advisory']}  {', '.join(case['files'])}",
+                        file=sys.stderr,
+                        flush=True,
+                    )
+                elif not case:
+                    rejected[why.split(":")[0][:40]] += 1
     print(json.dumps({"kept": kept, "rejected": rejected}, indent=2), file=sys.stderr)
     return 0
 
