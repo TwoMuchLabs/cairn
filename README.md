@@ -73,7 +73,9 @@ Cairn ships a Claude Code plugin. After every edit the agent makes, it checks th
 /plugin install cairn --marketplace TwoMuchLabs/cairn
 ```
 
-The plugin calls the `cairn` CLI, so install that first.
+The plugin also starts Cairn's MCP server, so the agent can search your lessons before writing risky code ("how do we handle file downloads here?") and check files on request. All its tools are read-only and limited to the project.
+
+The plugin calls the `cairn` CLI, so install that first, with the MCP extra: `pip install "cairn-security[mcp]"`.
 
 ## In CI
 

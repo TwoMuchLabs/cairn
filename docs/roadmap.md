@@ -13,7 +13,7 @@ Cairn grows from one loop that works well, not from a platform that does everyth
 - [x] Manual VariantBench workflow (needs CAIRN_MODEL + key)
 - [ ] VariantBench dev run with a real model; publish numbers
 - [ ] Opengrep as the default engine in CI (pinned release and checksum)
-- [ ] MCP server: "have we seen this before?" answered from lessons, for coding agents
+- [x] MCP server: search_lessons, get_lesson, check_files, hunt_project (read-only, project-scoped)
 - [x] Claude Code plugin: lesson check on every agent edit (new mistakes only); block permission-skip agent flags
 - [ ] Plugin: secret scanning on agent edits; dependency (slopsquatting) checks
 - [ ] 100+ community-quality lessons in the starter pack
