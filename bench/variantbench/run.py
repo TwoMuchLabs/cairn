@@ -59,18 +59,18 @@ def run_case(case: dict, model, engine, workdir: Path, max_attempts: int) -> dic
     if _git(
         "clone", "-q", "--filter=blob:none", "--no-checkout", case["repository"], str(repo)
     ).returncode:
-        return {**out, "status": "error", "error": "clone failed"}
+        return {**out, "status": "error", "stage": "clone", "error": "clone failed"}
     sha = case["fix_commit"]
     if _git("cat-file", "-e", f"{sha}^{{commit}}", cwd=repo).returncode:
         _git("fetch", "-q", "origin", sha, cwd=repo)
     try:
         commit = load_fix_commit(repo, sha)
     except GitError as exc:
-        return {**out, "status": "error", "error": str(exc)}
+        return {**out, "status": "error", "stage": "git", "error": str(exc)}
     try:
         result = synthesize(commit, model, engine, max_attempts=max_attempts)
     except ModelError as exc:
-        return {**out, "status": "error", "error": str(exc)}
+        return {**out, "status": "error", "stage": "model", "error": str(exc)}
     out["attempts"] = len(result.attempts)
     out["failures"] = [
         (a.problem or (a.acceptance.feedback() if a.acceptance else ""))[:300]
@@ -188,15 +188,37 @@ def main(argv=None) -> int:
             indent=2,
         )
     )
+    try:  # one tiny call so a bad key or model name fails in seconds, with a clear message
+        model.complete("You are a health check. Reply with the word OK.", "Health check")
+    except ModelError as exc:
+        print(f"The model is not reachable or not configured correctly: {exc}", file=sys.stderr)
+        return 1
     results = []
+    consecutive_model_errors = 0
     for i, case in enumerate(selected, 1):
         with tempfile.TemporaryDirectory(prefix="vbrun-") as tmp:
             r = run_case(case, model, engine, Path(tmp), args.max_attempts)
         results.append(r)
         (run_dir / "results" / f"{case['id']}.json").write_text(json.dumps(r, indent=2))
-        print(f"[{i}/{len(selected)}] {case['advisory']:22s} {r['status']}", file=sys.stderr)
+        detail = f"  ({r['error'][:200]})" if r.get("error") else ""
+        print(
+            f"[{i}/{len(selected)}] {case['advisory']:22s} {r['status']}{detail}", file=sys.stderr
+        )
+        model_failed = r.get("status") == "error" and r.get("stage") == "model"
+        consecutive_model_errors = consecutive_model_errors + 1 if model_failed else 0
+        if consecutive_model_errors >= 3:
+            print(
+                "Stopping: the model failed on 3 cases in a row, so the remaining cases would only "
+                f"measure the outage. Last error: {r.get('error', '')[:300]}",
+                file=sys.stderr,
+            )
+            break
     (run_dir / "summary.md").write_text(summarize(results, cases))
     print((run_dir / "summary.md").read_text())
+    measured = [r for r in results if r["status"] in ("lesson", "no-lesson")]
+    if not measured:
+        print("No case produced a measurement; this run is not a result.", file=sys.stderr)
+        return 1
     return 0
 
 
