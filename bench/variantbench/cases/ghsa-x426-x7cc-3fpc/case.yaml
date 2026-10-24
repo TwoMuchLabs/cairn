@@ -1,0 +1,22 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-x426-x7cc-3fpc
+advisory: GHSA-x426-x7cc-3fpc
+aliases:
+- CVE-2026-48022
+summary: '@hapi/wreck: Sensitive credential headers leak across cross-port and cross-scheme
+  redirects'
+language: javascript
+cwe:
+- CWE-200
+- CWE-319
+- CWE-346
+- CWE-522
+- CWE-940
+severity: moderate
+repository: https://github.com/hapijs/wreck
+fix_commit: b93323b63ad3adb14d2b4019d77219182211641e
+files:
+- lib/index.js
+changed_lines: 4
+split: holdout
+labels: []

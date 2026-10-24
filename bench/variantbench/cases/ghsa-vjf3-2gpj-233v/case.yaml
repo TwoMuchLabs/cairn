@@ -1,0 +1,21 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-vjf3-2gpj-233v
+advisory: GHSA-vjf3-2gpj-233v
+aliases: []
+summary: n8n has an SSO Enforcement Bypass in its Self-Service Settings API
+language: javascript
+cwe:
+- CWE-269
+- CWE-284
+- CWE-287
+severity: moderate
+repository: https://github.com/n8n-io/n8n
+fix_commit: a70b2ea379086da3de103bb84811e88cadf29976
+files:
+- packages/@n8n/api-types/src/dto/index.ts
+- packages/cli/src/controllers/me.controller.ts
+- packages/frontend/@n8n/rest-api-client/src/api/users.ts
+- packages/frontend/editor-ui/src/features/settings/users/users.store.ts
+changed_lines: 17
+split: holdout
+labels: []

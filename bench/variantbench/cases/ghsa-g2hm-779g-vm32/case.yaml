@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-g2hm-779g-vm32
+advisory: GHSA-g2hm-779g-vm32
+aliases:
+- CVE-2026-43566
+summary: 'OpenClaw: Heartbeat owner downgrade missed untrusted webhook wake events'
+language: javascript
+cwe:
+- CWE-184
+- CWE-863
+severity: moderate
+repository: https://github.com/openclaw/openclaw
+fix_commit: 31281bc92f55796817a92bc43f722cba1e77ab42
+files:
+- src/auto-reply/reply/get-reply-run.ts
+- src/infra/heartbeat-runner.ts
+changed_lines: 53
+split: dev
+labels: []

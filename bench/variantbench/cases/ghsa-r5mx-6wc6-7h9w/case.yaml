@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-r5mx-6wc6-7h9w
+advisory: GHSA-r5mx-6wc6-7h9w
+aliases:
+- CVE-2026-27837
+summary: dottie is vulnerable to Prototype Pollution bypass via non-first path segments
+  in set() and transform()
+language: javascript
+cwe:
+- CWE-1321
+severity: moderate
+repository: https://github.com/mickhansen/dottie.js
+fix_commit: 7e8fa1345a4b46325f0eab8d7aeb1c4deaefdb14
+files:
+- dottie.js
+changed_lines: 12
+split: holdout
+labels: []

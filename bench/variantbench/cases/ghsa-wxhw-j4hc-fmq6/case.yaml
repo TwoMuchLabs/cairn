@@ -1,0 +1,21 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-wxhw-j4hc-fmq6
+advisory: GHSA-wxhw-j4hc-fmq6
+aliases:
+- CVE-2026-23830
+summary: SandboxJS has Sandbox Escape via Unprotected AsyncFunction Constructor
+language: javascript
+cwe:
+- CWE-693
+- CWE-913
+- CWE-94
+severity: critical
+repository: https://github.com/nyariv/SandboxJS
+fix_commit: 345aee6566e47979dee5c337b925b141e7f78ccd
+files:
+- src/SandboxExec.ts
+- src/eval.ts
+- src/utils.ts
+changed_lines: 36
+split: dev
+labels: []

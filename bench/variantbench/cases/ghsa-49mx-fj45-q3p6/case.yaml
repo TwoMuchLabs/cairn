@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-49mx-fj45-q3p6
+advisory: GHSA-49mx-fj45-q3p6
+aliases:
+- CVE-2025-61917
+summary: n8n's Unsafe Buffer Allocation Allows In-Process Memory Disclosure in Task
+  Runner
+language: javascript
+cwe:
+- CWE-200
+- CWE-668
+severity: high
+repository: https://github.com/n8n-io/n8n
+fix_commit: 2c4c2953199733c791f739a40879ae31ca129aba
+files:
+- packages/@n8n/task-runner/src/js-task-runner/js-task-runner.ts
+changed_lines: 13
+split: dev
+labels: []

@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-7rcp-mxpq-72pj
+advisory: GHSA-7rcp-mxpq-72pj
+aliases:
+- CVE-2026-28477
+summary: OpenClaw Chutes manual OAuth state validation bypass can cause credential
+  substitution
+language: javascript
+cwe:
+- CWE-352
+severity: moderate
+repository: https://github.com/openclaw/openclaw
+fix_commit: a99ad11a4107ba8eac58f54a3c1a8a0cf5686f47
+files:
+- src/agents/chutes-oauth.ts
+- src/commands/chutes-oauth.ts
+- src/commands/oauth-flow.ts
+changed_lines: 60
+split: dev
+labels: []

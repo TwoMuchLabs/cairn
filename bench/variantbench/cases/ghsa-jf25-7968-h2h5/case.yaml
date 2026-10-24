@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-jf25-7968-h2h5
+advisory: GHSA-jf25-7968-h2h5
+aliases:
+- CVE-2026-43567
+summary: 'OpenClaw: screen_record outPath bypassed workspace-only filesystem guard'
+language: javascript
+cwe:
+- CWE-22
+- CWE-863
+severity: moderate
+repository: https://github.com/openclaw/openclaw
+fix_commit: 635bb35b68d8faa5bfa2fda35feadd315122748a
+files:
+- src/agents/openclaw-tools.ts
+- src/agents/pi-tools.read.ts
+- src/agents/pi-tools.ts
+changed_lines: 58
+split: holdout
+labels: []

@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-w3x5-7c4c-66p9
+advisory: GHSA-w3x5-7c4c-66p9
+aliases:
+- CVE-2025-66398
+summary: Signal K Server has Unauthenticated State Pollution leading to Remote Code
+  Execution (RCE)
+language: javascript
+cwe:
+- CWE-78
+- CWE-913
+severity: critical
+repository: https://github.com/SignalK/signalk-server
+fix_commit: 5c211eaf33f0ccadbaed6720264780d92afbd7f8
+files:
+- src/modules.ts
+- src/serverroutes.ts
+changed_lines: 78
+split: holdout
+labels: []

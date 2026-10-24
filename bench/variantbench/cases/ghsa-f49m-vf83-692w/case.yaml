@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-f49m-vf83-692w
+advisory: GHSA-f49m-vf83-692w
+aliases:
+- CVE-2026-48714
+summary: 'i18next-http-middleware: MissingKeyHandler does not reject keys whose segments
+  contain prototype-polluting names'
+language: javascript
+cwe:
+- CWE-1321
+severity: critical
+repository: https://github.com/i18next/i18next-http-middleware
+fix_commit: 7c6d26f137d3e940b8d229ca148bca38845faf49
+files:
+- lib/index.js
+- lib/utils.js
+changed_lines: 30
+split: dev
+labels: []

@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-gfg9-5357-hv4c
+advisory: GHSA-gfg9-5357-hv4c
+aliases: []
+summary: 'OpenClaw: Webchat audio embedding could read local files without local-root
+  containment'
+language: javascript
+cwe:
+- CWE-200
+- CWE-22
+severity: moderate
+repository: https://github.com/openclaw/openclaw
+fix_commit: 6e58f1f9f54bca1fea1268ec0ee4c01a2af03dde
+files:
+- src/gateway/server-methods/chat-webchat-media.ts
+- src/gateway/server-methods/chat.ts
+changed_lines: 55
+split: dev
+labels: []

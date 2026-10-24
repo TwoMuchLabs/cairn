@@ -25,7 +25,7 @@ def test_every_starter_lesson_passes_acceptance(engine):
 def test_schema_problems_are_readable():
     problems = schema_problems({"schema": "cairn/lesson/v0.1", "id": "Bad ID"})
     assert any("id" in p for p in problems)
-    assert any("required property" in p for p in problems)
+    assert "missing required field 'title'" in problems
 
 
 def test_unknown_schema_version_is_refused_clearly():
