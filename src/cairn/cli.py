@@ -143,6 +143,8 @@ def hunt_cmd(target, lesson_paths, approved_only, min_confidence, sarif_path, as
     with err.status("Hunting…", spinner="dots"):
         findings, errors = hunt(engine, lessons, root, exclude=_lesson_excludes(lesson_paths))
     _report_engine_errors(errors)
+    if errors and not findings:
+        raise CairnError("the rule engine failed, so these results cannot be trusted (see above)")
     _write_sarif(sarif_path, findings, lessons, root)
     if as_json:
         click.echo(json.dumps([_finding_json(f, root) for f in findings], indent=2))
@@ -375,7 +377,14 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
             findings, errors = hunt(engine, [lesson], repo_path, exclude=[dest_root])
         _report_engine_errors(errors)
         out.print()
-        if findings:
+        if errors and not findings:
+            out.print(
+                Text(
+                    "Could not hunt for siblings: the rule engine failed (see above).",
+                    style="yellow",
+                )
+            )
+        elif findings:
             n = len(findings)
             plural = "s" if n != 1 else ""
             out.print(
@@ -459,6 +468,121 @@ def doctor_cmd():
         ok = False
         line(False, "lessons", exc.format_message())
     sys.exit(0 if ok else EXIT_ERROR)
+
+
+# --------------------------------------------------------------------------- hook
+HOOKABLE_SUFFIXES = {
+    ".py",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".cjs",
+    ".ts",
+    ".tsx",
+    ".java",
+    ".go",
+    ".rb",
+    ".php",
+    ".cs",
+    ".kt",
+}
+
+
+@main.group("hook", hidden=True)
+def hook_group():
+    """Entry points for coding-agent hooks (Claude Code). Reads the hook event JSON on stdin."""
+
+
+@hook_group.command("post-edit")
+@click.option("--max-findings", default=5, show_default=True)
+def hook_post_edit(max_findings):
+    """After an agent edits a file, check it against approved lessons.
+
+    Exit 0: nothing to say. Exit 2: findings, printed to stderr so the agent sees and fixes them.
+    Any internal problem exits 0: this hook advises, it never breaks the agent's session.
+    """
+    from .hunt import hunt_files
+
+    try:
+        event = json.loads(sys.stdin.read() or "{}")
+        tool_input = event.get("tool_input") or {}
+        file_path = tool_input.get("file_path") or tool_input.get("notebook_path")
+        if not file_path:
+            sys.exit(0)
+        project = Path(os.environ.get("CLAUDE_PROJECT_DIR") or event.get("cwd") or Path.cwd())
+        path = Path(file_path)
+        if not path.is_absolute():
+            path = project / path
+        if path.suffix.lower() not in HOOKABLE_SUFFIXES or not path.is_file():
+            sys.exit(0)
+        roots = default_roots(project)
+        # Never flag lesson fixtures, which are vulnerable on purpose.
+        for d in discover(roots):
+            if path.resolve().is_relative_to(d):
+                sys.exit(0)
+        lessons = [load(d) for d in discover(roots)]
+        lessons, _ = select_lessons(lessons, statuses=("approved",), min_confidence="medium")
+        engine = find_engine()
+        findings, _errors = hunt_files(engine, lessons, [path], cwd=project)
+        if findings:
+            findings = _only_new(engine, lessons, path, project, findings)
+    except SystemExit:
+        raise
+    except Exception:  # noqa: BLE001 - advisory hook must not break the session
+        sys.exit(0)
+    if not findings:
+        sys.exit(0)
+    lines = [
+        f"cairn: this edit repeats {len(findings)} known security mistake"
+        f"{'s' if len(findings) != 1 else ''}. Please fix before continuing:"
+    ]
+    for f in findings[:max_findings]:
+        lines.append(f"- {f.relpath(project)}:{f.start_line} [{f.severity}] {f.lesson.title}")
+        lines.append(f"  why: {f.lesson.summary}")
+        if f.lesson.fix_guidance:
+            lines.append(f"  fix: {f.lesson.fix_guidance}")
+        lines.append(f"  lesson: {f.lesson.id}")
+    if len(findings) > max_findings:
+        lines.append(f"(and {len(findings) - max_findings} more; run `cairn hunt` to see all)")
+    lines.append(
+        "If a finding is wrong, say so and explain why instead of working around the check."
+    )
+    print("\n".join(lines), file=sys.stderr)
+    sys.exit(2)
+
+
+def _only_new(engine, lessons, path: Path, project: Path, findings: list) -> list:
+    """Drop findings that already existed in the committed version of the file, so the agent
+    is told about mistakes it just introduced, not old debt it happened to touch."""
+    import subprocess
+    import tempfile
+
+    from .hunt import hunt_files
+
+    try:
+        rel = path.resolve().relative_to(project.resolve())
+    except ValueError:
+        return findings
+    old = subprocess.run(
+        ["git", "-C", str(project), "show", f"HEAD:{rel.as_posix()}"],
+        capture_output=True,
+        text=True,
+        check=False,
+        stdin=subprocess.DEVNULL,
+    )
+    if old.returncode != 0:
+        return findings  # new or untracked file: everything is new
+    with tempfile.TemporaryDirectory(prefix="cairn-hook-") as tmp:
+        before = Path(tmp) / path.name
+        before.write_text(old.stdout, "utf-8")
+        previous, _ = hunt_files(engine, lessons, [before], cwd=project)
+        seen = {_finding_key(f) for f in previous}  # read snippets while the file exists
+    return [f for f in findings if _finding_key(f) not in seen]
+
+
+def _finding_key(f) -> tuple:
+    _, lines = f.snippet(context=0)
+    return (f.lesson.id, "\n".join(line.strip() for line in lines))
 
 
 # --------------------------------------------------------------------------- helpers

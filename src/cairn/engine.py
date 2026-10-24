@@ -120,8 +120,15 @@ def run(
         except OSError as exc:
             return EngineResult(errors=[f"could not start {engine.name}: {exc}"])
 
+    if not (proc.stdout or "").strip():
+        tail = (proc.stderr or "").strip().splitlines()[-3:]
+        return EngineResult(
+            errors=[
+                f"{engine.name} produced no output (exit {proc.returncode}): " + " | ".join(tail)
+            ]
+        )
     try:
-        payload = json.loads(proc.stdout or "{}")
+        payload = json.loads(proc.stdout)
     except json.JSONDecodeError:
         tail = (proc.stderr or proc.stdout).strip().splitlines()[-5:]
         return EngineResult(errors=[f"{engine.name} exited {proc.returncode}: " + " | ".join(tail)])
