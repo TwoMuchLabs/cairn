@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-v8qf-fr4g-28p2
+advisory: GHSA-v8qf-fr4g-28p2
+aliases:
+- CVE-2026-41908
+summary: 'OpenClaw: Assistant media route missed scope enforcement for trusted-proxy
+  authorization'
+language: javascript
+cwe:
+- CWE-863
+severity: low
+repository: https://github.com/openclaw/openclaw
+fix_commit: 99ef3a63c58440d53f8e45ad861b846032fcb036
+files:
+- src/gateway/control-ui.ts
+- src/gateway/method-scopes.ts
+changed_lines: 30
+split: dev
+labels: []

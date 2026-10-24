@@ -1,0 +1,16 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-h8cj-hpmg-636v
+advisory: GHSA-h8cj-hpmg-636v
+aliases: []
+summary: appsmith has SQL Injection in FilterDataService via Unsafe DROP TABLE Execution
+language: java
+cwe:
+- CWE-89
+severity: high
+repository: https://github.com/appsmithorg/appsmith
+fix_commit: c8023ba4b3b54204ff3309c9e5c33664ad15ba32
+files:
+- app/server/appsmith-interfaces/src/main/java/com/appsmith/external/services/ce/FilterDataServiceCE.java
+changed_lines: 20
+split: dev
+labels: []

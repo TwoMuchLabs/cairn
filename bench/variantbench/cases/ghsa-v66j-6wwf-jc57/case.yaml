@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-v66j-6wwf-jc57
+advisory: GHSA-v66j-6wwf-jc57
+aliases:
+- CVE-2025-64166
+summary: 'Mercurius: Incorrect Content-Type parsing can lead to CSRF attack'
+language: javascript
+cwe:
+- CWE-352
+severity: moderate
+repository: https://github.com/mercurius-js/mercurius
+fix_commit: 962d402ec7a92342f4a1b7f5f04af01776838c3c
+files:
+- index.d.ts
+- index.js
+- lib/errors.js
+- lib/routes.js
+changed_lines: 38
+split: dev
+labels: []

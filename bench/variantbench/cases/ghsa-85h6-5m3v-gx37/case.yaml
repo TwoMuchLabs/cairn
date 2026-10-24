@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-85h6-5m3v-gx37
+advisory: GHSA-85h6-5m3v-gx37
+aliases:
+- CVE-2026-27099
+summary: Jenkins has a stored XSS vulnerability in node offline cause description
+language: java
+cwe:
+- CWE-79
+severity: high
+repository: https://github.com/jenkinsci/jenkins
+fix_commit: 578c028e2cdfdc9e124d0ca389a80bb2bd231ab2
+files:
+- core/src/main/java/hudson/slaves/OfflineCause.java
+changed_lines: 10
+split: dev
+labels: []

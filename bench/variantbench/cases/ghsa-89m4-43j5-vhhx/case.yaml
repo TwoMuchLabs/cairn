@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-89m4-43j5-vhhx
+advisory: GHSA-89m4-43j5-vhhx
+aliases:
+- CVE-2026-86071
+summary: 'Junrar: LocalFolderExtractor mkdir escape allows directory creation outside
+  extraction root'
+language: java
+cwe:
+- CWE-22
+severity: low
+repository: https://github.com/junrar/junrar
+fix_commit: e6e333b195a1e3ad271a18fd79d8ac1eb5289343
+files:
+- src/main/java/com/github/junrar/LocalFolderExtractor.java
+changed_lines: 28
+split: holdout
+labels: []

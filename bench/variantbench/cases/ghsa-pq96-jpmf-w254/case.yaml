@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-pq96-jpmf-w254
+advisory: GHSA-pq96-jpmf-w254
+aliases:
+- CVE-2026-106102
+summary: 'Quasar Framework: Stored/Reflected XSS via unescaped SSR meta tag rendering
+  in getHead()'
+language: javascript
+cwe:
+- CWE-116
+- CWE-79
+severity: critical
+repository: https://github.com/quasarframework/quasar
+fix_commit: 11505afe5b5218f2c468f130181815b898fd1e40
+files:
+- ui/src/plugins/meta/Meta.js
+changed_lines: 69
+split: dev
+labels: []

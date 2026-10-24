@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-8gh5-qqh8-hq3x
+advisory: GHSA-8gh5-qqh8-hq3x
+aliases:
+- CVE-2025-46571
+summary: Open WebUI  allows limited stored XSS vila uploaded html file
+language: python
+cwe:
+- CWE-79
+- CWE-87
+severity: moderate
+repository: https://github.com/open-webui/open-webui
+fix_commit: ef2aeb7c0eb976bac759e59ac359c94a5b8dc7e0
+files:
+- backend/open_webui/routers/files.py
+changed_lines: 12
+split: dev
+labels: []

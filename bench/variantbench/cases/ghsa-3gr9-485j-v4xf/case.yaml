@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-3gr9-485j-v4xf
+advisory: GHSA-3gr9-485j-v4xf
+aliases:
+- CVE-2026-41572
+summary: 'Note Mark: Unauthenticated read of notes and assets in soft-deleted public
+  books'
+language: go
+cwe:
+- CWE-285
+severity: moderate
+repository: https://github.com/enchant97/note-mark
+fix_commit: d1bf845a2a2df01e2eca6f556287db4ec6f773cf
+files:
+- backend/services/books.go
+changed_lines: 31
+split: dev
+labels: []

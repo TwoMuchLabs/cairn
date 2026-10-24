@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-hwvp-7xqv-8jx3
+advisory: GHSA-hwvp-7xqv-8jx3
+aliases:
+- CVE-2026-57286
+summary: 'Jenkins Git Parameter Plugin has a missing permission check that allows
+  listing SCM branch and tag names '
+language: java
+cwe:
+- CWE-862
+severity: moderate
+repository: https://github.com/jenkinsci/git-parameter-plugin
+fix_commit: 496a59f698e5ada712dea1ebf980709f0040e394
+files:
+- src/main/java/net/uaznia/lukanus/hudson/plugins/gitparameter/GitParameterDefinition.java
+changed_lines: 10
+split: dev
+labels: []

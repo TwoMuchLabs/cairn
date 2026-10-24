@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-434r-7c99-hwf3
+advisory: GHSA-434r-7c99-hwf3
+aliases:
+- CVE-2026-49138
+summary: Nanobot contains a server-side request forgery vulnerability in the web_fetch
+  tool
+language: python
+cwe:
+- CWE-918
+severity: moderate
+repository: https://github.com/HKUDS/nanobot
+fix_commit: 545294c62c0947da40eb5b65288aaf02b5fdf632
+files:
+- nanobot/agent/tools/web.py
+changed_lines: 63
+split: holdout
+labels: []

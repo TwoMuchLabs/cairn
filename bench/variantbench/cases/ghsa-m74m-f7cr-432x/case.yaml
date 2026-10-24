@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-m74m-f7cr-432x
+advisory: GHSA-m74m-f7cr-432x
+aliases:
+- CVE-2026-33992
+summary: 'pyLoad: Server-Side Request Forgery via Download Link Submission Enables
+  Cloud Metadata Exfiltration'
+language: python
+cwe:
+- CWE-918
+severity: critical
+repository: https://github.com/pyload/pyload
+fix_commit: b76b6d4ee5e32d2118d26afdee1d0a9e57d4bfe8
+files:
+- src/pyload/plugins/base/downloader.py
+- src/pyload/webui/app/__init__.py
+changed_lines: 16
+split: dev
+labels: []

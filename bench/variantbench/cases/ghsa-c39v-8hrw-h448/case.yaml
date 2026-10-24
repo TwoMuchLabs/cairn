@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-c39v-8hrw-h448
+advisory: GHSA-c39v-8hrw-h448
+aliases:
+- CVE-2026-56104
+summary: Chainlit contains a session hijacking vulnerability
+language: python
+cwe:
+- CWE-862
+severity: critical
+repository: https://github.com/Chainlit/chainlit
+fix_commit: 5effb664f1e0af4a4f0a42fe63ea979676039a7f
+files:
+- backend/chainlit/socket.py
+changed_lines: 30
+split: holdout
+labels: []

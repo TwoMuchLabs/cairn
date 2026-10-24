@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-v45h-mqf4-6939
+advisory: GHSA-v45h-mqf4-6939
+aliases:
+- CVE-2025-48977
+summary: Apache Ignite REST API Has a Relative Path Traversal Vulnerability
+language: java
+cwe:
+- CWE-23
+severity: high
+repository: https://github.com/apache/ignite
+fix_commit: 5c42c7a303937844179ad470edb35c1ad1cee6ab
+files:
+- modules/core/src/main/java/org/apache/ignite/internal/processors/rest/handlers/log/GridLogCommandHandler.java
+changed_lines: 18
+split: holdout
+labels: []

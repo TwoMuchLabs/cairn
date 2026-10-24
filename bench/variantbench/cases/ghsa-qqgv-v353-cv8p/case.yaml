@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-qqgv-v353-cv8p
+advisory: GHSA-qqgv-v353-cv8p
+aliases:
+- CVE-2026-20904
+summary: Gitea does not properly validate ownership when toggling OpenID URI visibility
+language: go
+cwe:
+- CWE-284
+severity: moderate
+repository: https://github.com/go-gitea/gitea
+fix_commit: ed5720af2ac94d74f822721c05b42b6148ff9c22
+files:
+- models/user/openid.go
+- routers/web/user/setting/security/openid.go
+changed_lines: 30
+split: dev
+labels: []

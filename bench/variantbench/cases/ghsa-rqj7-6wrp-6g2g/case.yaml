@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-rqj7-6wrp-6g2g
+advisory: GHSA-rqj7-6wrp-6g2g
+aliases:
+- CVE-2026-59227
+summary: 'Open WebUI: POST /api/v1/images/edit bypasses the global image-edit switch
+  and the per-user image-generation permission'
+language: python
+cwe:
+- CWE-862
+- CWE-863
+severity: moderate
+repository: https://github.com/open-webui/open-webui
+fix_commit: e038bab66dec8d17212eec35b5cb6d6b785a4200
+files:
+- backend/open_webui/routers/images.py
+changed_lines: 23
+split: dev
+labels: []

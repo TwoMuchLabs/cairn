@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-vqxv-6xrh-49cp
+advisory: GHSA-vqxv-6xrh-49cp
+aliases:
+- CVE-2026-62280
+summary: OpenAM Reflected XSS in the OAuth2/OIDC `wap` consent page
+language: java
+cwe:
+- CWE-79
+severity: moderate
+repository: https://github.com/OpenIdentityPlatform/OpenAM
+fix_commit: 98cee2dfe701c2e16e5bcee34e6fd9d913925118
+files:
+- openam-oauth2/src/main/java/org/forgerock/oauth2/restlet/ConsentRequiredResource.java
+changed_lines: 11
+split: dev
+labels: []

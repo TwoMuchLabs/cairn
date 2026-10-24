@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-w8p2-r796-3vmq
+advisory: GHSA-w8p2-r796-3vmq
+aliases:
+- CVE-2026-41479
+summary: Authlib OAuth 2.0 has Open Redirect in Authorization API that allows attacker-controlled
+  redirect_uri through unsupported response_type
+language: python
+cwe:
+- CWE-601
+severity: moderate
+repository: https://github.com/authlib/authlib
+fix_commit: 3be08468201a7766a93012ce149ea12822cab096
+files:
+- authlib/oauth2/rfc6749/authorization_server.py
+changed_lines: 14
+split: dev
+labels: []

@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-w294-6q5q-53p8
+advisory: GHSA-w294-6q5q-53p8
+aliases:
+- CVE-2026-107725
+summary: Hazelcast has an authorization bypass in IMap Predicates API
+language: java
+cwe:
+- CWE-862
+severity: high
+repository: https://github.com/hazelcast/hazelcast
+fix_commit: 5d68f4828e2a914398a39f12fe11cafd335cefe0
+files:
+- hazelcast/src/main/java/com/hazelcast/security/permission/MapPermission.java
+changed_lines: 12
+split: dev
+labels: []

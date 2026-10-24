@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-cjm2-j6cm-6p6m
+advisory: GHSA-cjm2-j6cm-6p6m
+aliases:
+- CVE-2026-3872
+summary: 'Keycloak: Redirect URI validation bypass via ..;/ path traversal in OIDC
+  auth endpoint'
+language: java
+cwe:
+- CWE-601
+severity: high
+repository: https://github.com/keycloak/keycloak
+fix_commit: 35a71b00bc856ac402711130f60190d3a24795e7
+files:
+- services/src/main/java/org/keycloak/protocol/oidc/utils/RedirectUtils.java
+changed_lines: 2
+split: dev
+labels: []

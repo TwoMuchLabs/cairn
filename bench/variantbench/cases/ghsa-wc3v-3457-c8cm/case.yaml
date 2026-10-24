@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-wc3v-3457-c8cm
+advisory: GHSA-wc3v-3457-c8cm
+aliases:
+- CVE-2026-8462
+summary: 'OpenMeter: SQL injection through meter creation'
+language: go
+cwe:
+- CWE-89
+severity: moderate
+repository: https://github.com/openmeterio/openmeter
+fix_commit: 6ce29e743165890c10346f4c71d5bf79f1ecaf6f
+files:
+- openmeter/streaming/clickhouse/utils_query.go
+changed_lines: 16
+split: dev
+labels: []

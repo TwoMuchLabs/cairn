@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-2mpf-m756-hxjm
+advisory: GHSA-2mpf-m756-hxjm
+aliases:
+- CVE-2026-40998
+summary: 'Spring Web Services: Jaxp13 XPath XXE via StreamSource and SAXSource'
+language: java
+cwe:
+- CWE-611
+severity: high
+repository: https://github.com/spring-projects/spring-ws
+fix_commit: eb8d66c0995d1e1dd5bfcfb657c8c9de21266d97
+files:
+- spring-xml/src/main/java/org/springframework/xml/xpath/Jaxp13XPathTemplate.java
+changed_lines: 28
+split: dev
+labels: []

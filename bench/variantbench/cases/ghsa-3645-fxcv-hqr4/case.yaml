@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-3645-fxcv-hqr4
+advisory: GHSA-3645-fxcv-hqr4
+aliases:
+- CVE-2026-27966
+summary: Langflow has Remote Code Execution in CSV Agent
+language: python
+cwe:
+- CWE-94
+severity: critical
+repository: https://github.com/langflow-ai/langflow
+fix_commit: d8c6480daa17b2f2af0b5470cdf5c3d28dc9e508
+files:
+- src/lfx/src/lfx/components/langchain_utilities/csv_agent.py
+changed_lines: 27
+split: dev
+labels: []

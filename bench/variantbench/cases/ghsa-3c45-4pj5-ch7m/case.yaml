@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-3c45-4pj5-ch7m
+advisory: GHSA-3c45-4pj5-ch7m
+aliases:
+- CVE-2026-27696
+summary: changedetection.io is Vulnerable to SSRF via Watch URLs
+language: python
+cwe:
+- CWE-918
+severity: high
+repository: https://github.com/dgtlmoon/changedetection.io
+fix_commit: fe7aa38c651d73fe5f41ce09855fa8f97193747b
+files:
+- changedetectionio/content_fetchers/requests.py
+- changedetectionio/store/__init__.py
+- changedetectionio/validate_url.py
+changed_lines: 78
+split: dev
+labels: []

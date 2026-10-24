@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-whqx-f9j3-ch6m
+advisory: GHSA-whqx-f9j3-ch6m
+aliases:
+- CVE-2026-22703
+summary: Cosign verification accepts any valid Rekor entry under certain conditions
+language: go
+cwe:
+- CWE-345
+severity: moderate
+repository: https://github.com/sigstore/cosign
+fix_commit: 6832fba4928c1ad69400235bbc41212de5006176
+files:
+- pkg/cosign/verify.go
+changed_lines: 64
+split: dev
+labels: []

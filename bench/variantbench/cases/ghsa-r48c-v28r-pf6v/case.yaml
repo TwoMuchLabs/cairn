@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-r48c-v28r-pf6v
+advisory: GHSA-r48c-v28r-pf6v
+aliases:
+- CVE-2026-44430
+summary: 'MCP Registry has an unauthenticated SSRF: HTTP namespace verification dials
+  6to4 / NAT64 / site-local IPv6 addresses, bypassing private-address allowlist'
+language: go
+cwe:
+- CWE-918
+severity: moderate
+repository: https://github.com/modelcontextprotocol/registry
+fix_commit: f5f40bd98084466eaf18fe48ea62a0d534caa774
+files:
+- internal/api/handlers/v0/auth/http.go
+changed_lines: 53
+split: dev
+labels: []

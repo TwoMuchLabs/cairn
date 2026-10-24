@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-qrvh-r3f2-9h4r
+advisory: GHSA-qrvh-r3f2-9h4r
+aliases:
+- CVE-2026-33137
+summary: XWiki Platform has an Unauthenticated XAR Import via REST /wikis/{wikiName}
+language: java
+cwe:
+- CWE-862
+severity: critical
+repository: https://github.com/xwiki/xwiki-platform
+fix_commit: 4b7b95b79256374d487e9ece1dc48f527966990f
+files:
+- xwiki-platform-core/xwiki-platform-rest/xwiki-platform-rest-server/src/main/java/org/xwiki/rest/internal/resources/wikis/WikiResourceImpl.java
+changed_lines: 16
+split: dev
+labels: []

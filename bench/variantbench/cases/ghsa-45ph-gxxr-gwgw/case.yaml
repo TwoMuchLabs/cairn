@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-45ph-gxxr-gwgw
+advisory: GHSA-45ph-gxxr-gwgw
+aliases:
+- CVE-2026-53966
+summary: XWiki Platform Live Data Live Table Connector has privilege escalation from
+  edit to script right through Live Data editing
+language: java
+cwe:
+- CWE-862
+severity: high
+repository: https://github.com/xwiki/xwiki-platform
+fix_commit: 448b0f074cc6711410eb2647c4740454c92d1626
+files:
+- xwiki-platform-core/xwiki-platform-livedata/xwiki-platform-livedata-livetable/src/main/java/org/xwiki/livedata/internal/livetable/ModelBridge.java
+changed_lines: 16
+split: dev
+labels: []

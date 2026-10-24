@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-gfpw-jgvr-cw4j
+advisory: GHSA-gfpw-jgvr-cw4j
+aliases:
+- CVE-2026-22808
+summary: Fleet Windows MDM endpoint has a Cross-site Scripting vulnerability
+language: go
+cwe:
+- CWE-79
+severity: moderate
+repository: https://github.com/fleetdm/fleet
+fix_commit: 0e6c790803d1b4407c5b4b41a67a37864a3d3573
+files:
+- server/service/microsoft_mdm.go
+changed_lines: 26
+split: dev
+labels: []

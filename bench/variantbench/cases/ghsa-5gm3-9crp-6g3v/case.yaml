@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-5gm3-9crp-6g3v
+advisory: GHSA-5gm3-9crp-6g3v
+aliases:
+- CVE-2026-77339
+summary: 'Process Compose: Browser DNS rebinding lets websites control local process-compose
+  MCP tools'
+language: go
+cwe:
+- CWE-306
+- CWE-346
+severity: moderate
+repository: https://github.com/F1bonacc1/process-compose
+fix_commit: 6ffa74f462cd2fa4f8dc1ee63c70b793b298c858
+files:
+- src/mcp/server.go
+- src/types/mcp.go
+changed_lines: 43
+split: holdout
+labels: []

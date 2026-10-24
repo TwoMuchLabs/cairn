@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-jxpm-75mh-9fp7
+advisory: GHSA-jxpm-75mh-9fp7
+aliases:
+- CVE-2026-50151
+summary: oras-go blob upload vulnerable to credential forwarding via unvalidated Location
+  header
+language: go
+cwe:
+- CWE-918
+severity: high
+repository: https://github.com/oras-project/oras-go
+fix_commit: 4683c46ef078091544f5f55fd25102f002806991
+files:
+- registry/remote/repository.go
+changed_lines: 32
+split: dev
+labels: []

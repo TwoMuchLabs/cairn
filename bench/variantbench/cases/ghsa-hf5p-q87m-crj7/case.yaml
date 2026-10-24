@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-hf5p-q87m-crj7
+advisory: GHSA-hf5p-q87m-crj7
+aliases:
+- CVE-2026-41245
+summary: 'Junrar: Path Traversal (Zip-Slip) via Sibling Directory Name Prefix'
+language: java
+cwe:
+- CWE-22
+severity: moderate
+repository: https://github.com/junrar/junrar
+fix_commit: d77e9a83eb721cd51f9c23d7869d0e6ad7f952d7
+files:
+- src/main/java/com/github/junrar/LocalFolderExtractor.java
+changed_lines: 4
+split: holdout
+labels: []

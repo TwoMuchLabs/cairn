@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-hc8w-h2mf-hp59
+advisory: GHSA-hc8w-h2mf-hp59
+aliases:
+- CVE-2026-33414
+summary: PowerShell Command Injection in Podman HyperV Machine
+language: go
+cwe:
+- CWE-78
+severity: moderate
+repository: https://github.com/containers/podman
+fix_commit: 571c842bd357ee626019ea97d030fb772fc654ed
+files:
+- pkg/machine/hyperv/stubber.go
+changed_lines: 4
+split: dev
+labels: []

@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-gf3v-fwqg-4vh7
+advisory: GHSA-gf3v-fwqg-4vh7
+aliases:
+- CVE-2026-26019
+summary: '@langchain/community affected by SSRF Bypass in RecursiveUrlLoader via insufficient
+  URL origin validation'
+language: javascript
+cwe:
+- CWE-918
+severity: moderate
+repository: https://github.com/langchain-ai/langchainjs
+fix_commit: d5e3db0d01ab321ec70a875805b2f74aefdadf9d
+files:
+- libs/langchain-community/src/document_loaders/web/recursive_url.ts
+- libs/langchain-core/src/load/import_map.ts
+- libs/langchain-core/tsdown.config.ts
+changed_lines: 12
+split: holdout
+labels: []

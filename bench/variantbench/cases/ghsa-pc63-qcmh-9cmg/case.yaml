@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-pc63-qcmh-9cmg
+advisory: GHSA-pc63-qcmh-9cmg
+aliases:
+- CVE-2026-47884
+summary: Spring Framework Improper Path Limitation in XsltView
+language: java
+cwe:
+- CWE-22
+severity: critical
+repository: https://github.com/spring-projects/spring-framework
+fix_commit: 692dbc9160de3b5de50ccedeee014716d0cedb7b
+files:
+- spring-webmvc/src/main/java/org/springframework/web/servlet/view/xslt/XsltView.java
+changed_lines: 11
+split: dev
+labels: []

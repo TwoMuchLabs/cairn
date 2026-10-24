@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-q43m-vhcp-mhvm
+advisory: GHSA-q43m-vhcp-mhvm
+aliases:
+- CVE-2026-105750
+summary: 'Docling: `enable_local_fetch` is not enforced in HTML browser-rendering
+  mode'
+language: python
+cwe:
+- CWE-552
+- CWE-863
+severity: moderate
+repository: https://github.com/docling-project/docling
+fix_commit: 1612b8875b0937447ce3122536fb5360a7102a0a
+files:
+- docling/backend/html_backend.py
+changed_lines: 38
+split: dev
+labels: []

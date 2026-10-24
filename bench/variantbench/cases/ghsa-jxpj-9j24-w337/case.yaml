@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-jxpj-9j24-w337
+advisory: GHSA-jxpj-9j24-w337
+aliases:
+- CVE-2025-32781
+summary: 'Apollo Portal: There is a risk of unauthorized access to the Apollo configuration
+  center'
+language: java
+cwe:
+- CWE-639
+- CWE-862
+severity: moderate
+repository: https://github.com/apolloconfig/apollo
+fix_commit: 362735ded4f13b62f6ab9df135d7096066e8e291
+files:
+- apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/controller/ReleaseController.java
+changed_lines: 5
+split: dev
+labels: []

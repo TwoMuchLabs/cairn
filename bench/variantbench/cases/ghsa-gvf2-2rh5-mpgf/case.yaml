@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-gvf2-2rh5-mpgf
+advisory: GHSA-gvf2-2rh5-mpgf
+aliases:
+- CVE-2026-77394
+summary: 'OpenC3 COSMOS: Stored, cross-user XSS via Telemetry screen BUTTON widget'
+language: javascript
+cwe:
+- CWE-79
+severity: high
+repository: https://github.com/OpenC3/cosmos
+fix_commit: 10371f8f410b9ad588f98dfa3befaaacb6587cd3
+files:
+- openc3-cosmos-init/plugins/packages/openc3-vue-common/src/util/index.js
+- openc3-cosmos-init/plugins/packages/openc3-vue-common/src/widgets/Widget.js
+changed_lines: 38
+split: holdout
+labels: []

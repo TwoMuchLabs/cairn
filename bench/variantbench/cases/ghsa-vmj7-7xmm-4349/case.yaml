@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-vmj7-7xmm-4349
+advisory: GHSA-vmj7-7xmm-4349
+aliases:
+- CVE-2026-30139
+summary: Silverpeas Core has a reflected cross-site scripting vulnerability
+language: java
+cwe:
+- CWE-79
+severity: moderate
+repository: https://github.com/Silverpeas/Silverpeas-Core
+fix_commit: 7b4bacc80d11ab60423bdc6eb69e0176e9c27fc7
+files:
+- core-war/src/main/java/org/silverpeas/web/pdc/control/SortResultsFactory.java
+changed_lines: 6
+split: dev
+labels: []

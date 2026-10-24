@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-g9xj-752q-xh63
+advisory: GHSA-g9xj-752q-xh63
+aliases:
+- CVE-2026-33679
+summary: 'Vikjuna Bypasses Webhook SSRF Protections During OpenID Connect Avatar Download '
+language: go
+cwe:
+- CWE-918
+severity: moderate
+repository: https://github.com/go-vikunja/vikunja
+fix_commit: 363aa6642352b08fc8bc6aaff2f3a550393af1cf
+files:
+- pkg/utils/avatar.go
+changed_lines: 2
+split: holdout
+labels: []

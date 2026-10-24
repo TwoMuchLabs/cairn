@@ -1,0 +1,21 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-fh4f-47mf-f2gj
+advisory: GHSA-fh4f-47mf-f2gj
+aliases:
+- CVE-2026-100347
+summary: 'kin-openapi: Unauthenticated panic (DoS) in openapi3filter legacy router
+  via non-canonical/unsupported HTTP method on a static path'
+language: go
+cwe:
+- CWE-20
+- CWE-248
+severity: moderate
+repository: https://github.com/getkin/kin-openapi
+fix_commit: f1a5b523b82868d2d9be2e116b4e942892be72c3
+files:
+- openapi2/path_item.go
+- openapi3/path_item.go
+- routers/gorillamux/router.go
+changed_lines: 8
+split: dev
+labels: []

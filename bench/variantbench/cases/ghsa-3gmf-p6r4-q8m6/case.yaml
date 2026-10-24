@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-3gmf-p6r4-q8m6
+advisory: GHSA-3gmf-p6r4-q8m6
+aliases:
+- CVE-2026-43975
+summary: Apache Wicket has a Path Traversal issue
+language: java
+cwe:
+- CWE-22
+severity: moderate
+repository: https://github.com/apache/wicket
+fix_commit: 72470983f689c61e6a6c0b7388ef955f23bb1e16
+files:
+- wicket-core/src/main/java/org/apache/wicket/markup/html/form/upload/resource/FolderUploadsFileManager.java
+changed_lines: 70
+split: dev
+labels: []

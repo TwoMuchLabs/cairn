@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-hrvf-g648-rf3m
+advisory: GHSA-hrvf-g648-rf3m
+aliases:
+- CVE-2026-0858
+summary: PlantUML is vulnerable to Stored XSS due to insufficient sanitization of
+  interactive attributes in GraphViz diagrams
+language: java
+cwe:
+- CWE-79
+severity: low
+repository: https://github.com/plantuml/plantuml
+fix_commit: 6826315db092d2e432aeab1a0894e08017c6e4bd
+files:
+- src/main/java/net/sourceforge/plantuml/directdot/PSystemDot.java
+changed_lines: 47
+split: dev
+labels: []

@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-vqp5-2mrp-qqxg
+advisory: GHSA-vqp5-2mrp-qqxg
+aliases:
+- CVE-2026-6333
+summary: Mattermost doesn't validate the Host header when constructing response URLs
+  for custom slash command
+language: go
+cwe:
+- CWE-918
+severity: low
+repository: https://github.com/mattermost/mattermost
+fix_commit: e738016c592045e14bf926eafaeda6f8521def6d
+files:
+- server/channels/app/command.go
+- server/channels/app/command_autocomplete.go
+changed_lines: 22
+split: dev
+labels: []

@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-w6p7-2fxx-4f44
+advisory: GHSA-w6p7-2fxx-4f44
+aliases:
+- CVE-2026-43983
+summary: 'Pocket ID: OIDC refresh token flow bypasses authorization revocation, account
+  disabling, and group restrictions'
+language: go
+cwe:
+- CWE-285
+- CWE-613
+severity: high
+repository: https://github.com/pocket-id/pocket-id
+fix_commit: 978ac87deffec58beaccd15aead975e91b94c8a5
+files:
+- backend/internal/service/oidc_service.go
+changed_lines: 48
+split: holdout
+labels: []

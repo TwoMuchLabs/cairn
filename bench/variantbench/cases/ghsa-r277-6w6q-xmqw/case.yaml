@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-r277-6w6q-xmqw
+advisory: GHSA-r277-6w6q-xmqw
+aliases: []
+summary: 'kin-openapi: ValidationHandler.Load() Fail-Open Authentication Bypass via
+  NoopAuthenticationFunc Default'
+language: go
+cwe:
+- CWE-287
+severity: critical
+repository: https://github.com/getkin/kin-openapi
+fix_commit: f0407d53b0730280266f454b755010e7eeb985da
+files:
+- openapi3filter/validation_handler.go
+changed_lines: 4
+split: dev
+labels: []

@@ -1,0 +1,22 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-2cf7-hpwf-47h9
+advisory: GHSA-2cf7-hpwf-47h9
+aliases:
+- CVE-2026-55608
+summary: 'n8n-MCP: Incorrect authorization can expose default-scope workflow version
+  backups in multi-tenant HTTP mode'
+language: javascript
+cwe:
+- CWE-200
+- CWE-863
+severity: moderate
+repository: https://github.com/czlonkowski/n8n-mcp
+fix_commit: c1ca1e73697feaec5ec2a5fb7e6992a2892b62c9
+files:
+- dist/http-server-single-session.js
+- dist/mcp/handlers-n8n-manager.js
+- src/http-server-single-session.ts
+- src/mcp/handlers-n8n-manager.ts
+changed_lines: 36
+split: dev
+labels: []

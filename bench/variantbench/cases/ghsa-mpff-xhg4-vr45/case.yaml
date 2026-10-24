@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-mpff-xhg4-vr45
+advisory: GHSA-mpff-xhg4-vr45
+aliases:
+- CVE-2026-57300
+summary: Jenkins MCP Server Plugin missing a permission check
+language: java
+cwe:
+- CWE-862
+severity: moderate
+repository: https://github.com/jenkinsci/mcp-server-plugin
+fix_commit: ffe5ae770f3bd7e88c99aea3018263af0b2f9cc4
+files:
+- src/main/java/io/jenkins/plugins/mcp/server/extensions/DefaultMcpServer.java
+changed_lines: 11
+split: dev
+labels: []

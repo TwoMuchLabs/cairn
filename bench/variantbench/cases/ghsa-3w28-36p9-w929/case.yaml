@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-3w28-36p9-w929
+advisory: GHSA-3w28-36p9-w929
+aliases:
+- CVE-2026-52816
+summary: 'Gogs''s Unauthenticated Jupyter Notebook (ipynb) Sanitizer allows arbitrary
+  data: URIs leading to XSS'
+language: go
+cwe:
+- CWE-79
+- CWE-80
+severity: moderate
+repository: https://github.com/gogs/gogs
+fix_commit: dd1bd9837aa196b3ed3a8ee21e5727b5d7a986a3
+files:
+- internal/app/api.go
+- internal/markup/sanitizer.go
+changed_lines: 13
+split: dev
+labels: []

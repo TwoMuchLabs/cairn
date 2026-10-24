@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-qv8j-hgpc-vrq8
+advisory: GHSA-qv8j-hgpc-vrq8
+aliases:
+- CVE-2026-2472
+summary: Google Cloud Vertex AI SDK affected by Stored Cross-Site Scripting (XSS)
+language: python
+cwe:
+- CWE-79
+severity: high
+repository: https://github.com/googleapis/python-aiplatform
+fix_commit: 8a00d43dbd24e95dbab6ea32c63ce0a5a1849480
+files:
+- vertexai/_genai/_evals_visualization.py
+changed_lines: 53
+split: holdout
+labels: []

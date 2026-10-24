@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-qqjf-53cj-pwvv
+advisory: GHSA-qqjf-53cj-pwvv
+aliases:
+- CVE-2026-88007
+summary: Traefik HTTP/3 Backend NTLM Connection Reuse
+language: go
+cwe:
+- CWE-287
+- CWE-863
+severity: critical
+repository: https://github.com/traefik/traefik
+fix_commit: ff39c47d7459dec9cd8de63c1a4e7aa7315bdc1c
+files:
+- pkg/server/server_entrypoint_tcp_http3.go
+- pkg/server/service/roundtripper.go
+changed_lines: 13
+split: dev
+labels: []

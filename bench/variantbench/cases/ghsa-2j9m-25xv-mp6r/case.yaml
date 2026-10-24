@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-2j9m-25xv-mp6r
+advisory: GHSA-2j9m-25xv-mp6r
+aliases:
+- CVE-2026-39816
+summary: Apache NiFi is missing the Restricted annotation with the Execute Code Required
+  Permission
+language: java
+cwe:
+- CWE-862
+severity: high
+repository: https://github.com/apache/nifi
+fix_commit: 72fab7dde74edfd1063b57e87b0334340c1fbe93
+files:
+- nifi-extension-bundles/nifi-graph-bundle/nifi-other-graph-services/src/main/java/org/apache/nifi/graph/TinkerpopClientService.java
+changed_lines: 14
+split: dev
+labels: []

@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-wp5x-hrrw-6r4g
+advisory: GHSA-wp5x-hrrw-6r4g
+aliases:
+- CVE-2026-57282
+summary: Jenkins Git client Plugin has an OS command injection vulnerability on agents
+language: java
+cwe:
+- CWE-78
+severity: moderate
+repository: https://github.com/jenkinsci/git-client-plugin
+fix_commit: a10f61003e39fd9be6fada0560b13ba718b2716f
+files:
+- src/main/java/org/jenkinsci/plugins/gitclient/CliGitAPIImpl.java
+- src/main/java/org/jenkinsci/plugins/gitclient/verifier/ManuallyProvidedKeyVerifier.java
+changed_lines: 38
+split: dev
+labels: []

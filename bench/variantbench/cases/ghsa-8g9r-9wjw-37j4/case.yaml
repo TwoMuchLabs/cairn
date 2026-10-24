@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-8g9r-9wjw-37j4
+advisory: GHSA-8g9r-9wjw-37j4
+aliases:
+- CVE-2026-3429
+summary: 'Keycloak: Improper Access Control Leading to MFA Deletion and Account Takeover
+  in Keycloak Account REST API'
+language: java
+cwe:
+- CWE-284
+severity: moderate
+repository: https://github.com/keycloak/keycloak
+fix_commit: 68f5779230d08825e6a4b4e23471fade16434178
+files:
+- server-spi-private/src/main/java/org/keycloak/models/utils/AuthenticationFlowResolver.java
+- services/src/main/java/org/keycloak/authentication/requiredactions/util/CredentialDeleteHelper.java
+changed_lines: 48
+split: holdout
+labels: []

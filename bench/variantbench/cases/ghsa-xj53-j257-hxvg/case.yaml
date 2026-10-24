@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-xj53-j257-hxvg
+advisory: GHSA-xj53-j257-hxvg
+aliases:
+- CVE-2026-49439
+summary: OpenRemote read-only asset users can write predicted datapoints
+language: java
+cwe:
+- CWE-862
+severity: moderate
+repository: https://github.com/openremote/openremote
+fix_commit: 583dbbfb96076ba099be8729ddf506acf9e48325
+files:
+- manager/src/main/java/org/openremote/manager/datapoint/AssetPredictedDatapointResourceImpl.java
+changed_lines: 29
+split: dev
+labels: []

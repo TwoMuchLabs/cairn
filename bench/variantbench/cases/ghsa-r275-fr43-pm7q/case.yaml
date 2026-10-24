@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-r275-fr43-pm7q
+advisory: GHSA-r275-fr43-pm7q
+aliases:
+- CVE-2026-28292
+summary: simple-git has blockUnsafeOperationsPlugin bypass via case-insensitive protocol.allow
+  config key enables RCE
+language: javascript
+cwe:
+- CWE-178
+- CWE-78
+severity: critical
+repository: https://github.com/steveukx/git-js
+fix_commit: f7042088aa2dac59e3c49a84d7a2f4b26048a257
+files:
+- simple-git/src/lib/plugins/block-unsafe-operations-plugin.ts
+changed_lines: 2
+split: holdout
+labels: []

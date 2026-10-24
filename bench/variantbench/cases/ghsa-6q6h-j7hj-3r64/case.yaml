@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-6q6h-j7hj-3r64
+advisory: GHSA-6q6h-j7hj-3r64
+aliases:
+- CVE-2026-33943
+summary: 'Happy DOM ECMAScriptModuleCompiler: unsanitized export names are interpolated
+  as executable code'
+language: javascript
+cwe:
+- CWE-94
+severity: high
+repository: https://github.com/capricorn86/happy-dom
+fix_commit: 5437fdf8f13adb9590f9f52616d9f69c3ee8db3c
+files:
+- packages/happy-dom/src/module/ECMAScriptModuleCompiler.ts
+changed_lines: 8
+split: holdout
+labels: []

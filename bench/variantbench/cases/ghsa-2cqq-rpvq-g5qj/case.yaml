@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-2cqq-rpvq-g5qj
+advisory: GHSA-2cqq-rpvq-g5qj
+aliases:
+- CVE-2026-33439
+summary: 'OpenIdentityPlatform OpenAM: Pre-Authentication Remote Code Execution via
+  `jato.clientSession` Deserialization in OpenAM'
+language: java
+cwe:
+- CWE-502
+severity: critical
+repository: https://github.com/OpenIdentityPlatform/OpenAM
+fix_commit: 014007c63cacc834cc795a89fac0e611aebc4a32
+files:
+- jato-shaded/src/main/java/com/iplanet/jato/util/Encoder.java
+changed_lines: 49
+split: dev
+labels: []

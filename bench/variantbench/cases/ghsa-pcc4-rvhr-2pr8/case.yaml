@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-pcc4-rvhr-2pr8
+advisory: GHSA-pcc4-rvhr-2pr8
+aliases: []
+summary: 'Graphify Fortran extractor: incomplete cpp #include hardening allows arbitrary
+  host-file read/exfiltration when indexing an untrusted repo'
+language: python
+cwe:
+- CWE-22
+- CWE-73
+severity: moderate
+repository: https://github.com/Graphify-Labs/graphify
+fix_commit: e1d9deed6a437f2c85458ef3c42519159f322b7b
+files:
+- graphify/extractors/fortran.py
+changed_lines: 64
+split: dev
+labels: []

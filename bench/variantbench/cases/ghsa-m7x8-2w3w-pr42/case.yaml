@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-m7x8-2w3w-pr42
+advisory: GHSA-m7x8-2w3w-pr42
+aliases:
+- CVE-2026-26323
+summary: OpenClaw has a command injection in maintainer clawtributors updater
+language: javascript
+cwe:
+- CWE-78
+severity: high
+repository: https://github.com/openclaw/openclaw
+fix_commit: a429380e337152746031d290432a4b93aa553d55
+files:
+- scripts/update-clawtributors.ts
+changed_lines: 47
+split: holdout
+labels: []

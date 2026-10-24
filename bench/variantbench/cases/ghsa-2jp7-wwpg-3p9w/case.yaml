@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-2jp7-wwpg-3p9w
+advisory: GHSA-2jp7-wwpg-3p9w
+aliases:
+- CVE-2026-55090
+summary: Etherpad has stored XSS in HTML export via unescaped attribute-pool values
+language: javascript
+cwe:
+- CWE-79
+severity: high
+repository: https://github.com/ether/etherpad
+fix_commit: 86c56cf827dd6e5ff1b6cd3760f87adc47f58bb1
+files:
+- src/node/utils/ExportHtml.ts
+- src/node/utils/Settings.ts
+changed_lines: 43
+split: dev
+labels: []

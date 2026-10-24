@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-jmrh-xmgh-x9j4
+advisory: GHSA-jmrh-xmgh-x9j4
+aliases:
+- CVE-2026-35490
+summary: changedetection.io Vulnerable to Authentication Bypass via Decorator Ordering
+language: python
+cwe:
+- CWE-863
+severity: critical
+repository: https://github.com/dgtlmoon/changedetection.io
+fix_commit: 31a760c2147e3e73a403baf6d7de34dc50429c85
+files:
+- changedetectionio/blueprint/backups/__init__.py
+- changedetectionio/blueprint/backups/restore.py
+- changedetectionio/blueprint/browser_steps/__init__.py
+changed_lines: 36
+split: dev
+labels: []

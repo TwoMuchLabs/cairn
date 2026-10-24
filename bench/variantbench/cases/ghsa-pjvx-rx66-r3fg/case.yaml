@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-pjvx-rx66-r3fg
+advisory: GHSA-pjvx-rx66-r3fg
+aliases: []
+summary: 'OpenClaw: Cross-account sender authorization expansion in `/allowlist ...
+  --store` account scoping'
+language: javascript
+cwe:
+- CWE-639
+- CWE-863
+severity: moderate
+repository: https://github.com/openclaw/openclaw
+fix_commit: 70da80bcb5574a10925469048d2ebb2abf882e73
+files:
+- src/auto-reply/reply/commands-allowlist.ts
+changed_lines: 48
+split: holdout
+labels: []

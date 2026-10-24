@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-c6w9-5g5j-jh2p
+advisory: GHSA-c6w9-5g5j-jh2p
+aliases:
+- CVE-2026-61836
+summary: 'Directus: Authorization-dependent response served from unsegmented cache
+  key'
+language: javascript
+cwe:
+- CWE-524
+- CWE-639
+severity: high
+repository: https://github.com/directus/directus
+fix_commit: 7ba4efb97525d3af33570537c76e44baea767f13
+files:
+- api/src/utils/get-cache-key.ts
+changed_lines: 2
+split: dev
+labels: []

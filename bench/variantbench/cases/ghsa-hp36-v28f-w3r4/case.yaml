@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-hp36-v28f-w3r4
+advisory: GHSA-hp36-v28f-w3r4
+aliases:
+- CVE-2026-55091
+summary: 'flat-to-nested: Prototype pollution in flat-to-nested convert() via __proto__
+  parent/id key'
+language: javascript
+cwe:
+- CWE-1321
+- CWE-915
+severity: high
+repository: https://github.com/joaonuno/flat-to-nested-js
+fix_commit: 680a5ebe1194edda16fa93baaa56ff14fe0e3d7f
+files:
+- index.js
+changed_lines: 10
+split: dev
+labels: []

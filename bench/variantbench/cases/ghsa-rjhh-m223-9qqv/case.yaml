@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-rjhh-m223-9qqv
+advisory: GHSA-rjhh-m223-9qqv
+aliases:
+- CVE-2026-32750
+summary: 'SiYuan importStdMd: unvalidated localPath imports arbitrary host directories
+  as persistent notes'
+language: go
+cwe:
+- CWE-22
+- CWE-552
+severity: moderate
+repository: https://github.com/siyuan-note/siyuan
+fix_commit: 13b6d3d45e83525654d120f32a3fdc5d9e95df0b
+files:
+- kernel/api/import.go
+changed_lines: 20
+split: holdout
+labels: []

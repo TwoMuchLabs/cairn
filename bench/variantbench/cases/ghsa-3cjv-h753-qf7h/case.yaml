@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-3cjv-h753-qf7h
+advisory: GHSA-3cjv-h753-qf7h
+aliases:
+- CVE-2026-45224
+summary: Crabbox contains a path traversal vulnerability in the Islo provider's workspace
+  path resolution
+language: go
+cwe:
+- CWE-22
+severity: moderate
+repository: https://github.com/openclaw/crabbox
+fix_commit: 6b07193fb5670aac315ea47215651c67b8127868
+files:
+- internal/providers/islo/backend.go
+- internal/providers/islo/sync.go
+changed_lines: 39
+split: dev
+labels: []

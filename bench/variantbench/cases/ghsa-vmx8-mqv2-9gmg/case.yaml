@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-vmx8-mqv2-9gmg
+advisory: GHSA-vmx8-mqv2-9gmg
+aliases:
+- CVE-2026-35204
+summary: Helm has a path traversal in plugin metadata version enables arbitrary file
+  write outside Helm plugin directory
+language: go
+cwe:
+- CWE-22
+severity: high
+repository: https://github.com/helm/helm
+fix_commit: 36c8539e99bc42d7aef9b87d136254662d04f027
+files:
+- internal/plugin/metadata.go
+- internal/plugin/metadata_legacy.go
+- internal/plugin/metadata_v1.go
+changed_lines: 29
+split: dev
+labels: []

@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-j3rv-43j4-c7qm
+advisory: GHSA-j3rv-43j4-c7qm
+aliases:
+- CVE-2026-54512
+summary: jackson-databind has a PolymorphicTypeValidator bypass via generic type parameters
+  that allows arbitrary class instantiation
+language: java
+cwe:
+- CWE-184
+- CWE-502
+severity: high
+repository: https://github.com/FasterXML/jackson-databind
+fix_commit: 434d6c511de7fdd9872f29157aafb6162d12d8d5
+files:
+- src/main/java/com/fasterxml/jackson/databind/DatabindContext.java
+- src/main/java/com/fasterxml/jackson/databind/jsontype/BasicPolymorphicTypeValidator.java
+changed_lines: 80
+split: dev
+labels: []

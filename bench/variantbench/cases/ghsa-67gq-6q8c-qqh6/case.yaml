@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-67gq-6q8c-qqh6
+advisory: GHSA-67gq-6q8c-qqh6
+aliases:
+- CVE-2026-45244
+summary: Summarize contains a missing authorization vulnerability
+language: javascript
+cwe:
+- CWE-862
+severity: low
+repository: https://github.com/steipete/summarize
+fix_commit: e64fe3ecd1bb4fdc181dcfa88c96b9e1914ced0e
+files:
+- apps/chrome-extension/src/entrypoints/sidepanel/chat-agent-loop.ts
+- apps/chrome-extension/src/entrypoints/sidepanel/main.ts
+changed_lines: 49
+split: holdout
+labels: []

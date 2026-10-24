@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-vqqr-rmpc-hhg2
+advisory: GHSA-vqqr-rmpc-hhg2
+aliases:
+- CVE-2026-24844
+summary: melange pipeline working-directory could allow command injection
+language: go
+cwe:
+- CWE-78
+severity: high
+repository: https://github.com/chainguard-dev/melange
+fix_commit: e51ca30cfb63178f5a86997d23d3fff0359fa6c8
+files:
+- pkg/build/build.go
+- pkg/build/pipeline.go
+changed_lines: 22
+split: dev
+labels: []

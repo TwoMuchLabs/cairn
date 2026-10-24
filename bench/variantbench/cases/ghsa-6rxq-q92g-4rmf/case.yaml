@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-6rxq-q92g-4rmf
+advisory: GHSA-6rxq-q92g-4rmf
+aliases:
+- CVE-2026-28406
+summary: kaniko has tar archive path traversal in its build context extraction, allowing
+  file writes outside destination directories
+language: go
+cwe:
+- CWE-22
+severity: high
+repository: https://github.com/chainguard-forks/kaniko
+fix_commit: a370e4b1f66e6e842b685c8f70ed507964c4b221
+files:
+- pkg/util/fs_util.go
+changed_lines: 53
+split: dev
+labels: []

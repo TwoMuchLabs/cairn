@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-hp6v-6jw7-gv2f
+advisory: GHSA-hp6v-6jw7-gv2f
+aliases:
+- CVE-2026-73302
+summary: ' Budibase: OIDC SSO account takeover: incoming identity linked by email
+  without checking email_verified'
+language: javascript
+cwe:
+- CWE-287
+severity: critical
+repository: https://github.com/Budibase/budibase
+fix_commit: 9ecd0048d9c3ae0ee9bd0e6204c621794dd1a4d3
+files:
+- packages/backend-core/src/middleware/passport/sso/google.ts
+- packages/backend-core/src/middleware/passport/sso/oidc.ts
+- packages/backend-core/src/middleware/passport/sso/sso.ts
+changed_lines: 71
+split: holdout
+labels: []

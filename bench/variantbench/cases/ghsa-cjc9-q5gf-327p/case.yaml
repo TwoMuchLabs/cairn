@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-cjc9-q5gf-327p
+advisory: GHSA-cjc9-q5gf-327p
+aliases:
+- CVE-2026-70593
+summary: 'Ghost: Theme Upload Path Traversal'
+language: javascript
+cwe:
+- CWE-22
+severity: moderate
+repository: https://github.com/TryGhost/Ghost
+fix_commit: fbaa92327e52607036a1e42204c9eadcc751d82c
+files:
+- ghost/core/core/server/adapters/storage/LocalStorageBase.ts
+- ghost/core/core/server/services/themes/storage.js
+changed_lines: 19
+split: dev
+labels: []

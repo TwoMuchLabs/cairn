@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-pmhh-3w7g-xqp8
+advisory: GHSA-pmhh-3w7g-xqp8
+aliases:
+- CVE-2026-71497
+summary: 'jsoup: Cleaner may expose markup with custom raw-text elements'
+language: java
+cwe:
+- CWE-79
+severity: moderate
+repository: https://github.com/jhy/jsoup
+fix_commit: 92f1aca552548b484bc7d4b94c51e48b8e6eca70
+files:
+- src/main/java/org/jsoup/parser/TagSet.java
+- src/main/java/org/jsoup/parser/Token.java
+changed_lines: 11
+split: holdout
+labels: []

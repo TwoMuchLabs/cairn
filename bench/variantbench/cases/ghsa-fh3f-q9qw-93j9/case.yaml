@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-fh3f-q9qw-93j9
+advisory: GHSA-fh3f-q9qw-93j9
+aliases:
+- CVE-2026-28479
+summary: OpenClaw replaced a deprecated sandbox hash algorithm
+language: javascript
+cwe:
+- CWE-327
+- CWE-328
+severity: high
+repository: https://github.com/openclaw/openclaw
+fix_commit: 559c8d9930eebb5356506ff1a8cd3dbaec92be77
+files:
+- src/agents/sandbox/config-hash.ts
+changed_lines: 2
+split: holdout
+labels: []

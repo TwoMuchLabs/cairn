@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-fh2f-xfxc-q9cc
+advisory: GHSA-fh2f-xfxc-q9cc
+aliases:
+- CVE-2026-54650
+summary: openhole-server vulnerable to path traversal via URL-decoded request path
+language: go
+cwe:
+- CWE-22
+severity: high
+repository: https://github.com/bablilayoub/openhole
+fix_commit: a28c27adde2a7ed0c347b730c8707208c0f78ed3
+files:
+- internal/client/local_proxy.go
+- internal/server/public_proxy.go
+- internal/shared/version.go
+changed_lines: 44
+split: dev
+labels: []

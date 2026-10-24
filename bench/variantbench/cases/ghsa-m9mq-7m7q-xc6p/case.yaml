@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-m9mq-7m7q-xc6p
+advisory: GHSA-m9mq-7m7q-xc6p
+aliases:
+- CVE-2026-55557
+summary: browse-mcp has an arbitrary file write via unconfined download and state
+  paths
+language: javascript
+cwe:
+- CWE-22
+severity: high
+repository: https://github.com/That1Drifter/browse-mcp
+fix_commit: 5352a4a56f626254b445bfa07e4bb48c5aad15c1
+files:
+- src/download.ts
+- src/state.ts
+- src/tools/session.ts
+changed_lines: 49
+split: dev
+labels: []

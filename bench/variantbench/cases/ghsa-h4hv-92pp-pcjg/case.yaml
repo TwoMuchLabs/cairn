@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-h4hv-92pp-pcjg
+advisory: GHSA-h4hv-92pp-pcjg
+aliases:
+- CVE-2026-42615
+summary: CyberChef has a Cross-site Scripting issue
+language: javascript
+cwe:
+- CWE-79
+severity: high
+repository: https://github.com/gchq/CyberChef
+fix_commit: 9641ae07f92e9af50f10e978385465b2f4a36c4d
+files:
+- src/core/operations/ShowBase64Offsets.mjs
+changed_lines: 56
+split: dev
+labels: []

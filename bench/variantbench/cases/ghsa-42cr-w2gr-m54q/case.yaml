@@ -1,0 +1,21 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-42cr-w2gr-m54q
+advisory: GHSA-42cr-w2gr-m54q
+aliases:
+- CVE-2026-27838
+summary: 'wger: IDOR via user-unscoped cache keys on routine API actions exposes workout
+  data'
+language: python
+cwe:
+- CWE-639
+severity: low
+repository: https://github.com/wger-project/wger
+fix_commit: e964328784e2ee2830a1991d69fadbce86ac9fbf
+files:
+- wger/manager/api/views.py
+- wger/manager/helpers.py
+- wger/manager/signals.py
+- wger/utils/cache.py
+changed_lines: 54
+split: holdout
+labels: []

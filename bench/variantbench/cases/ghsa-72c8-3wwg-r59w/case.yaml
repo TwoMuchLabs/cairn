@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-72c8-3wwg-r59w
+advisory: GHSA-72c8-3wwg-r59w
+aliases:
+- CVE-2026-57283
+summary: 'Jenkins Pipeline: Groovy Plugin has a CSRF vulnerability'
+language: java
+cwe:
+- CWE-352
+severity: moderate
+repository: https://github.com/jenkinsci/workflow-cps-plugin
+fix_commit: 50ab076c519907ebc0f63c8d73f37fcb81686b99
+files:
+- plugin/src/main/java/org/jenkinsci/plugins/workflow/cps/Snippetizer.java
+changed_lines: 24
+split: dev
+labels: []

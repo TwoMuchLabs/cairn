@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-3mp7-vp6j-2mxx
+advisory: GHSA-3mp7-vp6j-2mxx
+aliases:
+- CVE-2026-12566
+summary: 'BBOT: Server-Side Request Forgery (SSRF) in docker_pull module via WWW-Authenticate
+  realm parsing'
+language: python
+cwe:
+- CWE-20
+- CWE-918
+severity: low
+repository: https://github.com/blacklanternsecurity/bbot
+fix_commit: c2f4bc0f4e4bb4d00f06750dcabf1d9c74c0d3b4
+files:
+- bbot/modules/docker_pull.py
+changed_lines: 36
+split: dev
+labels: []

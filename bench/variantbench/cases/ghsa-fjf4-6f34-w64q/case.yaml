@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-fjf4-6f34-w64q
+advisory: GHSA-fjf4-6f34-w64q
+aliases:
+- CVE-2026-2733
+summary: 'Keycloak: Missing Check on Disabled Client for Docker Registry Protocol'
+language: java
+cwe:
+- CWE-285
+severity: low
+repository: https://github.com/keycloak/keycloak
+fix_commit: 743ac24081b2c6da36aac3775147ec5b80c2861e
+files:
+- services/src/main/java/org/keycloak/protocol/docker/DockerEndpoint.java
+changed_lines: 36
+split: dev
+labels: []

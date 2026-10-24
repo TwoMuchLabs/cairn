@@ -1,0 +1,21 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-3cvx-236h-m9fj
+advisory: GHSA-3cvx-236h-m9fj
+aliases:
+- CVE-2026-32034
+summary: OpenClaw has an opt-in insecure Control UI auth over plaintext HTTP could
+  allow privileged access
+language: javascript
+cwe:
+- CWE-285
+- CWE-319
+- CWE-78
+severity: moderate
+repository: https://github.com/openclaw/openclaw
+fix_commit: 40a292619e1f2be3a3b1db663d7494c9c2dc0abf
+files:
+- src/gateway/server/ws-connection/message-handler.ts
+- src/security/audit.ts
+changed_lines: 10
+split: dev
+labels: []

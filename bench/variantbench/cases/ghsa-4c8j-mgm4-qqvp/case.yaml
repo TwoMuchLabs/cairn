@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-4c8j-mgm4-qqvp
+advisory: GHSA-4c8j-mgm4-qqvp
+aliases:
+- CVE-2026-48788
+summary: 'Remark42: Cross-Site Scripting (XSS) on /api/v1/img via content-type spoofing'
+language: go
+cwe:
+- CWE-436
+- CWE-79
+severity: high
+repository: https://github.com/umputun/remark42
+fix_commit: 78d6de6bce1e961f023969da3ec8a00dd80c9ae8
+files:
+- backend/app/rest/api/rest.go
+changed_lines: 12
+split: dev
+labels: []

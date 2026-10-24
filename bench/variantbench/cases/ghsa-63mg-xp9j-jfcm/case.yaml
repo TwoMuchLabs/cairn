@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-63mg-xp9j-jfcm
+advisory: GHSA-63mg-xp9j-jfcm
+aliases:
+- CVE-2026-33578
+summary: 'OpenClaw: Google Chat and Zalouser group sender allowlist bypass via policy
+  downgrade'
+language: javascript
+cwe:
+- CWE-863
+severity: moderate
+repository: https://github.com/openclaw/openclaw
+fix_commit: e64a881ae0fb8af18e451163f4c2d611d60cc8e4
+files:
+- extensions/googlechat/src/monitor-access.ts
+- extensions/zalouser/src/monitor.ts
+changed_lines: 26
+split: dev
+labels: []

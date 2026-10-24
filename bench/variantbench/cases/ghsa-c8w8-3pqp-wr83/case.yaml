@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-c8w8-3pqp-wr83
+advisory: GHSA-c8w8-3pqp-wr83
+aliases:
+- CVE-2026-73054
+summary: 'SiYuan: A parser differential between the WebSocket keepalive exemption
+  and the session quarantine allows unauthenticated access to the broadcast event
+  stream'
+language: go
+cwe:
+- CWE-287
+severity: high
+repository: https://github.com/siyuan-note/siyuan
+fix_commit: 67bc300b6ea6650d99dae55c827aeced419c8ac4
+files:
+- kernel/server/serve.go
+- kernel/util/websocket.go
+changed_lines: 49
+split: dev
+labels: []

@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-555p-6grf-mh7f
+advisory: GHSA-555p-6grf-mh7f
+aliases:
+- CVE-2026-47712
+summary: Dulwich doesn't sanitize commit subjects in `porcelain.format_patch`
+language: python
+cwe:
+- CWE-22
+severity: low
+repository: https://github.com/jelmer/dulwich
+fix_commit: c2446e51b49e5bc0ad1b623e47f4b0b961ecaa46
+files:
+- dulwich/patch.py
+changed_lines: 56
+split: dev
+labels: []

@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-vjmr-f5fc-vr2w
+advisory: GHSA-vjmr-f5fc-vr2w
+aliases:
+- CVE-2026-11470
+summary: hsweb-framework has a Path Traversal issue
+language: java
+cwe:
+- CWE-22
+severity: low
+repository: https://github.com/hs-web/hsweb-framework
+fix_commit: 8009845b577d8a2c4bbf4fdd8e8913799a714be6
+files:
+- hsweb-system/hsweb-system-file/src/main/java/org/hswebframework/web/file/FileUploadProperties.java
+changed_lines: 46
+split: dev
+labels: []

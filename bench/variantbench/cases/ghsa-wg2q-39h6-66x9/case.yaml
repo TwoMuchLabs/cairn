@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-wg2q-39h6-66x9
+advisory: GHSA-wg2q-39h6-66x9
+aliases:
+- CVE-2026-66063
+summary: goshs has a Path Traversal issue
+language: go
+cwe:
+- CWE-22
+severity: moderate
+repository: https://github.com/goshs-labs/goshs
+fix_commit: f3ef599e409151d1380866e47de8b1afb0bb54fa
+files:
+- httpserver/handler.go
+- httpserver/updown.go
+changed_lines: 44
+split: holdout
+labels: []

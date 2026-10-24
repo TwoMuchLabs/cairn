@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-r2pg-r6h7-crf3
+advisory: GHSA-r2pg-r6h7-crf3
+aliases:
+- CVE-2026-34984
+summary: External Secrets Operator has DNS-based secret exfiltration via getHostByName
+  in External Secrets v2 template engine
+language: go
+cwe:
+- CWE-200
+severity: high
+repository: https://github.com/external-secrets/external-secrets
+fix_commit: 6800989bdc12782ca2605d3b8bf7f2876a16551a
+files:
+- runtime/template/v2/template.go
+changed_lines: 2
+split: holdout
+labels: []

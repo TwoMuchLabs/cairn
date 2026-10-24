@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-3cw3-5vxw-g2h3
+advisory: GHSA-3cw3-5vxw-g2h3
+aliases:
+- CVE-2026-41342
+summary: 'OpenClaw: CLI Remote Onboarding Persists Unauthenticated Discovery Endpoint
+  and Exfiltrates Gateway Credentials'
+language: javascript
+cwe:
+- CWE-287
+- CWE-862
+severity: high
+repository: https://github.com/openclaw/openclaw
+fix_commit: d6affb17d85f5f5ab08ef9f2b994b257af12e75a
+files:
+- src/commands/onboard-remote.ts
+changed_lines: 23
+split: dev
+labels: []

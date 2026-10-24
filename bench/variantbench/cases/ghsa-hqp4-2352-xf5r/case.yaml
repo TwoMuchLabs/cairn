@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-hqp4-2352-xf5r
+advisory: GHSA-hqp4-2352-xf5r
+aliases:
+- CVE-2026-11816
+summary: Keras archive extraction utilities allow path traversal and arbitrary file
+  writes
+language: python
+cwe:
+- CWE-22
+severity: high
+repository: https://github.com/keras-team/keras
+fix_commit: 2465b6657b02c8eed308759b7e800e295ae01888
+files:
+- keras/src/utils/file_utils.py
+changed_lines: 16
+split: dev
+labels: []

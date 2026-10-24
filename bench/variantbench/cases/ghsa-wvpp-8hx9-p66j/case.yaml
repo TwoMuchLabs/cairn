@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-wvpp-8hx9-p66j
+advisory: GHSA-wvpp-8hx9-p66j
+aliases:
+- CVE-2026-76220
+summary: 'GitPython: Unsafe git option guard bypass via split_single_char_options=False
+  short-option token smuggling enables command execution'
+language: python
+cwe:
+- CWE-88
+severity: high
+repository: https://github.com/gitpython-developers/GitPython
+fix_commit: 96a888f4d782cb2f80452148e48e60ce4af6d541
+files:
+- git/cmd.py
+changed_lines: 13
+split: holdout
+labels: []

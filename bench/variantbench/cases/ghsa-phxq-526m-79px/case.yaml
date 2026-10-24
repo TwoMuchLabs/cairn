@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-phxq-526m-79px
+advisory: GHSA-phxq-526m-79px
+aliases:
+- CVE-2026-41856
+summary: 'Spring for GraphQL: Annotation Detection Vulnerability'
+language: java
+cwe:
+- CWE-284
+severity: high
+repository: https://github.com/spring-projects/spring-graphql
+fix_commit: 63a89ed1379be646822dca9779b15dbf2ce45839
+files:
+- spring-graphql/src/main/java/org/springframework/graphql/data/method/HandlerMethod.java
+changed_lines: 2
+split: dev
+labels: []

@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-28gh-q3gw-pvx8
+advisory: GHSA-28gh-q3gw-pvx8
+aliases:
+- CVE-2026-48544
+summary: Taipy contains a path traversal vulnerability
+language: python
+cwe:
+- CWE-22
+severity: high
+repository: https://github.com/Avaiga/taipy
+fix_commit: 129fd407ffca49ee4ab853772c88d0c873e038dd
+files:
+- taipy/gui/extension/library.py
+changed_lines: 2
+split: dev
+labels: []

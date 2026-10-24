@@ -1,0 +1,23 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-ph72-cqr5-qpp7
+advisory: GHSA-ph72-cqr5-qpp7
+aliases:
+- CVE-2026-105754
+summary: 'vLLM: Scale-out disaggregated multimodal transport trusts caller-supplied
+  features'
+language: python
+cwe:
+- CWE-1284
+- CWE-20
+- CWE-617
+- CWE-639
+- CWE-668
+- CWE-704
+severity: moderate
+repository: https://github.com/vllm-project/vllm
+fix_commit: 1970f3ed4be7fa8620e4ddc4a12c36a8384cfc27
+files:
+- vllm/entrypoints/scale_out/token_in_token_out/protocol.py
+changed_lines: 61
+split: dev
+labels: []

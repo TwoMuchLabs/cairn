@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-26vp-8gxg-v4pg
+advisory: GHSA-26vp-8gxg-v4pg
+aliases:
+- CVE-2025-53837
+summary: org.xwiki.rendering:xwiki-rendering-xml has an Eval Injection issue
+language: java
+cwe:
+- CWE-95
+severity: critical
+repository: https://github.com/xwiki/xwiki-rendering
+fix_commit: 92bc8095ed3acce15ab200c8525e1623b4898be5
+files:
+- xwiki-rendering-xml/src/main/java/org/xwiki/rendering/renderer/printer/XHTMLWikiPrinter.java
+changed_lines: 20
+split: dev
+labels: []

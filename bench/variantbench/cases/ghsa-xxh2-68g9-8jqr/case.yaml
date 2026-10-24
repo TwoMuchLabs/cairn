@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-xxh2-68g9-8jqr
+advisory: GHSA-xxh2-68g9-8jqr
+aliases:
+- CVE-2026-26198
+summary: ormar is vulnerable to SQL Injection through aggregate functions min() and
+  max()
+language: python
+cwe:
+- CWE-89
+severity: critical
+repository: https://github.com/collerek/ormar
+fix_commit: a03bae14fe01358d3eaf7e319fcd5db2e4956b16
+files:
+- ormar/queryset/queryset.py
+changed_lines: 8
+split: holdout
+labels: []

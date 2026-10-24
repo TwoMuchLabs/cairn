@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-xp3q-r38w-vgqm
+advisory: GHSA-xp3q-r38w-vgqm
+aliases: []
+summary: 'SiYuan: The publish filter for local storage returns the administrator''s
+  entire storage map with only three keys sanitized'
+language: go
+cwe:
+- CWE-863
+severity: moderate
+repository: https://github.com/siyuan-note/siyuan
+fix_commit: 4daee87d41521d119979f2edda67e87f2be7b6ef
+files:
+- kernel/api/storage.go
+- kernel/model/publish_access.go
+changed_lines: 50
+split: dev
+labels: []

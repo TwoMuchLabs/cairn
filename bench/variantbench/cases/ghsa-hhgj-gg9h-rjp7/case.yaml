@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-hhgj-gg9h-rjp7
+advisory: GHSA-hhgj-gg9h-rjp7
+aliases:
+- CVE-2026-33476
+summary: Siyuan has an Unauthenticated Arbitrary File Read via Path Traversal
+language: go
+cwe:
+- CWE-22
+- CWE-73
+severity: high
+repository: https://github.com/siyuan-note/siyuan
+fix_commit: 009bb598b3beccc972aa5f1ed88b3b224326bf2a
+files:
+- kernel/server/serve.go
+changed_lines: 6
+split: dev
+labels: []

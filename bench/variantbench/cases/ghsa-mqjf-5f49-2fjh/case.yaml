@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-mqjf-5f49-2fjh
+advisory: GHSA-mqjf-5f49-2fjh
+aliases:
+- CVE-2026-76904
+summary: GeoTools has unauthenticated SQL injection in the jsonArrayContains filter
+  function against PostGIS layers
+language: java
+cwe:
+- CWE-89
+severity: critical
+repository: https://github.com/geotools/geotools
+fix_commit: d821c4d321dd91c22e31fcd5b1ce676645da5176
+files:
+- modules/plugin/jdbc/jdbc-postgis/src/main/java/org/geotools/data/postgis/FilterToSqlHelper.java
+changed_lines: 3
+split: dev
+labels: []

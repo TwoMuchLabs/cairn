@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-v4jw-m6rm-399h
+advisory: GHSA-v4jw-m6rm-399h
+aliases:
+- CVE-2026-0871
+summary: 'Keycloak Server Private SPI: Improper Access Control Allows Administrators
+  to Bypass Attribute Visibility Restrictions and Modify Unmanaged User Profile Attributes'
+language: java
+cwe:
+- CWE-266
+- CWE-284
+severity: moderate
+repository: https://github.com/keycloak/keycloak
+fix_commit: 9d0f679ecea405958f167fcd0f4a6db6ae32c3fa
+files:
+- server-spi-private/src/main/java/org/keycloak/userprofile/DefaultAttributes.java
+changed_lines: 13
+split: dev
+labels: []

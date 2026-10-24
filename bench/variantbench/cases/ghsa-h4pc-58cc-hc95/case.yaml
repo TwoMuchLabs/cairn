@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-h4pc-58cc-hc95
+advisory: GHSA-h4pc-58cc-hc95
+aliases:
+- CVE-2026-59955
+summary: Apollo ConfigService access key authentication bypass via raw config file
+  appId parsing
+language: java
+cwe:
+- CWE-20
+- CWE-287
+severity: high
+repository: https://github.com/apolloconfig/apollo
+fix_commit: 310809d557e01c6803051736cd525e333ffe00ec
+files:
+- apollo-configservice/src/main/java/com/ctrip/framework/apollo/configservice/ConfigServiceAutoConfiguration.java
+- apollo-configservice/src/main/java/com/ctrip/framework/apollo/configservice/util/AccessKeyUtil.java
+changed_lines: 19
+split: dev
+labels: []

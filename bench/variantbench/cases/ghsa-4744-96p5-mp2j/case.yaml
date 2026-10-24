@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-4744-96p5-mp2j
+advisory: GHSA-4744-96p5-mp2j
+aliases:
+- CVE-2026-35464
+summary: 'pyLoad: Unprotected storage_folder enables arbitrary file write to Flask
+  session store and code execution (Incomplete fix for CVE-2026-33509)'
+language: python
+cwe:
+- CWE-502
+- CWE-863
+severity: high
+repository: https://github.com/pyload/pyload
+fix_commit: c4cf995a2803bdbe388addfc2b0f323277efc0e1
+files:
+- src/pyload/core/api/__init__.py
+changed_lines: 52
+split: dev
+labels: []

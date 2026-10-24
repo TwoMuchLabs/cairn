@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-275h-v5h9-vr82
+advisory: GHSA-275h-v5h9-vr82
+aliases:
+- CVE-2026-59832
+summary: 'Siyuan: Authenticated path traversal in /snippets/ static handler (serveSnippets)
+  leaks conf/conf.json secrets and siyuan.db'
+language: go
+cwe:
+- CWE-22
+- CWE-23
+severity: high
+repository: https://github.com/siyuan-note/siyuan
+fix_commit: 68cc0f537dfa4502496dfa794e71835421c25c09
+files:
+- kernel/server/serve.go
+changed_lines: 13
+split: holdout
+labels: []

@@ -1,0 +1,21 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-fvh3-672c-7p6c
+advisory: GHSA-fvh3-672c-7p6c
+aliases:
+- CVE-2026-22738
+summary: 'Spring AI: SpEL injection is triggered when a user-supplied value is used
+  as a filter expression key'
+language: java
+cwe:
+- CWE-88
+- CWE-917
+- CWE-94
+severity: critical
+repository: https://github.com/spring-projects/spring-ai
+fix_commit: ba9220b22383e430d5f801ce8e4fa01cf9e75f29
+files:
+- spring-ai-vector-store/src/main/java/org/springframework/ai/vectorstore/SimpleVectorStore.java
+- spring-ai-vector-store/src/main/java/org/springframework/ai/vectorstore/SimpleVectorStoreContent.java
+changed_lines: 63
+split: dev
+labels: []

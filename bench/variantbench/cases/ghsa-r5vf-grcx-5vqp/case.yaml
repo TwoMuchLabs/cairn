@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-r5vf-grcx-5vqp
+advisory: GHSA-r5vf-grcx-5vqp
+aliases:
+- CVE-2026-28735
+summary: Mattermost allows authenticated users to gain access to private repositories
+language: go
+cwe:
+- CWE-863
+severity: moderate
+repository: https://github.com/mattermost/mattermost-plugin-github
+fix_commit: 6e6b740c4852cdfa136ee0ced160da832285c353
+files:
+- server/plugin/api.go
+- server/plugin/command.go
+- server/plugin/plugin.go
+changed_lines: 50
+split: holdout
+labels: []

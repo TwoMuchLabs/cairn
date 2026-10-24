@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-jrrm-9hc7-2v3h
+advisory: GHSA-jrrm-9hc7-2v3h
+aliases:
+- CVE-2026-62674
+summary: 'Omnigent: Shared Agent Bundle Overwrite Leads to Authenticated Runner RCE'
+language: python
+cwe:
+- CWE-94
+severity: critical
+repository: https://github.com/omnigent-ai/omnigent
+fix_commit: 25a22dc9e6da4648d23749f0a589e47e6aed991b
+files:
+- omnigent/server/routes/sessions.py
+changed_lines: 9
+split: holdout
+labels: []

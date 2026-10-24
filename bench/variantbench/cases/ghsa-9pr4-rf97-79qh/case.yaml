@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-9pr4-rf97-79qh
+advisory: GHSA-9pr4-rf97-79qh
+aliases:
+- CVE-2026-40262
+summary: Note Mark has Stored XSS via Unrestricted Asset Upload
+language: go
+cwe:
+- CWE-434
+- CWE-79
+severity: high
+repository: https://github.com/enchant97/note-mark
+fix_commit: 6bb62842ccb956870b9bf183629eba95e326e5e3
+files:
+- backend/handlers/assets.go
+changed_lines: 17
+split: dev
+labels: []

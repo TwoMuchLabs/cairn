@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-f42x-p2mx-hm8r
+advisory: GHSA-f42x-p2mx-hm8r
+aliases:
+- CVE-2026-50558
+summary: Penelope unsafe tar extraction allows arbitrary local file write via crafted
+  session archive
+language: python
+cwe:
+- CWE-22
+severity: moderate
+repository: https://github.com/brightio/penelope
+fix_commit: a040afb5db32c7e80b5e8a2f9b2164cf911cfa62
+files:
+- penelope.py
+changed_lines: 65
+split: dev
+labels: []

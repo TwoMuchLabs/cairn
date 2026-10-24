@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-hgr3-x44x-33hx
+advisory: GHSA-hgr3-x44x-33hx
+aliases:
+- CVE-2026-20736
+summary: Gitea has improper access control for uploaded attachments
+language: go
+cwe:
+- CWE-284
+severity: low
+repository: https://github.com/go-gitea/gitea
+fix_commit: fbea2c68e8df11cfa94e8ead913b79946780ed30
+files:
+- routers/api/v1/repo/release_attachment.go
+- routers/web/repo/attachment.go
+changed_lines: 50
+split: holdout
+labels: []

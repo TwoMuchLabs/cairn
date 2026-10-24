@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-cpm7-cfpx-3hvp
+advisory: GHSA-cpm7-cfpx-3hvp
+aliases:
+- CVE-2026-35571
+summary: Emissary has Stored XSS via Navigation Template Link Injection
+language: java
+cwe:
+- CWE-79
+severity: moderate
+repository: https://github.com/NationalSecurityAgency/emissary
+fix_commit: e2078417464b9004620dde28dcbca2f73ea06c13
+files:
+- src/main/java/emissary/server/mvc/NavAction.java
+changed_lines: 24
+split: dev
+labels: []

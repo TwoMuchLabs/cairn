@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-g9g6-qhrc-p3qc
+advisory: GHSA-g9g6-qhrc-p3qc
+aliases:
+- CVE-2026-58422
+summary: 'Gitea: Improper authorization on OAuth sign-in callback silently re-enables
+  administrator-disabled accounts'
+language: go
+cwe:
+- CWE-284
+severity: high
+repository: https://github.com/go-gitea/gitea
+fix_commit: c43eb7c33a100ffc7b2367adf165f7085e0ccdc5
+files:
+- models/unittest/unit_tests.go
+- routers/web/auth/oauth.go
+- services/auth/source/oauth2/source_sync.go
+changed_lines: 22
+split: dev
+labels: []

@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-28f5-38xr-jh2w
+advisory: GHSA-28f5-38xr-jh2w
+aliases:
+- CVE-2026-43910
+summary: java-client Allows Network Pivot via Unvalidated directConnect Redirect in
+  AppiumCommandExecutor
+language: java
+cwe:
+- CWE-441
+- CWE-918
+severity: high
+repository: https://github.com/appium/java-client
+fix_commit: 2b9cd442b9dbf56ccc6f1e83aeeb411c0ec230c9
+files:
+- src/main/java/io/appium/java_client/remote/AppiumCommandExecutor.java
+changed_lines: 12
+split: dev
+labels: []

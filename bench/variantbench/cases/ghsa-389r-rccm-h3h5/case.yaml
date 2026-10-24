@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-389r-rccm-h3h5
+advisory: GHSA-389r-rccm-h3h5
+aliases:
+- CVE-2026-29780
+summary: 'eml_parser: Path Traversal in Official Example Script Leads to Arbitrary
+  File Write'
+language: python
+cwe:
+- CWE-22
+severity: moderate
+repository: https://github.com/GOVCERT-LU/eml_parser
+fix_commit: 99af03a09a90aaaaadd0ed2ffb5eea46d1ea2cc9
+files:
+- examples/recursively_extract_attachments.py
+changed_lines: 15
+split: holdout
+labels: []

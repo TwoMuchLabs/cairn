@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-9726-w42j-3qjr
+advisory: GHSA-9726-w42j-3qjr
+aliases:
+- CVE-2026-53872
+summary: 'picklescan has Arbitrary file read using `io.FileIO` '
+language: python
+cwe:
+- CWE-22
+- CWE-918
+severity: high
+repository: https://github.com/mmaitre314/picklescan
+fix_commit: a01c58d5dd7960db557b849817c0ab83ab111ef1
+files:
+- src/picklescan/scanner.py
+changed_lines: 4
+split: holdout
+labels: []

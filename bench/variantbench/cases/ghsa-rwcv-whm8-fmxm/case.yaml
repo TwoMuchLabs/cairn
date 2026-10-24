@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-rwcv-whm8-fmxm
+advisory: GHSA-rwcv-whm8-fmxm
+aliases:
+- CVE-2024-27091
+summary: 'GeoNode: Stored XSS to full account takeover'
+language: python
+cwe:
+- CWE-79
+severity: moderate
+repository: https://github.com/GeoNode/geonode
+fix_commit: e53bdeff331f4b577918927d60477d4b50cca02f
+files:
+- geonode/base/tests.py
+changed_lines: 11
+split: dev
+labels: []

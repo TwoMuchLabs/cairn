@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-9xm2-gw56-wj7m
+advisory: GHSA-9xm2-gw56-wj7m
+aliases:
+- CVE-2026-10609
+summary: OpenShift Cluster Logging Operator missing authorization flaw
+language: go
+cwe:
+- CWE-862
+severity: moderate
+repository: https://github.com/openshift/cluster-logging-operator
+fix_commit: 1864c2a9851da90a3956f1b83c5f31b3b76e3514
+files:
+- cmd/main.go
+- internal/generator/vector/output/aws/s3/s3.go
+changed_lines: 13
+split: dev
+labels: []

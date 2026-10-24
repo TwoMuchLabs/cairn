@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-4gc7-qcvf-38wg
+advisory: GHSA-4gc7-qcvf-38wg
+aliases:
+- CVE-2026-32010
+summary: In OpenClaw, manually adding sort to tools.exec.safeBins could bypass allowlist
+  approval via --compress-program
+language: javascript
+cwe:
+- CWE-184
+- CWE-78
+severity: moderate
+repository: https://github.com/openclaw/openclaw
+fix_commit: 57fbbaebca4d34d17549accf6092ae26eb7b605c
+files:
+- src/infra/exec-safe-bin-policy.ts
+changed_lines: 5
+split: holdout
+labels: []

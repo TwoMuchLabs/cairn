@@ -1,0 +1,21 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-m297-3jv9-m927
+advisory: GHSA-m297-3jv9-m927
+aliases:
+- CVE-2026-3009
+summary: Keycloak allows authentication using an Identity Provider (IdP) even after
+  it has been disabled by an administrator
+language: java
+cwe:
+- CWE-285
+- CWE-863
+severity: high
+repository: https://github.com/keycloak/keycloak
+fix_commit: 4fd5367e6cc28cfa68fb2240fc459c12b1fdbf2a
+files:
+- server-spi-private/src/main/java/org/keycloak/broker/provider/BrokeredIdentityContext.java
+- services/src/main/java/org/keycloak/authentication/authenticators/broker/util/SerializedBrokeredIdentityContext.java
+- services/src/main/java/org/keycloak/services/resources/IdentityBrokerService.java
+changed_lines: 43
+split: dev
+labels: []

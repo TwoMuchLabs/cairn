@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-pxf8-6wqm-r6hh
+advisory: GHSA-pxf8-6wqm-r6hh
+aliases:
+- CVE-2026-41571
+summary: 'Note Mark: OIDC-registered users authenticated by submitting password "null"'
+language: go
+cwe:
+- CWE-287
+severity: critical
+repository: https://github.com/enchant97/note-mark
+fix_commit: dea5530cc9891187b51548ef9f2868b7dc9f4e92
+files:
+- backend/db/models.go
+changed_lines: 2
+split: holdout
+labels: []

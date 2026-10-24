@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-7hgr-7h44-33w2
+advisory: GHSA-7hgr-7h44-33w2
+aliases: []
+summary: 'CamoFox MCP: Unauthenticated HTTP MCP browser-control surface'
+language: javascript
+cwe:
+- CWE-306
+severity: high
+repository: https://github.com/redf0x1/camofox-mcp
+fix_commit: 599f56ee40f8062aeca541c251ed1d39fb437f50
+files:
+- src/config.ts
+- src/http.ts
+changed_lines: 58
+split: dev
+labels: []

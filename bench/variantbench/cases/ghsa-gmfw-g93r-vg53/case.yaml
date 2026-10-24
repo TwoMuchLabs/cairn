@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-gmfw-g93r-vg53
+advisory: GHSA-gmfw-g93r-vg53
+aliases:
+- CVE-2026-59715
+summary: 'Open WebUI: Unauthenticated WebSocket Access to Collaborative Document Handlers
+  (ydoc:awareness:update, ydoc:document:leave)'
+language: python
+cwe:
+- CWE-306
+severity: low
+repository: https://github.com/open-webui/open-webui
+fix_commit: 22f2fe1ffb66c993dad1e0b2b35514acaed2370e
+files:
+- backend/open_webui/socket/main.py
+changed_lines: 28
+split: dev
+labels: []

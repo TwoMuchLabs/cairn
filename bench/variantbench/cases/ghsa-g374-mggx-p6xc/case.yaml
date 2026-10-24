@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-g374-mggx-p6xc
+advisory: GHSA-g374-mggx-p6xc
+aliases:
+- CVE-2026-41404
+summary: 'OpenClaw: Incomplete scope-clearing fix allows operator.admin escalation
+  via trusted-proxy auth mode'
+language: javascript
+cwe:
+- CWE-863
+severity: high
+repository: https://github.com/openclaw/openclaw
+fix_commit: 8b88b927cb0747ad24d95b07d35682bf85dc5b0e
+files:
+- src/gateway/server/ws-connection/connect-policy.ts
+- src/gateway/server/ws-connection/message-handler.ts
+changed_lines: 34
+split: dev
+labels: []

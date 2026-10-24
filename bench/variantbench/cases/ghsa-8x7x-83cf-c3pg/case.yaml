@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-8x7x-83cf-c3pg
+advisory: GHSA-8x7x-83cf-c3pg
+aliases:
+- CVE-2026-54746
+summary: Hatchet allows cross-tenant write/DoS to other tenants' workers via Dispatcher
+  gRPC UpsertWorkerLabels and Unsubscribe
+language: go
+cwe:
+- CWE-639
+- CWE-862
+severity: moderate
+repository: https://github.com/hatchet-dev/hatchet
+fix_commit: 591a30deb8b80f02eba7014997de387d710986c9
+files:
+- internal/services/dispatcher/server.go
+changed_lines: 18
+split: dev
+labels: []

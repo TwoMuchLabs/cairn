@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-8cw4-87c7-c6xx
+advisory: GHSA-8cw4-87c7-c6xx
+aliases:
+- CVE-2026-85063
+summary: 'node-csv: Prototype replacement still reachable via columns path'
+language: javascript
+cwe:
+- CWE-1321
+severity: moderate
+repository: https://github.com/adaltas/node-csv
+fix_commit: eb4d1484589c976dcb977db8dd0b90e015a6f66e
+files:
+- packages/csv-parse/lib/api/index.js
+changed_lines: 9
+split: holdout
+labels: []

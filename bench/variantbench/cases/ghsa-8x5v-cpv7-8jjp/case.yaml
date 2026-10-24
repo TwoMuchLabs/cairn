@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-8x5v-cpv7-8jjp
+advisory: GHSA-8x5v-cpv7-8jjp
+aliases:
+- CVE-2026-70485
+summary: 'Open WebUI: Any authenticated user can reach internal services and cloud
+  metadata via NAT64-encoded URLs'
+language: python
+cwe:
+- CWE-918
+severity: high
+repository: https://github.com/open-webui/open-webui
+fix_commit: 1717b493d83c86afa82aa8bc50139250852dd2f3
+files:
+- backend/open_webui/retrieval/web/utils.py
+changed_lines: 36
+split: holdout
+labels: []

@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-x32g-jvvm-4725
+advisory: GHSA-x32g-jvvm-4725
+aliases:
+- CVE-2026-111762
+summary: 'A2A Java SDK: Push notification credentials logged in cleartext on protobuf
+  parse failure'
+language: java
+cwe:
+- CWE-532
+severity: moderate
+repository: https://github.com/a2aproject/a2a-java
+fix_commit: 88827105fee0daaac0d883a4a68eb644571d7230
+files:
+- compat-0.3/transport/rest/src/main/java/org/a2aproject/sdk/compat03/transport/rest/handler/RestHandler_v0_3.java
+- transport/rest/src/main/java/org/a2aproject/sdk/transport/rest/handler/RestHandler.java
+changed_lines: 6
+split: holdout
+labels: []

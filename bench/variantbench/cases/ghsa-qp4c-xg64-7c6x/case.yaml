@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-qp4c-xg64-7c6x
+advisory: GHSA-qp4c-xg64-7c6x
+aliases:
+- CVE-2026-32236
+summary: '@backstage/plugin-auth-backend: SSRF in experimental CIMD metadata fetch'
+language: javascript
+cwe:
+- CWE-918
+severity: low
+repository: https://github.com/backstage/backstage
+fix_commit: 17038abf2dfdb4abc08a59b1c95af39851de0e07
+files:
+- plugins/auth-backend/src/service/CimdClient.ts
+changed_lines: 2
+split: dev
+labels: []

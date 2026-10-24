@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-3gh4-cghq-f8v4
+advisory: GHSA-3gh4-cghq-f8v4
+aliases:
+- CVE-2026-107293
+summary: 'Pydantic AI OpenTelemetry instrumentation: retry prompt content is not redacted
+  when `include_content=False`'
+language: python
+cwe:
+- CWE-212
+- CWE-532
+severity: low
+repository: https://github.com/pydantic/pydantic-ai
+fix_commit: fe9dbed7b7ccf7e7128b5786886e4441f6f5594f
+files:
+- pydantic_ai_slim/pydantic_ai/messages.py
+changed_lines: 6
+split: holdout
+labels: []

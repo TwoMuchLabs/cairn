@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-hgjq-p8cr-gg4h
+advisory: GHSA-hgjq-p8cr-gg4h
+aliases:
+- CVE-2026-34730
+summary: Copier `_external_data` allows path traversal and absolute-path local file
+  read without unsafe mode
+language: python
+cwe:
+- CWE-22
+severity: moderate
+repository: https://github.com/copier-org/copier
+fix_commit: 5413062eb17b73dc885f5e645cdc161e69ef641b
+files:
+- copier/_main.py
+- copier/errors.py
+changed_lines: 28
+split: dev
+labels: []

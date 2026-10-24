@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-68w4-83fh-f2w8
+advisory: GHSA-68w4-83fh-f2w8
+aliases: []
+summary: 'pyload-ng: getUserData/get_userdata exposed at Perms.ANY allow any authenticated
+  account to brute-force the administrator password'
+language: python
+cwe:
+- CWE-287
+severity: high
+repository: https://github.com/pyload/pyload
+fix_commit: b99d2a2f06135363ceb0aab16aac5025f138e658
+files:
+- src/pyload/core/api/__init__.py
+- src/pyload/core/database/user_database.py
+changed_lines: 14
+split: holdout
+labels: []

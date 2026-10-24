@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-756x-9hf6-q4h4
+advisory: GHSA-756x-9hf6-q4h4
+aliases:
+- CVE-2026-62675
+summary: 'Omnigent: Uploaded Agent Bundle Allows Authenticated Runner RCE via Python
+  Callable Tools'
+language: python
+cwe:
+- CWE-94
+severity: high
+repository: https://github.com/omnigent-ai/omnigent
+fix_commit: 1f3f398f41cbf97b905133c21e848621c21da6e0
+files:
+- omnigent/server/bundles.py
+changed_lines: 75
+split: holdout
+labels: []

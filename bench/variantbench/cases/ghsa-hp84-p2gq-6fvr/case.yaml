@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-hp84-p2gq-6fvr
+advisory: GHSA-hp84-p2gq-6fvr
+aliases:
+- CVE-2026-7815
+summary: SQL injection vulnerability in pgAdmin 4 Maintenance Tool
+language: python
+cwe:
+- CWE-89
+severity: high
+repository: https://github.com/pgadmin-org/pgadmin4
+fix_commit: cf53953d9ad66c182a08e662c1ba29c5831b486b
+files:
+- web/pgadmin/tools/maintenance/__init__.py
+changed_lines: 51
+split: holdout
+labels: []

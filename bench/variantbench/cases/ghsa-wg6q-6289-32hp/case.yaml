@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-wg6q-6289-32hp
+advisory: GHSA-wg6q-6289-32hp
+aliases:
+- CVE-2026-5588
+summary: 'Bouncy Castle Crypto Package For Java: Use of a Broken or Risky Cryptographic
+  Algorithm vulnerability in bcpkix modules'
+language: java
+cwe:
+- CWE-327
+severity: moderate
+repository: https://github.com/bcgit/bc-java
+fix_commit: 656bae0dbd9b1521f840521ff786e78749fe3057
+files:
+- pkix/src/main/java/org/bouncycastle/operator/jcajce/JcaContentVerifierProviderBuilder.java
+changed_lines: 7
+split: holdout
+labels: []

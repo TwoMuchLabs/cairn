@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-j273-m5qq-6825
+advisory: GHSA-j273-m5qq-6825
+aliases:
+- CVE-2026-28208
+summary: Junrar has an arbitrary file write due to backslash Path Traversal bypass
+  in LocalFolderExtractor on Linux/Unix
+language: java
+cwe:
+- CWE-22
+severity: moderate
+repository: https://github.com/junrar/junrar
+fix_commit: 947ff1d33f00f940aa68ae2593500291d799d954
+files:
+- src/main/java/com/github/junrar/LocalFolderExtractor.java
+changed_lines: 8
+split: dev
+labels: []

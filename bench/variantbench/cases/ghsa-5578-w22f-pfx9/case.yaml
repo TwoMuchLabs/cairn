@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-5578-w22f-pfx9
+advisory: GHSA-5578-w22f-pfx9
+aliases:
+- CVE-2026-55415
+summary: datamodel-code-generator vulnerable to code injection via `x-python-import`
+  / `customTypePath` in generated import statements
+language: python
+cwe:
+- CWE-94
+- CWE-95
+severity: high
+repository: https://github.com/koxudaxi/datamodel-code-generator
+fix_commit: 577d49569c2254c371a97e495020ae2238a73b84
+files:
+- src/datamodel_code_generator/parser/jsonschema.py
+changed_lines: 54
+split: holdout
+labels: []

@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-jfwf-28xr-xw6q
+advisory: GHSA-jfwf-28xr-xw6q
+aliases:
+- CVE-2026-41179
+summary: 'RClone: Unauthenticated operations/fsinfo allows attacker-controlled backend
+  instantiation and local command execution'
+language: go
+cwe:
+- CWE-306
+- CWE-78
+severity: critical
+repository: https://github.com/rclone/rclone
+fix_commit: 2a9e952b38e03a96bf40c9eb6e8e22199865ee3b
+files:
+- fs/operations/rc.go
+changed_lines: 7
+split: dev
+labels: []

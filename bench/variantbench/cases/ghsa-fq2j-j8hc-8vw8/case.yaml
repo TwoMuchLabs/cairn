@@ -1,0 +1,21 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-fq2j-j8hc-8vw8
+advisory: GHSA-fq2j-j8hc-8vw8
+aliases:
+- CVE-2026-32938
+summary: SiYuan Vulnerable to Arbitrary File Read in Desktop Publish Service
+language: go
+cwe:
+- CWE-200
+- CWE-22
+- CWE-284
+severity: critical
+repository: https://github.com/siyuan-note/siyuan
+fix_commit: 294b8b429dea152cd1df522cddf406054c1619ad
+files:
+- kernel/api/lute.go
+- kernel/api/router.go
+- kernel/util/path.go
+changed_lines: 10
+split: dev
+labels: []

@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-xgxp-f695-6vrp
+advisory: GHSA-xgxp-f695-6vrp
+aliases:
+- CVE-2026-33353
+summary: In Soft Serve, an authenticated repo import can clone server-local private
+  repositories
+language: go
+cwe:
+- CWE-200
+- CWE-862
+severity: high
+repository: https://github.com/charmbracelet/soft-serve
+fix_commit: c147421caf234bcfc1570c79d728ecbbe5813e55
+files:
+- pkg/backend/repo.go
+- pkg/proto/errors.go
+changed_lines: 19
+split: dev
+labels: []

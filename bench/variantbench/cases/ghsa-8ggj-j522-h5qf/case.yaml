@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-8ggj-j522-h5qf
+advisory: GHSA-8ggj-j522-h5qf
+aliases:
+- CVE-2026-42809
+summary: Apache Polaris has an Improper Input Validation Issue
+language: java
+cwe:
+- CWE-20
+severity: critical
+repository: https://github.com/apache/polaris
+fix_commit: c98d610bc8f7ee237b272e01814391838dd6abf9
+files:
+- runtime/service/src/main/java/org/apache/polaris/service/catalog/iceberg/IcebergCatalog.java
+- runtime/service/src/main/java/org/apache/polaris/service/catalog/iceberg/IcebergCatalogHandler.java
+changed_lines: 24
+split: dev
+labels: []

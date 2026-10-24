@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-gx83-3vf8-gh7j
+advisory: GHSA-gx83-3vf8-gh7j
+aliases:
+- CVE-2026-83557
+summary: 'jackson-databind: Comparable missing from DefaultBaseTypeLimitingValidator''s
+  unsafe base types (incomplete PolymorphicTypeValidator denylist)'
+language: java
+cwe:
+- CWE-502
+- CWE-915
+severity: moderate
+repository: https://github.com/FasterXML/jackson-databind
+fix_commit: eb3b7fc0f9c0d27f471550ac3316b17d1987388f
+files:
+- src/main/java/com/fasterxml/jackson/databind/jsontype/DefaultBaseTypeLimitingValidator.java
+changed_lines: 5
+split: dev
+labels: []

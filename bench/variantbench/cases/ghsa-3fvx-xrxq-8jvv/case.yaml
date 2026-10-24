@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-3fvx-xrxq-8jvv
+advisory: GHSA-3fvx-xrxq-8jvv
+aliases:
+- CVE-2026-30832
+summary: soft-serve vulnerable to SSRF via unvalidated LFS endpoint in repo import
+language: go
+cwe:
+- CWE-918
+severity: critical
+repository: https://github.com/charmbracelet/soft-serve
+fix_commit: 3ef660098ab37a7950457da8ecc25b516e37ce4e
+files:
+- pkg/ssrf/ssrf.go
+changed_lines: 9
+split: holdout
+labels: []

@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-mfvq-x7vr-rgqg
+advisory: GHSA-mfvq-x7vr-rgqg
+aliases:
+- CVE-2026-106499
+summary: 'Backstage: Secret-derived values may be exposed in scaffolder task logs'
+language: javascript
+cwe:
+- CWE-532
+severity: moderate
+repository: https://github.com/backstage/backstage
+fix_commit: dc30fae2d96cb1606d36cc40b242f9b9e539bd70
+files:
+- plugins/scaffolder-backend/src/scaffolder/tasks/NunjucksWorkflowRunner.ts
+changed_lines: 74
+split: holdout
+labels: []

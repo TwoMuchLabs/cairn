@@ -1,0 +1,20 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-89g2-xw5c-v95p
+advisory: GHSA-89g2-xw5c-v95p
+aliases:
+- CVE-2026-42079
+summary: 'PPTAgent: Arbitrary Code Execution via Python eval() of LLM-Generated Code
+  with Builtins in Scope'
+language: python
+cwe:
+- CWE-95
+severity: high
+repository: https://github.com/icip-cas/PPTAgent
+fix_commit: 418491a9a1c02d9d93194b5973bb58df35cf9d00
+files:
+- pptagent/apis.py
+- pptagent/mcp_server.py
+- pptagent/utils.py
+changed_lines: 38
+split: holdout
+labels: []
