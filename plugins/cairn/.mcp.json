@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "cairn": {
+      "command": "cairn",
+      "args": ["mcp"],
+      "env": { "CLAUDE_PROJECT_DIR": "${CLAUDE_PROJECT_DIR}" }
+    }
+  }
+}

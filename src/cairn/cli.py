@@ -470,6 +470,22 @@ def doctor_cmd():
     sys.exit(0 if ok else EXIT_ERROR)
 
 
+# --------------------------------------------------------------------------- mcp
+@main.command("mcp", short_help="Serve lessons to coding agents over MCP (stdio).")
+def mcp_cmd():
+    """Run Cairn as an MCP server on stdio, for coding agents.
+
+    Tools (all read-only): search_lessons, get_lesson, check_files, hunt_project.
+    Needs the optional dependency: pip install "cairn-security[mcp]".
+    """
+    from .mcp_server import serve
+
+    try:
+        serve()
+    except RuntimeError as exc:
+        raise CairnError(str(exc)) from exc
+
+
 # --------------------------------------------------------------------------- hook
 HOOKABLE_SUFFIXES = {
     ".py",
