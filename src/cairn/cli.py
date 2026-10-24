@@ -339,6 +339,7 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
         raise CairnError(str(exc)) from exc
 
     if not result.passed:
+        err.print(Text(f"Model usage: {model.usage.describe()}", style="dim"))
         last = result.attempts[-1] if result.attempts else None
         out.print(
             Text(
@@ -358,6 +359,7 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
         )
         sys.exit(EXIT_FINDINGS)
 
+    err.print(Text(f"Model usage: {model.usage.describe()}", style="dim"))
     dest_root = (repo_path / out_dir) if not Path(out_dir).is_absolute() else Path(out_dir)
     dest = save(result, dest_root)
     lesson = load(dest)

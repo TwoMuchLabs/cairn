@@ -59,18 +59,18 @@ def run_case(case: dict, model, engine, workdir: Path, max_attempts: int) -> dic
     if _git(
         "clone", "-q", "--filter=blob:none", "--no-checkout", case["repository"], str(repo)
     ).returncode:
-        return {**out, "status": "error", "error": "clone failed"}
+        return {**out, "status": "error", "stage": "clone", "error": "clone failed"}
     sha = case["fix_commit"]
     if _git("cat-file", "-e", f"{sha}^{{commit}}", cwd=repo).returncode:
         _git("fetch", "-q", "origin", sha, cwd=repo)
     try:
         commit = load_fix_commit(repo, sha)
     except GitError as exc:
-        return {**out, "status": "error", "error": str(exc)}
+        return {**out, "status": "error", "stage": "git", "error": str(exc)}
     try:
         result = synthesize(commit, model, engine, max_attempts=max_attempts)
     except ModelError as exc:
-        return {**out, "status": "error", "error": str(exc)}
+        return {**out, "status": "error", "stage": "model", "error": str(exc)}
     out["attempts"] = len(result.attempts)
     out["failures"] = [
         (a.problem or (a.acceptance.feedback() if a.acceptance else ""))[:300]
@@ -154,6 +154,12 @@ def main(argv=None) -> int:
     ap.add_argument("--out", type=Path, default=Path("runs"))
     ap.add_argument("--limit", type=int)
     ap.add_argument("--max-attempts", type=int, default=4)
+    ap.add_argument(
+        "--max-usd",
+        type=float,
+        default=5.0,
+        help="Stop starting new cases once estimated model spend reaches this (default $5).",
+    )
     ap.add_argument("--report", type=Path, help="Only (re)write the summary for an existing run.")
     args = ap.parse_args(argv)
 
@@ -188,15 +194,59 @@ def main(argv=None) -> int:
             indent=2,
         )
     )
+    try:  # one tiny call so a bad key or model name fails in seconds, with a clear message
+        model.complete("You are a health check. Reply with the word OK.", "Health check")
+    except ModelError as exc:
+        print(f"The model is not reachable or not configured correctly: {exc}", file=sys.stderr)
+        return 1
     results = []
+    consecutive_model_errors = 0
     for i, case in enumerate(selected, 1):
+        spent = model.usage.cost_usd
+        if spent is not None and spent >= args.max_usd:
+            print(
+                f"Stopping: estimated spend ${spent:.2f} reached the --max-usd budget "
+                f"(${args.max_usd:.2f}) after {i - 1} case(s).",
+                file=sys.stderr,
+            )
+            break
+        before_in, before_out = model.usage.input_tokens, model.usage.output_tokens
         with tempfile.TemporaryDirectory(prefix="vbrun-") as tmp:
             r = run_case(case, model, engine, Path(tmp), args.max_attempts)
+        r["tokens"] = {
+            "input": model.usage.input_tokens - before_in,
+            "output": model.usage.output_tokens - before_out,
+        }
         results.append(r)
         (run_dir / "results" / f"{case['id']}.json").write_text(json.dumps(r, indent=2))
-        print(f"[{i}/{len(selected)}] {case['advisory']:22s} {r['status']}", file=sys.stderr)
-    (run_dir / "summary.md").write_text(summarize(results, cases))
-    print((run_dir / "summary.md").read_text())
+        detail = f"  ({r['error'][:200]})" if r.get("error") else ""
+        print(
+            f"[{i}/{len(selected)}] {case['advisory']:22s} {r['status']}{detail}", file=sys.stderr
+        )
+        model_failed = r.get("status") == "error" and r.get("stage") == "model"
+        consecutive_model_errors = consecutive_model_errors + 1 if model_failed else 0
+        if consecutive_model_errors >= 3:
+            print(
+                "Stopping: the model failed on 3 cases in a row, so the remaining cases would only "
+                f"measure the outage. Last error: {r.get('error', '')[:300]}",
+                file=sys.stderr,
+            )
+            break
+    summary = summarize(results, cases) + f"\nModel usage: {model.usage.describe()}\n"
+    (run_dir / "summary.md").write_text(summary)
+    meta = json.loads((run_dir / "run.json").read_text())
+    meta["usage"] = {
+        "calls": model.usage.calls,
+        "input_tokens": model.usage.input_tokens,
+        "output_tokens": model.usage.output_tokens,
+        "estimated_usd": model.usage.cost_usd,
+    }
+    (run_dir / "run.json").write_text(json.dumps(meta, indent=2))
+    print(summary)
+    measured = [r for r in results if r["status"] in ("lesson", "no-lesson")]
+    if not measured:
+        print("No case produced a measurement; this run is not a result.", file=sys.stderr)
+        return 1
     return 0
 
 
