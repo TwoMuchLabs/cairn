@@ -49,14 +49,16 @@ labels:
   by: claude-prelabel
 - path: wicket-examples/src/main/java/org/apache/wicket/examples/upload/MultiUploadPage.java
   line: 142
-  verdict: tp
+  verdict: fp
   by: claude-prelabel
-  note: example upload page writes client file name under upload folder
+  note: FileUpload.getClientFileName() strips directory components (lastPathComponent
+    on / and \), so no traversal; corrected after model review flagged it
 - path: wicket-examples/src/main/java/org/apache/wicket/examples/upload/UploadPage.java
   line: 128
-  verdict: tp
+  verdict: fp
   by: claude-prelabel
-  note: example upload page writes client file name under upload folder
+  note: FileUpload.getClientFileName() strips directory components (lastPathComponent
+    on / and \), so no traversal; corrected after model review flagged it
 - path: wicket-util/src/main/java/org/apache/wicket/util/file/File.java
   line: 128
   verdict: fp
