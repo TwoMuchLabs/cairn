@@ -14,7 +14,7 @@ import json
 import os
 import urllib.error
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Protocol
 
@@ -25,8 +25,46 @@ class ModelError(Exception):
     pass
 
 
+# USD per million tokens (input, output), from platform.claude.com/docs/en/about-claude/pricing,
+# checked 2026-10-24. Used only to show estimated cost; your invoice is the source of truth.
+PRICES_PER_MTOK = {
+    "claude-opus-5-5": (4.0, 20.0),
+    "claude-sonnet-5-5": (2.0, 10.0),
+    "claude-haiku-5-5": (0.10, 0.50),
+}
+
+
+@dataclass
+class Usage:
+    """Running token count for one model object, with an estimated cost when the price is known."""
+
+    calls: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    price: tuple[float, float] | None = None
+
+    def add(self, input_tokens: int, output_tokens: int) -> None:
+        self.calls += 1
+        self.input_tokens += int(input_tokens or 0)
+        self.output_tokens += int(output_tokens or 0)
+
+    @property
+    def cost_usd(self) -> float | None:
+        if self.price is None:
+            return None
+        return (self.input_tokens * self.price[0] + self.output_tokens * self.price[1]) / 1_000_000
+
+    def describe(self) -> str:
+        tokens = (
+            f"{self.calls} call(s), {self.input_tokens:,} in / {self.output_tokens:,} out tokens"
+        )
+        cost = self.cost_usd
+        return f"{tokens}, about ${cost:.2f}" if cost is not None else tokens
+
+
 class Model(Protocol):
     name: str
+    usage: Usage
 
     def complete(self, system: str, prompt: str) -> str: ...
 
@@ -52,6 +90,10 @@ class Anthropic:
     model: str
     api_key: str
     max_tokens: int = 4096
+    usage: Usage = field(default_factory=Usage)
+
+    def __post_init__(self) -> None:
+        self.usage.price = PRICES_PER_MTOK.get(self.model)
 
     @property
     def name(self) -> str:
@@ -68,6 +110,13 @@ class Anthropic:
                 "messages": [{"role": "user", "content": prompt}],
             },
         )
+        u = data.get("usage") or {}
+        self.usage.add(
+            (u.get("input_tokens") or 0)
+            + (u.get("cache_creation_input_tokens") or 0)
+            + (u.get("cache_read_input_tokens") or 0),
+            u.get("output_tokens") or 0,
+        )
         return "".join(
             b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"
         )
@@ -78,6 +127,7 @@ class OpenAICompatible:
     model: str
     api_key: str
     base_url: str
+    usage: Usage = field(default_factory=Usage)
 
     @property
     def name(self) -> str:
@@ -95,6 +145,8 @@ class OpenAICompatible:
                 ],
             },
         )
+        u = data.get("usage") or {}
+        self.usage.add(u.get("prompt_tokens") or 0, u.get("completion_tokens") or 0)
         try:
             return data["choices"][0]["message"]["content"] or ""
         except (KeyError, IndexError) as exc:
@@ -105,6 +157,7 @@ class OpenAICompatible:
 class Ollama:
     model: str
     host: str
+    usage: Usage = field(default_factory=lambda: Usage(price=(0.0, 0.0)))
 
     @property
     def name(self) -> str:
@@ -123,6 +176,7 @@ class Ollama:
                 ],
             },
         )
+        self.usage.add(data.get("prompt_eval_count") or 0, data.get("eval_count") or 0)
         return (data.get("message") or {}).get("content", "")
 
 
@@ -133,6 +187,7 @@ class Mock:
     path: Path
     _responses: list[str] | None = None
     _i: int = 0
+    usage: Usage = field(default_factory=lambda: Usage(price=(0.0, 0.0)))
 
     @property
     def name(self) -> str:
@@ -140,12 +195,16 @@ class Mock:
 
     def complete(self, system: str, prompt: str) -> str:
         if self._responses is None:
-            loaded = yaml.safe_load(self.path.read_text("utf-8"))
+            try:
+                loaded = yaml.safe_load(self.path.read_text("utf-8"))
+            except OSError as exc:
+                raise ModelError(f"mock responses not readable: {exc}") from exc
             self._responses = [str(r) for r in (loaded or [])]
         if self._i >= len(self._responses):
             raise ModelError(f"mock model ran out of responses after {self._i}")
         out = self._responses[self._i]
         self._i += 1
+        self.usage.add(len(prompt) // 4, len(out) // 4)
         return out
 
 

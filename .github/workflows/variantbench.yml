@@ -12,6 +12,9 @@ on:
       limit:
         description: Maximum number of cases (start small to see cost and quality).
         default: "30"
+      max_usd:
+        description: Stop starting new cases once estimated model spend reaches this many US dollars.
+        default: "5"
 
 permissions:
   contents: read
@@ -38,12 +41,13 @@ jobs:
           OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL }}
           SPLIT: ${{ inputs.split }}
           LIMIT: ${{ inputs.limit }}
+          MAX_USD: ${{ inputs.max_usd }}
         run: |
           if [ -z "$CAIRN_MODEL" ]; then
             echo "::error::Set the repository variable CAIRN_MODEL (e.g. anthropic:claude-sonnet-5-5) and the matching API key secret."
             exit 1
           fi
-          python bench/variantbench/run.py --split "$SPLIT" --limit "$LIMIT" --out runs
+          python bench/variantbench/run.py --split "$SPLIT" --limit "$LIMIT" --max-usd "$MAX_USD" --out runs
           cat runs/*/summary.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()

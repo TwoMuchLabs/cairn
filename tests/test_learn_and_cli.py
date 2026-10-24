@@ -101,3 +101,15 @@ def test_check_only_enforces_approved_lessons(fix_repo, engine, monkeypatch, tmp
     result = CliRunner().invoke(main, ["check", "--lessons", str(pack)])
     assert result.exit_code == 2
     assert "no approved lessons" in result.output
+
+
+def test_usage_estimates_cost_from_known_prices(monkeypatch):
+    from cairn.models import from_spec
+
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
+    model = from_spec("anthropic:claude-sonnet-5-5")
+    model.usage.add(1_000_000, 100_000)
+    assert round(model.usage.cost_usd, 2) == 3.00  # $2/MTok in + $10/MTok out
+    unknown = from_spec("anthropic:some-future-model")
+    unknown.usage.add(10, 10)
+    assert unknown.usage.cost_usd is None and "about $" not in unknown.usage.describe()
