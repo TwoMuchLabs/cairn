@@ -114,7 +114,7 @@ def main() -> None:
 
 
 # --------------------------------------------------------------------------- hunt
-@main.command("hunt")
+@main.command("hunt", short_help="Look for known mistakes in a codebase.")
 @click.argument("target", default=".", type=click.Path(exists=True, file_okay=False))
 @lessons_option
 @click.option("--approved-only", is_flag=True, help="Skip lessons that are still 'proposed'.")
@@ -164,7 +164,7 @@ def hunt_cmd(target, lesson_paths, approved_only, min_confidence, sarif_path, as
 
 
 # --------------------------------------------------------------------------- check
-@main.command("check")
+@main.command("check", short_help="Enforce approved lessons (for CI).")
 @click.argument("target", default=".", type=click.Path(exists=True, file_okay=False))
 @lessons_option
 @click.option(
@@ -225,7 +225,7 @@ def check_cmd(target, lesson_paths, fail_on, baseline_ref, sarif_path):
 
 
 # --------------------------------------------------------------------------- validate
-@main.command("validate")
+@main.command("validate", short_help="Re-prove lessons with their acceptance test.")
 @click.argument("paths", nargs=-1, type=click.Path(exists=True))
 def validate_cmd(paths):
     """Run the acceptance test on lessons (default: built-in pack + ./.cairn/lessons).
@@ -255,7 +255,7 @@ def validate_cmd(paths):
 
 
 # --------------------------------------------------------------------------- learn
-@main.command("learn")
+@main.command("learn", short_help="Turn a security fix commit into a lesson.")
 @click.option(
     "--commit", "ref", required=True, help="The security fix commit (SHA, tag or branch)."
 )
@@ -281,6 +281,12 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
     The model proposes a rule; cairn accepts it only if it matches the pre-fix code near the
     lines the fix changed and stays silent on the fixed code. Accepted lessons are saved as
     'proposed' for a human to review.
+
+    \b
+    Choose a model with CAIRN_MODEL (or --model):
+      anthropic:claude-sonnet-5-5   needs ANTHROPIC_API_KEY
+      openai:<model>                needs OPENAI_API_KEY (OPENAI_BASE_URL for compatible APIs)
+      ollama:<model>                local; code never leaves your machine
     """
     from .gitsource import GitError, load_fix_commit
     from .models import ModelError, from_spec
@@ -303,7 +309,8 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
     head.append(f"  {commit.subject}", style="italic")
     err.print(head)
     for f in commit.files:
-        err.print(Text(f"  {f.path}  ({len(f.removed_lines)} changed line(s))", style="dim"))
+        n = len(f.removed_lines)
+        err.print(Text(f"  {f.path}  ({n} changed line{'s' if n != 1 else ''})", style="dim"))
 
     def progress(a):
         t = Text(f"  attempt {a.number}  ")
@@ -369,10 +376,10 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
         _report_engine_errors(errors)
         out.print()
         if findings:
+            n = len(findings)
+            plural = "s" if n != 1 else ""
             out.print(
-                Text(
-                    f"Found {len(findings)} possible sibling(s) in the current code:", style="bold"
-                )
+                Text(f"Found {n} possible sibling{plural} in the current code:", style="bold")
             )
             out.print()
             render.findings(out, findings, repo_path)
@@ -391,14 +398,17 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
 
 
 # --------------------------------------------------------------------------- doctor
-@main.command("doctor")
+@main.command("doctor", short_help="Check that cairn is ready to run here.")
 def doctor_cmd():
     """Check that cairn is ready to run here."""
     ok = True
 
-    def line(good: bool, label: str, detail: str = "") -> None:
+    def line(good: bool | None, label: str, detail: str = "") -> None:
         t = Text()
-        t.append("✓ " if good else "✗ ", style="bold green" if good else "bold red")
+        if good is None:
+            t.append("○ ", style="dim")
+        else:
+            t.append("✓ " if good else "✗ ", style="bold green" if good else "bold red")
         t.append(label)
         if detail:
             t.append("  " + detail, style="dim")
@@ -432,10 +442,11 @@ def doctor_cmd():
         m = from_spec()
         line(True, "model for 'learn'", m.name)
     except ModelError as exc:
-        line(
-            False, "model for 'learn'", "not configured (hunt, check and validate work without one)"
-        )
-        out.print(Text("    " + str(exc).replace("\n", "\n    "), style="dim"))
+        if os.environ.get("CAIRN_MODEL"):
+            ok = False
+            line(False, "model for 'learn'", str(exc).splitlines()[0])
+        else:
+            line(None, "model for 'learn'", "not set; only 'learn' needs one (cairn learn --help)")
 
     try:
         lessons = _load_lessons(())

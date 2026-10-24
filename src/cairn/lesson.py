@@ -155,9 +155,14 @@ def schema_problems(data: Any) -> list[str]:
             + ", ".join(SUPPORTED_SCHEMAS)
         ]
     problems = []
-    for err in sorted(_validator().iter_errors(data), key=lambda e: list(e.path)):
-        where = ".".join(str(p) for p in err.path) or "(top level)"
-        problems.append(f"{where}: {err.message}")
+    for err in sorted(_validator().iter_errors(data), key=lambda e: [str(p) for p in e.path]):
+        where = ".".join(str(p) for p in err.path)
+        if err.validator == "required":
+            missing = err.message.split("'")[1] if "'" in err.message else err.message
+            field_name = f"{where}.{missing}" if where else missing
+            problems.append(f"missing required field '{field_name}'")
+        else:
+            problems.append(f"{where or 'lesson'}: {err.message}")
     return problems
 
 

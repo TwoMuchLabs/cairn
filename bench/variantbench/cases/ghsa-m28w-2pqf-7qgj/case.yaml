@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-m28w-2pqf-7qgj
+advisory: GHSA-m28w-2pqf-7qgj
+aliases:
+- CVE-2026-14631
+summary: webpack-dev-server vulnerable to denial of service via a malformed Host or
+  Origin header
+language: javascript
+cwe:
+- CWE-20
+- CWE-248
+severity: moderate
+repository: https://github.com/webpack/webpack-dev-server
+fix_commit: f21ed0f44aceb6132abb591ee8b60d770b6e489f
+files:
+- lib/Server.js
+changed_lines: 20
+split: dev
+labels: []

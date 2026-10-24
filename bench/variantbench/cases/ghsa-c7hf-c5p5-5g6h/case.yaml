@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-c7hf-c5p5-5g6h
+advisory: GHSA-c7hf-c5p5-5g6h
+aliases:
+- CVE-2026-32230
+summary: Uptime Kuma is Missing Authorization Checks on Ping Badge Endpoint, Leaks
+  Ping times of monitors without needing to be on a status page
+language: javascript
+cwe:
+- CWE-862
+severity: moderate
+repository: https://github.com/louislam/uptime-kuma
+fix_commit: 303a609c05d0b174a5045c90f53c2b557d4febae
+files:
+- server/routers/api-router.js
+changed_lines: 76
+split: dev
+labels: []

@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-m6rx-h84q-8r95
+advisory: GHSA-m6rx-h84q-8r95
+aliases:
+- CVE-2026-106119
+summary: 'LangChain: MongoDBChatMessageHistory query injection can allow cross-session
+  access'
+language: javascript
+cwe:
+- CWE-943
+severity: moderate
+repository: https://github.com/langchain-ai/langchainjs
+fix_commit: 946e3d856ff1f8ce7f7b9374c83f680a6ada79af
+files:
+- libs/providers/langchain-mongodb/src/cache.ts
+- libs/providers/langchain-mongodb/src/chat_history.ts
+changed_lines: 16
+split: dev
+labels: []

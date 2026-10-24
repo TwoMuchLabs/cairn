@@ -1,0 +1,68 @@
+name: Cairn security memory
+description: Enforce your team's security lessons on every pull request, with evidence for each finding.
+author: twomuchlabs
+branding:
+  icon: shield
+  color: gray-dark
+
+inputs:
+  path:
+    description: Directory to check.
+    default: "."
+  lessons:
+    description: Extra lesson packs, one path per line. The built-in pack and ./.cairn/lessons are always included.
+    default: ""
+  fail-on:
+    description: Fail when a finding is at least this severe (critical, high, medium, low, info).
+    default: high
+  baseline-ref:
+    description: Only report findings introduced since this ref. Defaults to the PR base branch on pull requests.
+    default: ""
+  sarif-file:
+    description: Where to write SARIF for upload to code scanning. Empty to skip.
+    default: cairn.sarif
+  python-version:
+    description: Python used to run Cairn.
+    default: "3.12"
+
+outputs:
+  sarif-file:
+    description: Path of the SARIF file written, if any.
+    value: ${{ steps.check.outputs.sarif }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install Cairn (from this action's pinned ref) and the rule engine
+      shell: bash
+      run: |
+        python -m pip install --disable-pip-version-check --quiet "${GITHUB_ACTION_PATH}" "semgrep==1.182.1"
+
+    - name: Check lessons
+      id: check
+      shell: bash
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+        INPUT_LESSONS: ${{ inputs.lessons }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_BASELINE: ${{ inputs.baseline-ref }}
+        INPUT_SARIF: ${{ inputs.sarif-file }}
+        BASE_REF: ${{ github.base_ref }}
+      run: |
+        args=(check "$INPUT_PATH" --fail-on "$INPUT_FAIL_ON")
+        while IFS= read -r p; do [ -n "$p" ] && args+=(--lessons "$p"); done <<< "$INPUT_LESSONS"
+        baseline="$INPUT_BASELINE"
+        if [ -z "$baseline" ] && [ -n "$BASE_REF" ]; then
+          git fetch --no-tags --depth=1 origin "$BASE_REF" >/dev/null 2>&1 || true
+          baseline="origin/$BASE_REF"
+        fi
+        [ -n "$baseline" ] && args+=(--baseline-ref "$baseline")
+        if [ -n "$INPUT_SARIF" ]; then
+          args+=(--sarif "$INPUT_SARIF")
+          echo "sarif=$INPUT_SARIF" >> "$GITHUB_OUTPUT"
+        fi
+        cairn "${args[@]}"

@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-w52v-v783-gw97
+advisory: GHSA-w52v-v783-gw97
+aliases:
+- CVE-2026-26980
+summary: Ghost has a SQL injection in Content API
+language: javascript
+cwe:
+- CWE-89
+severity: critical
+repository: https://github.com/TryGhost/Ghost
+fix_commit: 30868d632b2252b638bc8a4c8ebf73964592ed91
+files:
+- ghost/core/core/server/api/endpoints/utils/serializers/input/utils/slug-filter-order.js
+- ghost/core/core/server/models/base/plugins/crud.js
+changed_lines: 20
+split: holdout
+labels: []

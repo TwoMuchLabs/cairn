@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-c5gq-4h56-4mmx
+advisory: GHSA-c5gq-4h56-4mmx
+aliases:
+- CVE-2026-25751
+summary: FUXA Unauthenticated Exposure of Plaintext Database Credentials
+language: javascript
+cwe:
+- CWE-306
+- CWE-312
+severity: critical
+repository: https://github.com/frangoteam/FUXA
+fix_commit: c6c4cba1a62545e8e3ae0f43b2269e61209fbee8
+files:
+- server/api/index.js
+changed_lines: 10
+split: dev
+labels: []

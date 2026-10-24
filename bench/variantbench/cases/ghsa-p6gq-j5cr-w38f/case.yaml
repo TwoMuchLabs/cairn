@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-p6gq-j5cr-w38f
+advisory: GHSA-p6gq-j5cr-w38f
+aliases:
+- CVE-2026-82659
+summary: 'Nodemailer: Message-level raw option bypasses disableFileAccess/disableUrlAccess,
+  enabling arbitrary file read and full-response SSRF in the delivered message'
+language: javascript
+cwe:
+- CWE-73
+- CWE-918
+severity: high
+repository: https://github.com/nodemailer/nodemailer
+fix_commit: a82e060d978f27e5f41369a9a9807b1e3dedc2e2
+files:
+- lib/mail-composer/index.js
+changed_lines: 6
+split: holdout
+labels: []

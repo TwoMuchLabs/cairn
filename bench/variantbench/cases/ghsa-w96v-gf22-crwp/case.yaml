@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-w96v-gf22-crwp
+advisory: GHSA-w96v-gf22-crwp
+aliases:
+- CVE-2025-68949
+summary: 'n8n: Webhook Node IP Whitelist Bypass via Partial String Matching'
+language: javascript
+cwe:
+- CWE-134
+- CWE-183
+- CWE-284
+severity: moderate
+repository: https://github.com/n8n-io/n8n
+fix_commit: 11f8597d4ad69ea3b58941573997fdbc4de1fec5
+files:
+- packages/nodes-base/nodes/Webhook/utils.ts
+changed_lines: 31
+split: dev
+labels: []

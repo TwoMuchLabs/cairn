@@ -140,14 +140,20 @@ def acceptance(console: Console, reports: Sequence[Acceptance]) -> None:
             console.print(line)
         else:
             line.append("✗ ", style="bold red")
-            line.append(r.lesson.id.ljust(width), style="bold")
+            line.append(r.lesson.id, style="bold")
             console.print(line)
             for c in r.failures:
                 detail = Text("    ")
                 detail.append(c.name, style="red")
-                if c.detail:
-                    detail.append(": " + c.detail)
+                items = c.detail.split("; ") if c.name == "schema" else [c.detail]
+                if len(items) == 1 and items[0]:
+                    detail.append(": " + items[0])
                 console.print(detail)
+                if len(items) > 1:
+                    for item in items[:6]:
+                        console.print(Text("      · " + item))
+                    if len(items) > 6:
+                        console.print(Text(f"      · …and {len(items) - 6} more", style="dim"))
 
 
 def skipped(console: Console, items: Sequence[tuple[Lesson, str]]) -> None:

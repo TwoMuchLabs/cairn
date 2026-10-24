@@ -1,0 +1,21 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-98hj-9722-w3j8
+advisory: GHSA-98hj-9722-w3j8
+aliases:
+- CVE-2026-114128
+summary: 'Astro: Reflected/Stored XSS via unescaped <script>/<style> tag content in
+  JSX/MDX rendering'
+language: javascript
+cwe:
+- CWE-79
+severity: moderate
+repository: https://github.com/withastro/astro
+fix_commit: a548223607b9bb146d5d90ddda495343f9a2a739
+files:
+- packages/astro/src/runtime/server/jsx.ts
+- packages/astro/src/runtime/server/render/streaming.ts
+- packages/markdown/remark/src/mdx/create-processor.ts
+- packages/markdown/satteri/src/mdx/create-processor.ts
+changed_lines: 57
+split: holdout
+labels: []

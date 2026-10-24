@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-3hcm-ggvf-rch5
+advisory: GHSA-3hcm-ggvf-rch5
+aliases:
+- CVE-2026-28470
+summary: OpenClaw has an exec allowlist bypass via command substitution/backticks
+  inside double quotes
+language: javascript
+cwe:
+- CWE-78
+- CWE-88
+severity: high
+repository: https://github.com/openclaw/openclaw
+fix_commit: d1ecb46076145deb188abcba8f0699709ea17198
+files:
+- src/infra/exec-approvals.ts
+changed_lines: 38
+split: holdout
+labels: []
