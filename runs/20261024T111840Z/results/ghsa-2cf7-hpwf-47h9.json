@@ -1,0 +1,41 @@
+{
+  "id": "ghsa-2cf7-hpwf-47h9",
+  "advisory": "GHSA-2cf7-hpwf-47h9",
+  "language": "javascript",
+  "cwe": [
+    "CWE-200",
+    "CWE-863"
+  ],
+  "split": "dev",
+  "attempts": 4,
+  "failures": [
+    "- matches vulnerable code: no finding in handlers-n8n-manager.js, handlers-n8n-manager.ts\n- matches the code the fix changed: no finding near the fix in handlers-n8n-manager.js (fix changed lines 1814; matches at none); handlers-n8n-manager.ts (fix changed lines 2407; matches at none)",
+    "- silent on the fix: still matches the patched code at handlers-n8n-manager.js:1814, handlers-n8n-manager.ts:2407",
+    "- matches vulnerable code: no finding in handlers-n8n-manager.js\n- matches the code the fix changed: no finding near the fix in handlers-n8n-manager.js (fix changed lines 1814; matches at none)"
+  ],
+  "status": "lesson",
+  "lesson_id": "javascript-express-multitenant-incomplete-tenant-scope",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: javascript-express-multitenant-incomplete-tenant-scope\ntitle: Multi-tenant guard accepts incomplete tenant context or tenant-scoped storage used without scope\n  check\nsummary: 'In multi-tenant mode the request guard used `!hasUrl && !hasKey`, which only rejects when both\n  tenant headers are missing. A request with a single header passes with an incomplete tenant context,\n  so the resolved tenant scope id can be empty. The workflow-versions handler then built a versioning\n  service without checking for that, so backups stored under an empty scope were shared across tenants.\n  Both headers must be required, and handlers that touch tenant-scoped storage must fail closed when the\n  scope id is empty.\n\n  '\ncwe:\n- CWE-863\n- CWE-285\nseverity: high\nconfidence: medium\nlanguages:\n- javascript\n- typescript\nsource:\n  kind: fix-commit\n  ref: c1ca1e73697feaec5ec2a5fb7e6992a2892b62c9\n  vulnerable_ref: c1ca1e73697feaec5ec2a5fb7e6992a2892b62c9^\n  patched_ref: c1ca1e73697feaec5ec2a5fb7e6992a2892b62c9\n  repository: https://github.com/czlonkowski/n8n-mcp\nrule:\n  message: 'Incomplete multi-tenant authorization. Either the guard rejects only when ALL tenant identifiers\n\n    are missing (`!a && !b` instead of `!a || !b`), or a handler builds a tenant-scoped versioning\n\n    service without first failing closed when ENABLE_MULTI_TENANT is on and the tenant scope id is empty.\n\n    '\n  patterns:\n  - pattern-either:\n    - pattern: 'process.env.ENABLE_MULTI_TENANT === ''true'' && !$A && !$B\n\n        '\n    - patterns:\n      - pattern: 'const $INPUT = $SCHEMA.parse($ARGS);\n\n          '\n      - pattern-either:\n        - pattern-inside: \"try {\\n  ...\\n  const $V = new $NS.WorkflowVersioningService(...);\\n  ...\\n\\\n            }\\n\"\n        - pattern-inside: \"try {\\n  ...\\n  const $V = new WorkflowVersioningService(...);\\n  ...\\n}\\n\"\n      - pattern-not-inside: \"try {\\n  ...\\n  const $INPUT = $SCHEMA.parse($ARGS);\\n  ...\\n  if (<... process.env.ENABLE_MULTI_TENANT\\\n          \\ ...>) {\\n    ...\\n  }\\n  ...\\n}\\n\"\nfix:\n  guidance: 'In multi-tenant mode require every tenant header (URL and API key) and reject the request\n    with a 400 if any one is missing, using `||` between the negated checks. In handlers that read or\n    write tenant-scoped storage (such as workflow version backups), resolve the tenant scope id first\n    and return an error when multi-tenant mode is on and the scope id is empty.\n\n    '\n  example: \"if (process.env.ENABLE_MULTI_TENANT === 'true' && (!hasUrl || !hasKey)) {\\n  res.status(400).json({\\\n    \\ jsonrpc: '2.0', error: { code: -32602, message: 'Multi-tenant headers required' }, id: null });\\n\\\n    \\  return;\\n}\\n\\n// in the handler\\nconst input = workflowVersionsSchema.parse(args);\\nif (process.env.ENABLE_MULTI_TENANT\\\n    \\ === 'true' && getInstanceScopeId(context) === '') {\\n  return { success: false, error: 'Workflow\\\n    \\ version storage is not available for this tenant context' };\\n}\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/http-server-single-session.js\n  - fixtures/vulnerable/handlers-n8n-manager.js\n  - fixtures/vulnerable/http-server-single-session.ts\n  - fixtures/vulnerable/handlers-n8n-manager.ts\n  patched:\n  - fixtures/patched/http-server-single-session.js\n  - fixtures/patched/handlers-n8n-manager.js\n  - fixtures/patched/http-server-single-session.ts\n  - fixtures/patched/handlers-n8n-manager.ts\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 4\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [
+    {
+      "fixture": "handlers-n8n-manager.js",
+      "line": 626
+    },
+    {
+      "fixture": "handlers-n8n-manager.ts",
+      "line": 928
+    }
+  ],
+  "sibling_hits": [
+    {
+      "path": "src/mcp/handlers-n8n-manager.ts",
+      "line": 928
+    },
+    {
+      "path": "src/mcp/handlers-workflow-diff.ts",
+      "line": 153
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 1,
+  "engine_errors": []
+}

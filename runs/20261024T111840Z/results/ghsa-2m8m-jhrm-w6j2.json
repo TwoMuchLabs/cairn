@@ -1,0 +1,18 @@
+{
+  "id": "ghsa-2m8m-jhrm-w6j2",
+  "advisory": "GHSA-2m8m-jhrm-w6j2",
+  "language": "go",
+  "cwe": [
+    "CWE-78"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "go-rclone-sftp-powershell-incomplete-quote-escape",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: go-rclone-sftp-powershell-incomplete-quote-escape\ntitle: PowerShell path quoting only doubles ASCII apostrophe, allowing smart-quote command injection\nsummary: A path is wrapped in single quotes for PowerShell and only the ASCII apostrophe is escaped with\n  strings.ReplaceAll. PowerShell also treats the Unicode smart quotes U+2018, U+2019, U+201A and U+201B\n  as single-quote delimiters. A crafted filename can therefore close the string literal and inject arbitrary\n  PowerShell statements on the remote host.\ncwe:\n- CWE-78\nseverity: high\nconfidence: high\nlanguages:\n- go\nsource:\n  kind: fix-commit\n  ref: e122fba1a57641b63a580aa26c026903a84e2e88\n  vulnerable_ref: e122fba1a57641b63a580aa26c026903a84e2e88^\n  patched_ref: e122fba1a57641b63a580aa26c026903a84e2e88\n  repository: https://github.com/rclone/rclone\nrule:\n  message: 'Path is quoted for PowerShell by escaping only the ASCII apostrophe. PowerShell also treats\n    the Unicode smart quotes U+2018, U+2019, U+201A and U+201B as quote delimiters, so a crafted filename\n    can break out of the literal and inject commands. Double all of these characters, for example with\n    a strings.NewReplacer.\n\n    '\n  patterns:\n  - pattern-either:\n    - pattern: '\"''\" + strings.ReplaceAll($S, \"''\", \"''''\") + \"''\"\n\n        '\n    - pattern: '\"''\" + strings.Replace($S, \"''\", \"''''\", -1) + \"''\"\n\n        '\n    - pattern: '\"''\" + strings.NewReplacer(\"''\", \"''''\").Replace($S) + \"''\"\n\n        '\nfix:\n  guidance: Escape every character PowerShell accepts as a single-quote delimiter, not just the ASCII\n    apostrophe. Use a strings.NewReplacer that doubles ', U+2018, U+2019, U+201A and U+201B, and wrap\n    the result in apostrophes. Doubling a delimiter is PowerShell's escape for a literal occurrence of\n    it.\n  example: \"var powerShellQuoteEscaper = strings.NewReplacer(\\n    \\\"'\\\", \\\"''\\\",\\n    \\\"\\\\u2018\\\", \\\"\\\n    \\\\u2018\\\\u2018\\\",\\n    \\\"\\\\u2019\\\", \\\"\\\\u2019\\\\u2019\\\",\\n    \\\"\\\\u201A\\\", \\\"\\\\u201A\\\\u201A\\\",\\n  \\\n    \\  \\\"\\\\u201B\\\", \\\"\\\\u201B\\\\u201B\\\",\\n)\\n\\nfunc quotePS(p string) string {\\n    return \\\"'\\\" + powerShellQuoteEscaper.Replace(p)\\\n    \\ + \\\"'\\\"\\n}\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/sftp.go\n  patched:\n  - fixtures/patched/sftp.go\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": []
+}

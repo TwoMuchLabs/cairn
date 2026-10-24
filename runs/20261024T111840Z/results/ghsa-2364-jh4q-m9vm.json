@@ -1,0 +1,46 @@
+{
+  "id": "ghsa-2364-jh4q-m9vm",
+  "advisory": "GHSA-2364-jh4q-m9vm",
+  "language": "javascript",
+  "cwe": [
+    "CWE-639"
+  ],
+  "split": "dev",
+  "attempts": 3,
+  "failures": [
+    "- matches vulnerable code: no finding in tenantRequestGuards.ts\n- matches the code the fix changed: no finding near the fix in tenantRequestGuards.ts (fix changed lines 67; matches at none)",
+    "- matches vulnerable code: no finding in tenantRequestGuards.ts\n- matches the code the fix changed: no finding near the fix in tenantRequestGuards.ts (fix changed lines 67; matches at none)"
+  ],
+  "status": "lesson",
+  "lesson_id": "typescript-express-stripe-id-not-bound-to-session",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: typescript-express-stripe-id-not-bound-to-session\ntitle: Stripe subscription/customer ID from request used in billing call without matching it to the session\nsummary: 'Controller handlers take `subscriptionId` or `customerId` from `req.query` or `req.body` and\n  pass them straight to the identity manager''s Stripe billing calls. Nothing checks that the ID belongs\n  to the caller''s active organization. Any authenticated user can read or modify another tenant''s subscription,\n  seats, plan or customer payment data (IDOR / broken access control). The tenant request guards module\n  also lacked a Stripe-ID-to-session guard, which this rule flags as well.\n\n  '\ncwe:\n- CWE-639\n- CWE-862\nseverity: high\nconfidence: medium\nlanguages:\n- typescript\nsource:\n  kind: fix-commit\n  ref: 4d7899d02ca370a5510406be5c91483085a412f9\n  vulnerable_ref: 4d7899d02ca370a5510406be5c91483085a412f9^\n  patched_ref: 4d7899d02ca370a5510406be5c91483085a412f9\n  repository: https://github.com/FlowiseAI/Flowise\nrule:\n  message: 'Stripe identifier handling is not bound to the authenticated session. Either a billing call\n    receives a request-supplied ID without a prior `assertStripeIdMatchesSession(requestedId, sessionId)`\n    check, or the tenant guards module has no such guard defined.\n\n    '\n  pattern-either:\n  - patterns:\n    - pattern: $IM.$M(...)\n    - metavariable-regex:\n        metavariable: $M\n        regex: ^(getAdditionalSeatsQuantity|getCustomerWithDefaultSource|getAdditionalSeatsProration|getPlanProration|updateAdditionalSeats|updateSubscriptionPlan)$\n    - pattern-not-inside: 'assertStripeIdMatchesSession(...)\n\n        ...\n\n        '\n  - patterns:\n    - pattern: \"function userMayManageOrgUsers(...) {\\n  ...\\n}\\n\"\n    - pattern-not-inside: \"function assertStripeIdMatchesSession(...) {\\n  ...\\n}\\n...\\n\"\nfix:\n  guidance: 'Before calling the identity manager with a subscription or customer ID taken from the request,\n    verify it equals the ID stored on the authenticated session user for the active organization, and\n    reject with 403 otherwise. Use the `assertStripeIdMatchesSession` guard from `enterprise/utils/tenantRequestGuards`.\n    Better still, derive the ID from `req.user` and ignore client-supplied values.\n\n    '\n  example: \"export function assertStripeIdMatchesSession(requestedId: string, activeId: string | undefined):\\\n    \\ void {\\n    if (!activeId || requestedId !== activeId) {\\n        throw new InternalFlowiseError(StatusCodes.FORBIDDEN,\\\n    \\ GeneralErrorMessage.FORBIDDEN)\\n    }\\n}\\n\\n// in the controller\\nconst { subscriptionId } = req.query\\n\\\n    assertStripeIdMatchesSession(subscriptionId as string, req.user?.activeOrganizationSubscriptionId)\\n\\\n    const result = await identityManager.getAdditionalSeatsQuantity(subscriptionId as string)\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/organization.controller.ts\n  - fixtures/vulnerable/tenantRequestGuards.ts\n  patched:\n  - fixtures/patched/organization.controller.ts\n  - fixtures/patched/tenantRequestGuards.ts\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 3\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [
+    {
+      "path": "packages/server/src/IdentityManager.ts",
+      "line": 304
+    },
+    {
+      "path": "packages/server/src/IdentityManager.ts",
+      "line": 312
+    },
+    {
+      "path": "packages/server/src/IdentityManager.ts",
+      "line": 325
+    },
+    {
+      "path": "packages/server/src/IdentityManager.ts",
+      "line": 334
+    },
+    {
+      "path": "packages/server/src/IdentityManager.ts",
+      "line": 375
+    },
+    {
+      "path": "packages/server/src/IdentityManager.ts",
+      "line": 387
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 6,
+  "engine_errors": []
+}

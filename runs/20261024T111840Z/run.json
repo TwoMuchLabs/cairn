@@ -1,0 +1,7 @@
+{
+  "model": "anthropic:claude-sonnet-5-5",
+  "engine": "semgrep 1.182.1",
+  "prompt_version": "learn-v1",
+  "split": "dev",
+  "cases": 30
+}

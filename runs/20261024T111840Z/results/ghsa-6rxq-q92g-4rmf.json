@@ -1,0 +1,20 @@
+{
+  "id": "ghsa-6rxq-q92g-4rmf",
+  "advisory": "GHSA-6rxq-q92g-4rmf",
+  "language": "go",
+  "cwe": [
+    "CWE-22"
+  ],
+  "split": "dev",
+  "attempts": 2,
+  "failures": [
+    "could not read the answer as YAML: mapping values are not allowed here\n  in \"<unicode string>\", line 15, column 28:\n                - pattern: ($H : *tar.Header).Name\n                               ^"
+  ],
+  "status": "lesson",
+  "lesson_id": "go-tar-extraction-filepath-join-path-traversal",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: go-tar-extraction-filepath-join-path-traversal\ntitle: Tar entry name or link target joined to destination with filepath.Join instead of securejoin\nsummary: 'Names and link targets read from a tar header (`hdr.Name`, `hdr.Linkname`) are combined with\n  the extraction root using `filepath.Join`. That join is purely lexical. It does not resolve symlinks\n  planted by earlier entries and it does not reject `..` components. A crafted layer or archive can therefore\n  write, hard-link or `os.RemoveAll` (via whiteout entries) outside the extraction root.\n\n  '\ncwe:\n- CWE-22\n- CWE-59\nseverity: high\nconfidence: medium\nlanguages:\n- go\nsource:\n  kind: fix-commit\n  ref: a370e4b1f66e6e842b685c8f70ed507964c4b221\n  vulnerable_ref: a370e4b1f66e6e842b685c8f70ed507964c4b221^\n  patched_ref: a370e4b1f66e6e842b685c8f70ed507964c4b221\n  repository: https://github.com/chainguard-forks/kaniko\nrule:\n  message: 'Path built from a tar entry using filepath.Join is only lexically joined. Symlinks and `..`\n    in the archive can escape the extraction root. Resolve with securejoin.SecureJoin(root, name) and\n    reject names that reference the parent directory.\n\n    '\n  patterns:\n  - pattern-either:\n    - pattern: '$P := filepath.Join($D, $N)\n\n        '\n    - pattern: '$P := filepath.Clean(filepath.Join($D, $H.Linkname))\n\n        '\n  - pattern-either:\n    - pattern-inside: \"func $F(..., $HDR *tar.Header, ...) error {\\n  ...\\n}\\n\"\n    - pattern-inside: \"func $F(...) ($A, error) {\\n  ...\\n  tar.NewReader(...)\\n  ...\\n}\\n\"\n    - pattern-inside: \"func $F(...) error {\\n  ...\\n  tar.NewReader(...)\\n  ...\\n}\\n\"\n  - pattern-not-inside: \"func $F(...) error {\\n  ...\\n  securejoin.SecureJoin(...)\\n  ...\\n}\\n\"\n  - pattern-not-inside: \"func $F(...) ($A, error) {\\n  ...\\n  securejoin.SecureJoin(...)\\n  ...\\n}\\n\"\nfix:\n  guidance: 'Do not build extraction paths with filepath.Join on tar entry names or link targets. Use\n    github.com/cyphar/filepath-securejoin SecureJoin(root, name), which resolves symlinks and keeps the\n    result inside root. Also reject cleaned names equal to \"..\" or starting with \"../\". For symlink entries,\n    resolve the target relative to the entry''s parent directory and refuse targets that land outside\n    the destination. Hard-link targets need the same treatment.\n\n    '\n  example: \"cleaned := filepath.Clean(hdr.Name)\\nif cleaned == \\\"..\\\" || strings.HasPrefix(cleaned, \\\"\\\n    ../\\\") {\\n    return fmt.Errorf(\\\"tar entry %q references parent directory\\\", hdr.Name)\\n}\\npath,\\\n    \\ err := securejoin.SecureJoin(dest, cleaned)\\nif err != nil {\\n    return fmt.Errorf(\\\"resolving\\\n    \\ path for %q: %w\\\", hdr.Name, err)\\n}\\nf, err := os.Create(path)\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/fs_util.go\n  patched:\n  - fixtures/patched/fs_util.go\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 2\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": []
+}

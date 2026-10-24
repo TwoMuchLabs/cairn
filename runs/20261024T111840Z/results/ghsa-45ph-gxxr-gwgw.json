@@ -1,0 +1,107 @@
+{
+  "id": "ghsa-45ph-gxxr-gwgw",
+  "advisory": "GHSA-45ph-gxxr-gwgw",
+  "language": "java",
+  "cwe": [
+    "CWE-862"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "java-xwiki-saving-document-without-checksavingdocument",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: java-xwiki-saving-document-without-checksavingdocument\ntitle: XWiki document saved via saveDocument without checkSavingDocument authorization check\nsummary: The code sets the document author and calls XWiki#saveDocument directly, without first calling\n  checkSavingDocument for the current user. checkSavingDocument verifies the user's rights and rules for\n  the save, such as edit rights and required rights. Skipping it lets a user save changes that the platform\n  would otherwise refuse, which is a missing authorization check.\ncwe:\n- CWE-862\nseverity: medium\nconfidence: medium\nlanguages:\n- java\nsource:\n  kind: fix-commit\n  ref: 448b0f074cc6711410eb2647c4740454c92d1626\n  vulnerable_ref: 448b0f074cc6711410eb2647c4740454c92d1626^\n  patched_ref: 448b0f074cc6711410eb2647c4740454c92d1626\n  repository: https://github.com/xwiki/xwiki-platform\nrule:\n  message: 'A document is saved with `saveDocument` without a preceding `checkSavingDocument` call for\n    the\n\n    acting user. Call `getWiki().checkSavingDocument(userReference, doc, comment, isMinorEdit, context)`\n\n    before saving so that authorization checks are applied.\n\n    '\n  patterns:\n  - pattern: '$XC.getWiki().saveDocument($DOC, $COMMENT, $MINOR, $XC);\n\n      '\n  - pattern-not-inside: '$XC.getWiki().checkSavingDocument(...);\n\n      ...\n\n      $XC.getWiki().saveDocument($DOC, $COMMENT, $MINOR, $XC);\n\n      '\n  - pattern-not-inside: '$W.checkSavingDocument(...);\n\n      ...\n\n      $W.saveDocument(...);\n\n      '\nfix:\n  guidance: Before saving a document on behalf of the current user, call `checkSavingDocument` on the\n    XWiki instance with the user's document reference, the document, the comment and the minor-edit flag.\n    Set the author with `setAuthor` using a `UserReference` resolved from `CurrentUserReference`, then\n    call `saveDocument` only after the check passes.\n  example: 'UserReference userReference = this.userReferenceResolver.resolve(CurrentUserReference.INSTANCE);\n\n    document.setAuthor(userReference);\n\n    String comment = \"LiveData update.\";\n\n    DocumentReference userDocRef = xcontext.getUserReference();\n\n    xcontext.getWiki().checkSavingDocument(userDocRef, document, comment, true, xcontext);\n\n    xcontext.getWiki().saveDocument(document, comment, true, xcontext);\n\n    '\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/ModelBridge.java\n  patched:\n  - fixtures/patched/ModelBridge.java\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [
+    {
+      "path": "xwiki-platform-core/xwiki-platform-attachment/xwiki-platform-attachment-api/src/main/java/org/xwiki/attachment/internal/listener/AttachmentsListener.java",
+      "line": 91
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-extension/xwiki-platform-extension-handlers/xwiki-platform-extension-handler-xar/src/main/java/org/xwiki/extension/xar/internal/handler/packager/DocumentMergeImporter.java",
+      "line": 216
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-index/xwiki-platform-index-tree/xwiki-platform-index-tree-api/src/main/java/org/xwiki/index/tree/internal/nestedpages/pinned/PinnedChildPagesManager.java",
+      "line": 190
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-legacy/xwiki-platform-legacy-events-hibernate/xwiki-platform-legacy-events-hibernate-api/src/main/java/org/xwiki/eventstream/store/internal/EventStreamCleanerJobDocumentInitializer.java",
+      "line": 196
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/XWiki.java",
+      "line": 5022
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/api/Document.java",
+      "line": 2911
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/doc/DefaultDocumentAccessBridge.java",
+      "line": 1050
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/internal/filter/output/DocumentInstanceOutputFilterStream.java",
+      "line": 252
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-oldcore/src/main/java/org/xwiki/internal/migration/InvitationInternalDocumentParameterEscapingTaskConsumer.java",
+      "line": 91
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-ratings/xwiki-platform-ratings-api/src/main/java/org/xwiki/ratings/internal/averagerating/XObjectAverageRatingManager.java",
+      "line": 124
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-ratings/xwiki-platform-ratings-api/src/main/java/org/xwiki/ratings/internal/averagerating/XObjectAverageRatingManager.java",
+      "line": 176
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-ratings/xwiki-platform-ratings-api/src/main/java/org/xwiki/ratings/internal/averagerating/XObjectAverageRatingManager.java",
+      "line": 334
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-refactoring/xwiki-platform-refactoring-default/src/main/java/org/xwiki/refactoring/internal/DefaultReferenceUpdater.java",
+      "line": 153
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-repository/xwiki-platform-repository-server-api/src/main/java/org/xwiki/repository/internal/RepositoryManager.java",
+      "line": 237
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-rest/xwiki-platform-rest-server/src/main/java/org/xwiki/rest/internal/resources/user/CurrentUserPropertyResourceImpl.java",
+      "line": 108
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-security/xwiki-platform-security-authentication/xwiki-platform-security-authentication-default/src/main/java/org/xwiki/security/authentication/internal/DefaultResetPasswordManager.java",
+      "line": 187
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-security/xwiki-platform-security-authentication/xwiki-platform-security-authentication-default/src/main/java/org/xwiki/security/authentication/internal/DefaultResetPasswordManager.java",
+      "line": 348
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-security/xwiki-platform-security-authentication/xwiki-platform-security-authentication-default/src/main/java/org/xwiki/security/authentication/internal/DefaultResetPasswordManager.java",
+      "line": 380
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-tag/xwiki-platform-tag-api/src/main/java/com/xpn/xwiki/plugin/tag/TagPlugin.java",
+      "line": 431
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-tag/xwiki-platform-tag-api/src/main/java/com/xpn/xwiki/plugin/tag/TagPlugin.java",
+      "line": 492
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-tag/xwiki-platform-tag-api/src/main/java/com/xpn/xwiki/plugin/tag/TagPlugin.java",
+      "line": 565
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-tag/xwiki-platform-tag-api/src/main/java/com/xpn/xwiki/plugin/tag/TagPlugin.java",
+      "line": 619
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 22,
+  "engine_errors": []
+}

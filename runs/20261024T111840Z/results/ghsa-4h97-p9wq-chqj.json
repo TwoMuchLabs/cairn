@@ -1,0 +1,23 @@
+{
+  "id": "ghsa-4h97-p9wq-chqj",
+  "advisory": "GHSA-4h97-p9wq-chqj",
+  "language": "python",
+  "cwe": [
+    "CWE-862"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "python-flask-lemur-export-private-key-without-requires-key-gate",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: python-flask-lemur-export-private-key-without-requires-key-gate\ntitle: Certificate export passes cert.private_key to plugin regardless of requires_key authorization gate\nsummary: 'The export endpoint only performed the ownership and permission check inside the `if plugin.requires_key:`\n  branch, yet it always passed `cert.private_key` to `plugin.export(...)`. A plugin that does not declare\n  `requires_key` could therefore be chosen to obtain private key material without any authorization check.\n  This lets a user without rights to the certificate extract its private key. The key-view audit log entry\n  was also written outside that gate.\n\n  '\ncwe:\n- CWE-863\n- CWE-285\nseverity: high\nconfidence: medium\nlanguages:\n- python\nsource:\n  kind: fix-commit\n  ref: 5683bbea8b10cce07f9a8abf1e4a7d3b2031c585\n  vulnerable_ref: 5683bbea8b10cce07f9a8abf1e4a7d3b2031c585^\n  patched_ref: 5683bbea8b10cce07f9a8abf1e4a7d3b2031c585\n  repository: https://github.com/Netflix/lemur\nrule:\n  message: '`cert.private_key` is passed directly to a plugin export call. Key material must only be loaded\n    after the key-view authorization check, inside the `requires_key` branch. Otherwise a plugin that\n    does not require a key can bypass the check.\n\n    '\n  patterns:\n  - pattern: $PLUGIN.export($BODY, $CHAIN, $CERT.private_key, ...)\n  - pattern-not-inside: \"if $PLUGIN.requires_key:\\n    ...\\n\"\nfix:\n  guidance: 'Initialise `private_key = None` and only assign `cert.private_key` inside the `if plugin.requires_key:`\n    branch, after the creator or CertificatePermission check succeeds. Write the key_view audit log entry\n    in that same branch. Pass the local `private_key` variable to `plugin.export`.\n\n    '\n  example: \"private_key = None\\nif plugin.requires_key:\\n    if not cert.private_key:\\n        return\\\n    \\ dict(message=\\\"no key found\\\"), 400\\n    if g.current_user != cert.user:\\n        permission = CertificatePermission(owner_role,\\\n    \\ [x.name for x in cert.roles])\\n        if not permission.can():\\n            return dict(message=\\\"\\\n    You are not authorized to export this certificate.\\\"), 403\\n    log_service.create(g.current_user,\\\n    \\ \\\"key_view\\\", certificate=cert)\\n    private_key = cert.private_key\\n\\nextension, passphrase, data\\\n    \\ = plugin.export(cert.body, cert.chain, private_key, options)\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/views.py\n  patched:\n  - fixtures/patched/views.py\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [
+    {
+      "path": "lemur/certificates/service.py",
+      "line": 364
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 1,
+  "engine_errors": []
+}

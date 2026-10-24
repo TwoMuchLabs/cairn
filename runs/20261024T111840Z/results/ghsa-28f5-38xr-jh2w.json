@@ -1,0 +1,19 @@
+{
+  "id": "ghsa-28f5-38xr-jh2w",
+  "advisory": "GHSA-28f5-38xr-jh2w",
+  "language": "java",
+  "cwe": [
+    "CWE-441",
+    "CWE-918"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "java-appium-override-server-url-without-host-validation",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: java-appium-override-server-url-without-host-validation\ntitle: overrideServerUrl swaps HTTP client to a server-supplied URL without validating target host\nsummary: 'The executor''s overrideServerUrl method builds a new HTTP client for a URL taken from a remote\n  server''s direct-connect response without checking where the host resolves. A malicious or compromised\n  server can redirect subsequent traffic to loopback, link-local (cloud metadata), unspecified, or multicast\n  addresses, enabling SSRF. The fix calls a safety validator before creating the new client.\n\n  '\ncwe:\n- CWE-918\nseverity: medium\nconfidence: medium\nlanguages:\n- java\nsource:\n  kind: fix-commit\n  ref: 2b9cd442b9dbf56ccc6f1e83aeeb411c0ec230c9\n  vulnerable_ref: 2b9cd442b9dbf56ccc6f1e83aeeb411c0ec230c9^\n  patched_ref: 2b9cd442b9dbf56ccc6f1e83aeeb411c0ec230c9\n  repository: https://github.com/appium/java-client\nrule:\n  message: 'Method $M replaces the HTTP client with one targeting $URL without first validating the resolved\n    host\n\n    (loopback/link-local/unspecified/multicast). Call DirectConnectUrlSafety.requireSafeOverrideTarget($URL)\n    first.\n\n    '\n  patterns:\n  - pattern: \"$RET $M(URL $URL) {\\n  ...\\n  $F.createClient(<... $URL ...>);\\n  ...\\n}\\n\"\n  - pattern-not: \"$RET $M(URL $URL) {\\n  ...\\n  DirectConnectUrlSafety.requireSafeOverrideTarget($URL);\\n\\\n      \\  ...\\n}\\n\"\n  - metavariable-regex:\n      metavariable: $M\n      regex: (?i)^(override|set|switch|update).*(url|server|target).*$\nfix:\n  guidance: Before building a new HTTP client for a URL that came from the server (direct connect), validate\n    it by resolving the host and rejecting loopback, link-local, unspecified and multicast addresses.\n    Use DirectConnectUrlSafety.requireSafeOverrideTarget at the start of overrideServerUrl.\n  example: \"protected void overrideServerUrl(URL serverUrl) {\\n    DirectConnectUrlSafety.requireSafeOverrideTarget(serverUrl);\\n\\\n    \\    HttpClient newClient = getHttpClientFactory().createClient(appiumClientConfig.baseUrl(serverUrl));\\n\\\n    \\    setPrivateFieldValue(HttpCommandExecutor.class, \\\"client\\\", newClient);\\n}\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/AppiumCommandExecutor.java\n  patched:\n  - fixtures/patched/AppiumCommandExecutor.java\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": []
+}

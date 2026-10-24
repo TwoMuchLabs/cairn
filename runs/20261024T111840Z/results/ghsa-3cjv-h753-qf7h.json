@@ -1,0 +1,23 @@
+{
+  "id": "ghsa-3cjv-h753-qf7h",
+  "advisory": "GHSA-3cjv-h753-qf7h",
+  "language": "go",
+  "cwe": [
+    "CWE-22"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "go-islo-workdir-not-contained-under-workspace",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: go-islo-workdir-not-contained-under-workspace\ntitle: Islo workdir joined or passed through without containing it under /workspace\nsummary: The configured Islo workdir is turned into a sandbox path without validation. An absolute value\n  is returned as-is, a relative value is joined to /workspace without rejecting `..` segments, and the\n  raw value is passed to sandbox creation. A malicious or misconfigured workdir can escape /workspace,\n  so later `rm -rf`, `mkdir -p` and `tar -C` commands run against arbitrary sandbox paths.\ncwe:\n- CWE-22\nseverity: medium\nconfidence: medium\nlanguages:\n- go\nsource:\n  kind: fix-commit\n  ref: 6b07193fb5670aac315ea47215651c67b8127868\n  vulnerable_ref: 6b07193fb5670aac315ea47215651c67b8127868^\n  patched_ref: 6b07193fb5670aac315ea47215651c67b8127868\n  repository: https://github.com/openclaw/crabbox\nrule:\n  message: 'Workdir-derived path is built from configuration without enforcing containment under /workspace.\n    Reject absolute paths, clean the value, and reject \".\", \"..\" and \"../\" prefixes before joining it\n    to /workspace or sending it to the Islo API.\n\n    '\n  patterns:\n  - pattern-either:\n    - pattern: return path.Join(\"/workspace\", $W)\n    - pattern: \"if strings.HasPrefix($W, \\\"/\\\") {\\n    return path.Clean($W)\\n}\\n\"\n    - pattern: $C.Workdir = stringValue($CFG.Islo.Workdir)\n  - pattern-not-inside: \"func $F(...) $R {\\n    ...\\n    strings.HasPrefix($X, \\\"../\\\")\\n    ...\\n}\\n\"\nfix:\n  guidance: Resolve the workdir through one helper that trims it, rejects absolute paths, runs path.Clean,\n    and rejects \".\", \"..\" and any \"../\" prefix, returning an error. Build the workspace path with path.Join(\"/workspace\",\n    relative) from the validated value. Use the same validated relative value when setting the workdir\n    on sandbox creation, and fail early in Run and createSandbox if validation fails.\n  example: \"func isloRelativeWorkdir(cfg Config) (string, error) {\\n    workdir := strings.TrimSpace(cfg.Islo.Workdir)\\n\\\n    \\    if workdir == \\\"\\\" {\\n        workdir = \\\"crabbox\\\"\\n    }\\n    if strings.HasPrefix(workdir,\\\n    \\ \\\"/\\\") {\\n        return \\\"\\\", exit(2, \\\"islo workdir %q must be relative under /workspace\\\", workdir)\\n\\\n    \\    }\\n    workdir = path.Clean(workdir)\\n    if workdir == \\\".\\\" || workdir == \\\"..\\\" || strings.HasPrefix(workdir,\\\n    \\ \\\"../\\\") {\\n        return \\\"\\\", exit(2, \\\"islo workdir %q escapes /workspace\\\", workdir)\\n    }\\n\\\n    \\    return workdir, nil\\n}\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/backend.go\n  - fixtures/vulnerable/sync.go\n  patched:\n  - fixtures/patched/backend.go\n  - fixtures/patched/sync.go\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [
+    {
+      "path": "internal/providers/e2b/backend.go",
+      "line": 482
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 1,
+  "engine_errors": []
+}

@@ -1,0 +1,53 @@
+{
+  "id": "ghsa-2cqq-rpvq-g5qj",
+  "advisory": "GHSA-2cqq-rpvq-g5qj",
+  "language": "java",
+  "cwe": [
+    "CWE-502"
+  ],
+  "split": "dev",
+  "attempts": 2,
+  "failures": [
+    "- matches vulnerable code: no finding in Encoder.java\n- matches the code the fix changed: no finding near the fix in Encoder.java (fix changed lines 3, 6, 9, 14, 17, 118-125, 127-129; matches at none)"
+  ],
+  "status": "lesson",
+  "lesson_id": "java-objectinputstream-readobject-no-filter",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: java-objectinputstream-readobject-no-filter\ntitle: ObjectInputStream.readObject() without class allow-list or filter (unsafe deserialization)\nsummary: 'The code builds an ObjectInputStream (or a subclass such as ApplicationObjectInputStream) over\n  a byte array or stream and calls readObject() with no ObjectInputFilter or class allow-list. When the\n  bytes come from a request value such as the jato.clientSession parameter, a pre-authentication attacker\n  can deserialize gadget chains and run arbitrary code. The fix routes deserialization through a hardened\n  helper (IOUtils.deserialise) that restricts the permitted classes.\n\n  '\ncwe:\n- CWE-502\nseverity: critical\nconfidence: medium\nlanguages:\n- java\nsource:\n  kind: fix-commit\n  ref: 014007c63cacc834cc795a89fac0e611aebc4a32\n  vulnerable_ref: 014007c63cacc834cc795a89fac0e611aebc4a32^\n  patched_ref: 014007c63cacc834cc795a89fac0e611aebc4a32\n  repository: https://github.com/OpenIdentityPlatform/OpenAM\nrule:\n  message: 'ObjectInputStream.readObject() is called on a stream with no ObjectInputFilter or class allow-list.\n\n    If the bytes are attacker-influenced, this allows deserialization of gadget chains and remote\n\n    code execution. Use a hardened deserialization helper that restricts classes.\n\n    '\n  patterns:\n  - pattern-either:\n    - pattern: (ObjectInputStream $OIS).readObject()\n    - pattern: (ApplicationObjectInputStream $OIS).readObject()\n    - pattern: new ObjectInputStream(...).readObject()\n    - pattern: new ApplicationObjectInputStream(...).readObject()\n  - pattern-not-inside: \"$RET $M(...) {\\n  ...\\n  $X.setObjectInputFilter(...);\\n  ...\\n}\\n\"\n  - pattern-not-inside: \"class $C extends ObjectInputStream {\\n  ...\\n  Class<?> resolveClass(...) { ...\\\n      \\ }\\n  ...\\n}\\n\"\nfix:\n  guidance: 'Do not call readObject() on streams built from request-derived data with a plain or application\n\n    ObjectInputStream. Deserialize through the shared hardened helper (IOUtils.deserialise), which\n\n    enforces a class allow-list, or set an ObjectInputFilter or override resolveClass to permit only\n\n    expected types. Prefer a non-Java-serialization format such as JSON for client-held state.\n\n    '\n  example: \"public static Object deserialize(byte[] b, boolean compressed)\\n        throws IOException,\\\n    \\ ClassNotFoundException {\\n    return IOUtils.deserialise(b, compressed);\\n}\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/Encoder.java\n  patched:\n  - fixtures/patched/Encoder.java\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 2\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [
+    {
+      "path": "openam-core/src/main/java/com/sun/identity/authentication/share/AuthXMLUtils.java",
+      "line": 1787
+    },
+    {
+      "path": "openam-core/src/main/java/org/openidentityplatform/openam/click/util/ClickUtils.java",
+      "line": 1790
+    },
+    {
+      "path": "openam-schema/openam-liberty-schema/src/main/java/com/sun/identity/federation/jaxb/entityconfig/impl/runtime/GrammarInfoImpl.java",
+      "line": 149
+    },
+    {
+      "path": "openam-schema/openam-saml2-schema/src/main/java/com/sun/identity/saml2/jaxb/assertion/impl/runtime/GrammarInfoImpl.java",
+      "line": 149
+    },
+    {
+      "path": "openam-schema/openam-wsfederation-schema/src/main/java/com/sun/identity/wsfederation/jaxb/entityconfig/impl/runtime/GrammarInfoImpl.java",
+      "line": 149
+    },
+    {
+      "path": "openam-shared/src/main/java/org/forgerock/openam/utils/IOUtils.java",
+      "line": 261
+    },
+    {
+      "path": "openam-tools/openam-installtools/src/main/java/com/sun/identity/install/tools/configurator/InstallDataStore.java",
+      "line": 68
+    },
+    {
+      "path": "openam-tools/openam-installtools/src/main/java/com/sun/identity/install/tools/configurator/MigrateFromInstallDataStore.java",
+      "line": 77
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 8,
+  "engine_errors": []
+}

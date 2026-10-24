@@ -1,0 +1,19 @@
+{
+  "id": "ghsa-3mp7-vp6j-2mxx",
+  "advisory": "GHSA-3mp7-vp6j-2mxx",
+  "language": "python",
+  "cwe": [
+    "CWE-20",
+    "CWE-918"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "python-bbot-www-authenticate-realm-unvalidated-ssrf",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: python-bbot-www-authenticate-realm-unvalidated-ssrf\ntitle: WWW-Authenticate realm from remote response used as request URL without host validation\nsummary: The module extracts the `realm` value from a remote server's `WWW-Authenticate` header and requests\n  it directly to fetch a token. A malicious registry can set the realm to an arbitrary host, causing SSRF\n  and sending credentials or scan traffic to an attacker-chosen or internal endpoint. The header is also\n  parsed with brittle string splits.\ncwe:\n- CWE-918\nseverity: medium\nconfidence: medium\nlanguages:\n- python\nsource:\n  kind: fix-commit\n  ref: c2f4bc0f4e4bb4d00f06750dcabf1d9c74c0d3b4\n  vulnerable_ref: c2f4bc0f4e4bb4d00f06750dcabf1d9c74c0d3b4^\n  patched_ref: c2f4bc0f4e4bb4d00f06750dcabf1d9c74c0d3b4\n  repository: https://github.com/blacklanternsecurity/bbot\nrule:\n  message: 'A realm is parsed out of a response''s WWW-Authenticate header via string splitting and then\n    used\n\n    to build a URL that is requested, without checking that the realm host matches the original\n\n    request host. This allows SSRF to an attacker-controlled realm.\n\n    '\n  mode: taint\n  pattern-sources:\n  - patterns:\n    - pattern: $HDRS.split('realm=\"')[1].split('\"')[0]\n  pattern-propagators:\n  - pattern: '$URL = f\"...{$X}...\"\n\n      '\n    from: $X\n    to: $URL\n  pattern-sinks:\n  - patterns:\n    - pattern-either:\n      - pattern: $SELF.helpers.request($URL, ...)\n      - pattern: $CLIENT.get($URL, ...)\n      - pattern: requests.get($URL, ...)\n    - focus-metavariable: $URL\n  pattern-sanitizers:\n  - pattern: $SELF._validate_realm(...)\nfix:\n  guidance: Parse the WWW-Authenticate header robustly into its parameters, then validate the realm before\n    using it. Parse the realm URL and require its registered domain to match the registry URL's domain\n    (or an explicit allowlist), skipping authentication if it does not match. Only then request the token.\n  example: \"realm, service, scope = self._parse_www_authenticate(www_auth)\\nif not all([realm, service,\\\n    \\ scope]):\\n    break\\nif not self._validate_realm(url, realm):\\n    break\\nauth_url = f\\\"{realm}?service={service}&scope={scope}\\\"\\\n    \\nauth_response = await self.helpers.request(auth_url)\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/docker_pull.py\n  patched:\n  - fixtures/patched/docker_pull.py\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": []
+}

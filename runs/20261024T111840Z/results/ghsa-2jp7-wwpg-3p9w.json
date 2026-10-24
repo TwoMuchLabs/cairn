@@ -1,0 +1,20 @@
+{
+  "id": "ghsa-2jp7-wwpg-3p9w",
+  "advisory": "GHSA-2jp7-wwpg-3p9w",
+  "language": "javascript",
+  "cwe": [
+    "CWE-79"
+  ],
+  "split": "dev",
+  "attempts": 2,
+  "failures": [
+    "- matches vulnerable code: no finding in Settings.ts\n- matches the code the fix changed: no finding near the fix in Settings.ts (fix changed lines 1343; matches at none)"
+  ],
+  "status": "lesson",
+  "lesson_id": "typescript-etherpad-unescaped-export-attr-and-default-credentials",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: typescript-etherpad-unescaped-export-attr-and-default-credentials\ntitle: Unescaped data-* attribute in HTML export and no default/placeholder credential check in settings\nsummary: 'The HTML export builds a tag string such as `span data-NAME=\"VALUE\"` from pad attribute pool\n  content without escaping, so a quote or angle bracket in the value breaks out of the attribute and injects\n  HTML or script into exported documents (stored XSS). The settings loader also validated the cookie prefix\n  and went straight on to DB handling, without warning that accounts or SSO clients still use shipped\n  placeholder passwords or secrets. Placeholder credentials left in place give attackers easy access.\n\n  '\ncwe:\n- CWE-79\n- CWE-1392\nseverity: high\nconfidence: medium\nlanguages:\n- typescript\nsource:\n  kind: fix-commit\n  ref: 86c56cf827dd6e5ff1b6cd3760f87adc47f58bb1\n  vulnerable_ref: 86c56cf827dd6e5ff1b6cd3760f87adc47f58bb1^\n  patched_ref: 86c56cf827dd6e5ff1b6cd3760f87adc47f58bb1\n  repository: https://github.com/ether/etherpad\nrule:\n  message: 'Either an exported HTML tag interpolates a data-* attribute name/value without escaping (use\n    Security.escapeHTMLAttribute and restrict the name to [a-zA-Z0-9_-]), or reloadSettings moves from\n    cookie validation to DB handling without checking for default/placeholder user passwords or SSO client\n    secrets.\n\n    '\n  pattern-either:\n  - patterns:\n    - pattern-either:\n      - pattern: $TAGS.push(`span data-${$NAME[...]}=\"${$VAL[...]}\"`)\n      - pattern: $TAGS.push(`span data-${$NAME}=\"${$VAL}\"`)\n    - pattern-not: $TAGS.push(`span data-${$N}=\"${Security.escapeHTMLAttribute(...)}\"`)\n  - pattern: \"if (<... $S.cookie.prefix ...>) {\\n  ...\\n}\\nif ($S.dbType === 'dirty') {\\n  ...\\n}\\n\"\nfix:\n  guidance: Never interpolate pad-attribute-derived names or values directly into exported HTML. Strip\n    the data-* attribute name down to alphanumerics, underscores and hyphens, and pass the value through\n    Security.escapeHTMLAttribute (coerced with String). In settings loading, compare configured user passwords\n    and SSO client secrets against a set of known placeholder values and log a loud warning (error level\n    in production) before the instance is exposed.\n  example: 'const dataName = String(prop[0]).replace(/[^a-zA-Z0-9_-]/g, '''');\n\n    tags.push(`span data-${dataName}=\"${Security.escapeHTMLAttribute(String(prop[1]))}\"`);\n\n\n    const weakPasswords = new Set([''changeme1'', ''changeme'', ''admin'', ''password'', '''']);\n\n    const offenders = Object.keys(users).filter((n) => weakPasswords.has(users[n].password));\n\n    if (offenders.length) logger.warn(`Default password in use for: ${offenders.join('', '')}`);\n\n    '\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/ExportHtml.ts\n  - fixtures/vulnerable/Settings.ts\n  patched:\n  - fixtures/patched/ExportHtml.ts\n  - fixtures/patched/Settings.ts\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 2\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": []
+}

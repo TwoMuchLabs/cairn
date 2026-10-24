@@ -1,0 +1,75 @@
+{
+  "id": "ghsa-3gmf-p6r4-q8m6",
+  "advisory": "GHSA-3gmf-p6r4-q8m6",
+  "language": "java",
+  "cwe": [
+    "CWE-22"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "java-wicket-path-traversal-upload-filename",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: java-wicket-path-traversal-upload-filename\ntitle: Upload storage path built from client file name or field id without canonical containment check\nsummary: 'The upload file manager builds a filesystem path by joining a base folder with the client-supplied\n  file name or upload field id. It does not canonicalize the result or verify that it stays inside the\n  base folder. A crafted name such as `../../x` lets an attacker write or read files outside the upload\n  folder (path traversal).\n\n  '\ncwe:\n- CWE-22\nseverity: high\nconfidence: medium\nlanguages:\n- java\nsource:\n  kind: fix-commit\n  ref: 72470983f689c61e6a6c0b7388ef955f23bb1e16\n  vulnerable_ref: 72470983f689c61e6a6c0b7388ef955f23bb1e16^\n  patched_ref: 72470983f689c61e6a6c0b7388ef955f23bb1e16\n  repository: https://github.com/apache/wicket\nrule:\n  message: 'A file path is built from a client-controlled file name or upload field id (`$NAME`) and used\n    without canonicalizing it and checking that it stays inside the base folder. This allows path traversal.\n    Resolve with getCanonicalFile()/toRealPath() and verify startsWith(baseFolder) before use.\n\n    '\n  mode: taint\n  pattern-sources:\n  - pattern: $UPLOAD.getClientFileName()\n  - pattern: '(String $NAME)\n\n      '\n    focus-metavariable: $NAME\n  pattern-sinks:\n  - pattern: new File($DIR, $NAME)\n    focus-metavariable: $NAME\n  - pattern: new java.io.File($DIR, $NAME)\n    focus-metavariable: $NAME\n  - pattern: new FileOutputStream(new File($DIR, $NAME))\n    focus-metavariable: $NAME\n  pattern-sanitizers:\n  - pattern: $X.getCanonicalFile()\n  - pattern: $X.getCanonicalPath()\n  - pattern: $X.toRealPath()\n  - pattern: org.apache.commons.io.FilenameUtils.getName(...)\n  - pattern: $X.getName()\nfix:\n  guidance: 'Never join a client-supplied file name or field id onto a base folder directly. Resolve the\n    target to its canonical or real path and check that it starts with the canonical base folder path,\n    throwing a SecurityException otherwise. Do this check in a single helper used by both save and getFile.\n    Also close the streams with try-with-resources.\n\n    '\n  example: \"Path base = getFolder().toPath().toRealPath();\\njava.io.File dir = new File(getFolder(), uploadFieldId).getCanonicalFile();\\n\\\n    if (!dir.toPath().startsWith(base)) {\\n    throw new SecurityException(\\\"Path traversal detected in\\\n    \\ uploadFieldId\\\");\\n}\\njava.io.File target = new File(dir, clientFileName).getCanonicalFile();\\n\\\n    if (!target.toPath().startsWith(dir.toPath())) {\\n    throw new SecurityException(\\\"Path traversal\\\n    \\ detected in client filename\\\");\\n}\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/FolderUploadsFileManager.java\n  patched:\n  - fixtures/patched/FolderUploadsFileManager.java\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [
+    {
+      "path": "wicket-core/src/main/java/org/apache/wicket/pageStore/DiskPageStore.java",
+      "line": 96
+    },
+    {
+      "path": "wicket-core/src/main/java/org/apache/wicket/pageStore/DiskPageStore.java",
+      "line": 235
+    },
+    {
+      "path": "wicket-core/src/main/java/org/apache/wicket/pageStore/DiskPageStore.java",
+      "line": 263
+    },
+    {
+      "path": "wicket-core/src/main/java/org/apache/wicket/pageStore/DiskPageStore.java",
+      "line": 540
+    },
+    {
+      "path": "wicket-core/src/main/java/org/apache/wicket/pageStore/FilePageStore.java",
+      "line": 82
+    },
+    {
+      "path": "wicket-core/src/main/java/org/apache/wicket/pageStore/FilePageStore.java",
+      "line": 99
+    },
+    {
+      "path": "wicket-core/src/main/java/org/apache/wicket/pageStore/disk/NestedFolders.java",
+      "line": 66
+    },
+    {
+      "path": "wicket-core/src/main/java/org/apache/wicket/protocol/http/mock/MockServletContext.java",
+      "line": 492
+    },
+    {
+      "path": "wicket-examples/src/main/java/org/apache/wicket/examples/upload/MultiUploadPage.java",
+      "line": 142
+    },
+    {
+      "path": "wicket-examples/src/main/java/org/apache/wicket/examples/upload/UploadPage.java",
+      "line": 128
+    },
+    {
+      "path": "wicket-util/src/main/java/org/apache/wicket/util/file/File.java",
+      "line": 128
+    },
+    {
+      "path": "wicket-util/src/main/java/org/apache/wicket/util/file/Path.java",
+      "line": 73
+    },
+    {
+      "path": "wicket-util/src/main/java/org/apache/wicket/util/license/ApacheLicenseHeaderTestCase.java",
+      "line": 289
+    },
+    {
+      "path": "wicket-util/src/main/java/org/apache/wicket/util/resource/ZipResourceStream.java",
+      "line": 140
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 14,
+  "engine_errors": []
+}

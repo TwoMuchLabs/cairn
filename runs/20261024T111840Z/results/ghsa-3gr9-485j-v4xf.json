@@ -1,0 +1,18 @@
+{
+  "id": "ghsa-3gr9-485j-v4xf",
+  "advisory": "GHSA-3gr9-485j-v4xf",
+  "language": "go",
+  "cwe": [
+    "CWE-285"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "go-gorm-soft-delete-book-without-revoking-public-access",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: go-gorm-soft-delete-book-without-revoking-public-access\ntitle: Book soft-deleted via gorm without clearing is_public first\nsummary: 'A book is deleted with a bare gorm `Delete` on the global DB handle. The model is soft-deleted,\n  so the row remains with `is_public = true`. Other lookups, such as those of child notes or assets, can\n  still treat the book as public and expose content the owner believed was removed. The fix clears `is_public`\n  and deletes the book in a single transaction.\n\n  '\ncwe:\n- CWE-672\nseverity: medium\nconfidence: medium\nlanguages:\n- go\nsource:\n  kind: fix-commit\n  ref: d1bf845a2a2df01e2eca6f556287db4ec6f773cf\n  vulnerable_ref: d1bf845a2a2df01e2eca6f556287db4ec6f773cf^\n  patched_ref: d1bf845a2a2df01e2eca6f556287db4ec6f773cf\n  repository: https://github.com/enchant97/note-mark\nrule:\n  message: 'Book is deleted directly through the global DB handle without first setting is_public=false\n    in the same transaction. With gorm soft-delete, the row (and its public flag) persists, so related\n    content may remain publicly reachable after deletion.\n\n    '\n  patterns:\n  - pattern: 'db.DB.Where(...).Delete(&db.Book{})\n\n      '\n  - pattern-not-inside: 'db.DB.Transaction(func($TX *gorm.DB) error { ... })\n\n      '\nfix:\n  guidance: 'Perform book deletion inside a database transaction. First update the book to set is_public\n    to false, scoped by id and owner_id. Then delete the book with the same ownership scoping using the\n    transaction handle. Check RowsAffected to return NotFoundError when nothing was deleted.\n\n    '\n  example: \"return db.DB.Transaction(func(tx *gorm.DB) error {\\n    if err := tx.Model(&db.Book{}).\\n\\\n    \\        Where(\\\"id = ? AND owner_id = ?\\\", bookID, currentUserID).\\n        Update(\\\"is_public\\\"\\\n    , false).Error; err != nil {\\n        return dbErrorToServiceError(err)\\n    }\\n    result := tx.Where(\\\"\\\n    id = ? AND owner_id = ?\\\", bookID, currentUserID).Delete(&db.Book{})\\n    if err := result.Error;\\\n    \\ err != nil {\\n        return dbErrorToServiceError(err)\\n    }\\n    if result.RowsAffected == 0\\\n    \\ {\\n        return NotFoundError\\n    }\\n    return nil\\n})\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/books.go\n  patched:\n  - fixtures/patched/books.go\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": []
+}

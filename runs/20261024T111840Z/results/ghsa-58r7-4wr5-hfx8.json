@@ -1,0 +1,18 @@
+{
+  "id": "ghsa-58r7-4wr5-hfx8",
+  "advisory": "GHSA-58r7-4wr5-hfx8",
+  "language": "python",
+  "cwe": [
+    "CWE-200"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "python-jq-compile-unvalidated-user-expression",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: python-jq-compile-unvalidated-user-expression\ntitle: jq.compile on user-supplied expression without blocking dangerous builtins (env, input, include)\nsummary: 'A jq expression supplied by a user (watch include filters such as `jq:` or `jqraw:`) is compiled\n  and executed server-side without first rejecting dangerous jq builtins. Builtins like `env`, `$ENV`,\n  `include`/`import`, `input(s)`, `debug`, `stderr` and `halt` let the expression leak process environment\n  variables (passwords, API keys, salts), read files, or terminate the process. The fix runs a deny-list\n  validator (`validate_jq_expression`) before every `jq.compile`.\n\n  '\ncwe:\n- CWE-526\n- CWE-200\n- CWE-94\nseverity: high\nconfidence: medium\nlanguages:\n- python\nsource:\n  kind: fix-commit\n  ref: 65517a9c74a0cbe1a4661314470b28131ef5557f\n  vulnerable_ref: 65517a9c74a0cbe1a4661314470b28131ef5557f^\n  patched_ref: 65517a9c74a0cbe1a4661314470b28131ef5557f\n  repository: https://github.com/dgtlmoon/changedetection.io\nrule:\n  message: 'jq.compile() is called on an expression that was not passed through validate_jq_expression()\n    first. If the expression is user-controlled, jq builtins such as `env`/`$ENV` can disclose environment\n    variables, and `include`/`import`/`input` can read files or other data. Validate the expression before\n    compiling it.\n\n    '\n  patterns:\n  - pattern: jq.compile($EXPR)\n  - pattern-not: jq.compile(\"...\")\n  - pattern-not-inside: 'validate_jq_expression($EXPR)\n\n      ...\n\n      jq.compile($EXPR)\n\n      '\nfix:\n  guidance: 'Before every jq.compile() of a user-supplied expression, call the shared validator `validate_jq_expression`\n    from changedetectionio.html_tools. It raises ValueError when the expression uses env, $ENV, include,\n    import, input/inputs, debug, stderr, halt, $__loc__, builtins, modulemeta or $JQ_BUILD_CONFIGURATION.\n    Call it in both the form validator and at execution time in _parse_json, and only allow bypassing\n    it through the explicit JQ_ALLOW_RISKY_EXPRESSIONS opt-in.\n\n    '\n  example: 'from changedetectionio.html_tools import validate_jq_expression\n\n\n    expr = json_filter.removeprefix(\"jq:\")\n\n    validate_jq_expression(expr)   # raises ValueError on env, $ENV, include, ...\n\n    jq_expression = jq.compile(expr)\n\n    match = jq_expression.input(json_data).all()\n\n    '\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/forms.py\n  - fixtures/vulnerable/html_tools.py\n  patched:\n  - fixtures/patched/forms.py\n  - fixtures/patched/html_tools.py\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": []
+}

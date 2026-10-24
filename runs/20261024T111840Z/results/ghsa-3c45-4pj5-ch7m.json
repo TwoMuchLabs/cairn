@@ -1,0 +1,27 @@
+{
+  "id": "ghsa-3c45-4pj5-ch7m",
+  "advisory": "GHSA-3c45-4pj5-ch7m",
+  "language": "python",
+  "cwe": [
+    "CWE-918"
+  ],
+  "split": "dev",
+  "attempts": 4,
+  "failures": [
+    "- matches vulnerable code: no finding in validate_url.py\n- matches the code the fix changed: no finding near the fix in __init__.py (fix changed lines 731-732; matches at 688); validate_url.py (fix changed lines 58, 121; matches at none)",
+    "could not read the answer as YAML: while scanning for the next token\nfound character '`' that cannot start any token\n  in \"<unicode string>\", line 1, column 1:\n    ```yaml\n    ^",
+    "- matches vulnerable code: no finding in __init__.py, validate_url.py\n- matches the code the fix changed: no finding near the fix in __init__.py (fix changed lines 731-732; matches at none); validate_url.py (fix changed lines 58, 121; matches at none)"
+  ],
+  "status": "lesson",
+  "lesson_id": "python-requests-ssrf-missing-private-ip-validation",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: python-requests-ssrf-missing-private-ip-validation\ntitle: User-supplied watch URL accepted or fetched without private/reserved IP (SSRF) validation\nsummary: 'URL validation and fetching code accepts a user-supplied URL without resolving the host and\n  rejecting private, loopback, link-local or reserved addresses. The fetcher also follows redirects automatically,\n  so an open redirect on a public host can reach internal targets. An attacker can add a watch for http://169.254.169.254/\n  or http://127.0.0.1/ and read cloud metadata or internal services (server-side request forgery).\n\n  '\ncwe:\n- CWE-918\nseverity: high\nconfidence: low\nlanguages:\n- python\nsource:\n  kind: fix-commit\n  ref: fe7aa38c651d73fe5f41ce09855fa8f97193747b\n  vulnerable_ref: fe7aa38c651d73fe5f41ce09855fa8f97193747b^\n  patched_ref: fe7aa38c651d73fe5f41ce09855fa8f97193747b\n  repository: https://github.com/dgtlmoon/changedetection.io\nrule:\n  message: 'URL is accepted or fetched without a check that its host resolves to a public address, or\n    redirects are\n\n    followed automatically. Resolve the host and block private/loopback/link-local/reserved IPs (unless\n    explicitly\n\n    allowed), re-check at fetch time, and follow redirects manually, validating each hop.\n\n    '\n  pattern-either:\n  - patterns:\n    - pattern: return True\n    - pattern-inside: \"def $F($URL, ...):\\n    ...\\n\"\n    - metavariable-regex:\n        metavariable: $F\n        regex: .*(safe|valid).*url.*|.*url.*(safe|valid).*\n    - pattern-not-inside: \"def $F(...):\\n    ...\\n    if not strtobool(os.getenv('ALLOW_IANA_RESTRICTED_ADDRESSES',\\\n        \\ ...)):\\n        ...\\n    ...\\n\"\n  - pattern: \"if not is_safe_valid_url($U):\\n    flash(...)\\n    return None\\n\"\n  - patterns:\n    - pattern-inside: '$S = requests.Session()\n\n        ...\n\n        '\n    - pattern: $S.request(..., url=$URL, ...)\n    - pattern-not: $S.request(..., allow_redirects=False, ...)\nfix:\n  guidance: 'Add an is_private_hostname helper that resolves the hostname with getaddrinfo and returns\n    True for private, loopback, link-local or reserved addresses, failing closed when resolution fails.\n    Call it from is_safe_valid_url when a watch is added, and again at fetch time in the requests fetcher\n    so DNS rebinding is covered. Skip the check only when the ALLOW_IANA_RESTRICTED_ADDRESSES environment\n    variable is explicitly true. Send fetches with allow_redirects=False, follow redirects manually with\n    a hop limit, and validate each redirect target before following it.\n\n    '\n  example: \"# validate_url.py, at the end of is_safe_valid_url()\\nif not strtobool(os.getenv('ALLOW_IANA_RESTRICTED_ADDRESSES',\\\n    \\ 'false')):\\n    parsed = urlparse(test_url)\\n    if parsed.hostname and is_private_hostname(parsed.hostname):\\n\\\n    \\        return False\\nreturn True\\n\\n# requests fetcher\\nr = session.request(method=method, url=url,\\\n    \\ headers=headers,\\n                    timeout=timeout, allow_redirects=False)\\nfor _ in range(10):\\n\\\n    \\    if not r.is_redirect:\\n        break\\n    url = urljoin(url, r.headers.get('Location', ''))\\n\\\n    \\    if not allow_restricted and is_private_hostname(urlparse(url).hostname):\\n        raise Exception(\\\"\\\n    Redirect blocked\\\")\\n    r = session.request('GET', url, headers=headers,\\n                      \\\n    \\  timeout=timeout, allow_redirects=False)\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/requests.py\n  - fixtures/vulnerable/__init__.py\n  - fixtures/vulnerable/validate_url.py\n  patched:\n  - fixtures/patched/requests.py\n  - fixtures/patched/__init__.py\n  - fixtures/patched/validate_url.py\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 4\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [
+    {
+      "path": "changedetectionio/is_safe_url.py",
+      "line": 108
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 1,
+  "engine_errors": []
+}

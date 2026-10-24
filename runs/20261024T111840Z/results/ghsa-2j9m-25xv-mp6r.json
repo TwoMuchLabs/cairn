@@ -1,0 +1,18 @@
+{
+  "id": "ghsa-2j9m-25xv-mp6r",
+  "advisory": "GHSA-2j9m-25xv-mp6r",
+  "language": "java",
+  "cwe": [
+    "CWE-862"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "java-nifi-scripting-component-missing-restricted-execute-code",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: java-nifi-scripting-component-missing-restricted-execute-code\ntitle: NiFi controller service that compiles Groovy scripts lacks @Restricted(EXECUTE_CODE)\nsummary: A NiFi controller service evaluates user-configured Groovy through GroovyShell or GroovyClassLoader,\n  but its class is not annotated with @Restricted and RequiredPermission.EXECUTE_CODE. Without it, any\n  user allowed to configure components can make the NiFi JVM run arbitrary code, bypassing the restricted-component\n  authorization that should gate that capability.\ncwe:\n- CWE-862\n- CWE-94\nseverity: high\nconfidence: medium\nlanguages:\n- java\nsource:\n  kind: fix-commit\n  ref: 72fab7dde74edfd1063b57e87b0334340c1fbe93\n  vulnerable_ref: 72fab7dde74edfd1063b57e87b0334340c1fbe93^\n  patched_ref: 72fab7dde74edfd1063b57e87b0334340c1fbe93\n  repository: https://github.com/apache/nifi\nrule:\n  message: 'Controller service $C evaluates Groovy code but is not annotated with\n\n    @Restricted(restrictions = @Restriction(requiredPermission = RequiredPermission.EXECUTE_CODE, ...)).\n\n    Users who can configure the component can execute arbitrary code without the restricted-component\n    permission.\n\n    '\n  patterns:\n  - pattern: \"class $C extends AbstractControllerService {\\n  ...\\n  $R $M(...) {\\n    ...\\n    <... $SINK\\\n      \\ ...>;\\n    ...\\n  }\\n}\\n\"\n  - metavariable-pattern:\n      metavariable: $SINK\n      pattern-either:\n      - pattern: new GroovyShell(...)\n      - pattern: new GroovyClassLoader(...)\n  - pattern-not: \"@Restricted(...)\\nclass $C extends AbstractControllerService {\\n  ...\\n}\\n\"\nfix:\n  guidance: Annotate the component class with @Restricted and a @Restriction that requires RequiredPermission.EXECUTE_CODE,\n    with an explanation, so only users granted the execute-code permission can configure it.\n  example: \"@Restricted(\\n        restrictions = {\\n                @Restriction(\\n                  \\\n    \\      requiredPermission = RequiredPermission.EXECUTE_CODE,\\n                        explanation\\\n    \\ = \\\"Enables configuration of scripted queries\\\"\\n                )\\n        }\\n)\\npublic class TinkerpopClientService\\\n    \\ extends AbstractControllerService implements GraphClientService {\\n    // ...\\n}\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/TinkerpopClientService.java\n  patched:\n  - fixtures/patched/TinkerpopClientService.java\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": []
+}

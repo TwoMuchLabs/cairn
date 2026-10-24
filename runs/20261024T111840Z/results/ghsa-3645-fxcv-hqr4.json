@@ -1,0 +1,23 @@
+{
+  "id": "ghsa-3645-fxcv-hqr4",
+  "advisory": "GHSA-3645-fxcv-hqr4",
+  "language": "python",
+  "cwe": [
+    "CWE-94"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "python-langchain-hardcoded-allow-dangerous-code-true",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: python-langchain-hardcoded-allow-dangerous-code-true\ntitle: LangChain agent created with hardcoded allow_dangerous_code=True (RCE via LLM-generated Python)\nsummary: 'The CSV/pandas/Python agent is created with `allow_dangerous_code` hardcoded to True. This lets\n  the LLM\n\n  execute arbitrary Python on the server, and prompt injection or untrusted CSV content can turn that\n  into\n\n  remote code execution. The dangerous capability must be off by default and enabled only through an\n\n  explicit, user-controlled opt-in setting.\n\n  '\ncwe:\n- CWE-94\n- CWE-95\nseverity: critical\nconfidence: high\nlanguages:\n- python\nsource:\n  kind: fix-commit\n  ref: d8c6480daa17b2f2af0b5470cdf5c3d28dc9e508\n  vulnerable_ref: d8c6480daa17b2f2af0b5470cdf5c3d28dc9e508^\n  patched_ref: d8c6480daa17b2f2af0b5470cdf5c3d28dc9e508\n  repository: https://github.com/langflow-ai/langflow\nrule:\n  message: '`allow_dangerous_code` is hardcoded to True, so the agent can execute arbitrary Python generated\n    by the\n\n    LLM (RCE through prompt injection or malicious data). Default it to False and expose an explicit opt-in.\n\n    '\n  patterns:\n  - pattern-either:\n    - pattern: '{..., \"allow_dangerous_code\": True, ...}\n\n        '\n    - pattern: 'dict(..., allow_dangerous_code=True, ...)\n\n        '\n    - pattern: '$FUNC(..., allow_dangerous_code=True, ...)\n\n        '\n    - pattern: '$D[\"allow_dangerous_code\"] = True\n\n        '\nfix:\n  guidance: 'Do not hardcode allow_dangerous_code=True. Add an advanced BoolInput (default False) with\n    a clear\n\n    security warning and read it with getattr(self, \"allow_dangerous_code\", False) or False, passing that\n\n    value to the agent factory so the dangerous behaviour is secure by default.\n\n    '\n  example: \"BoolInput(\\n    name=\\\"allow_dangerous_code\\\",\\n    display_name=\\\"Allow Dangerous Code\\\"\\\n    ,\\n    value=False,\\n    advanced=True,\\n    info=\\\"SECURITY WARNING: allows arbitrary Python execution\\\n    \\ on the server.\\\",\\n)\\n\\nallow_dangerous = getattr(self, \\\"allow_dangerous_code\\\", False) or False\\n\\\n    agent_kwargs = {\\n    \\\"verbose\\\": self.verbose,\\n    \\\"allow_dangerous_code\\\": allow_dangerous,\\n\\\n    }\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/csv_agent.py\n  patched:\n  - fixtures/patched/csv_agent.py\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [
+    {
+      "path": "src/lfx/src/lfx/base/agents/agent.py",
+      "line": 108
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 1,
+  "engine_errors": []
+}

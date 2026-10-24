@@ -1,0 +1,18 @@
+{
+  "id": "ghsa-28gh-q3gw-pvx8",
+  "advisory": "GHSA-28gh-q3gw-pvx8",
+  "language": "python",
+  "cwe": [
+    "CWE-22"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "python-pathlib-startswith-path-containment-check",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: python-pathlib-startswith-path-containment-check\ntitle: Path containment check uses str(...).startswith() instead of Path.is_relative_to()\nsummary: A resolved path is checked against a base directory with `str(path).startswith(str(base))`. String\n  prefix matching is not path-aware, so a sibling directory such as `/base_evil` passes a check against\n  `/base`. This allows path traversal and reads of files outside the intended folder. `Path.is_relative_to()`\n  compares path components and avoids the bypass.\ncwe:\n- CWE-22\nseverity: medium\nconfidence: medium\nlanguages:\n- python\nsource:\n  kind: fix-commit\n  ref: 129fd407ffca49ee4ab853772c88d0c873e038dd\n  vulnerable_ref: 129fd407ffca49ee4ab853772c88d0c873e038dd^\n  patched_ref: 129fd407ffca49ee4ab853772c88d0c873e038dd\n  repository: https://github.com/Avaiga/taipy\nrule:\n  message: 'Path containment is verified with a string prefix comparison (`str(...).startswith(str(...))`).\n    This is\n\n    bypassable by sibling directories sharing the same prefix (e.g. /base vs /base_evil). Use\n\n    `path.is_relative_to(base)` instead.\n\n    '\n  patterns:\n  - pattern-either:\n    - pattern: str($FILE).startswith(str($BASE))\n    - pattern: os.fspath($FILE).startswith(os.fspath($BASE))\n    - pattern: $FILE.as_posix().startswith($BASE.as_posix())\n  - pattern-not-inside: '$FILE.is_relative_to($BASE)\n\n      '\nfix:\n  guidance: Replace the string prefix comparison with `Path.is_relative_to()` on the resolved path, which\n    compares path components. Resolve the candidate path first so that `..` segments and symlinks are\n    collapsed before the check.\n  example: \"base = self.__get_class_folder()\\nfile = (base / name).resolve()\\nif file.is_relative_to(base)\\\n    \\ and file.exists():\\n    return file\\nraise FileNotFoundError(f\\\"Cannot access resource {file}.\\\"\\\n    )\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/library.py\n  patched:\n  - fixtures/patched/library.py\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": []
+}

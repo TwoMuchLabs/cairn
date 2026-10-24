@@ -1,0 +1,19 @@
+{
+  "id": "ghsa-49mx-fj45-q3p6",
+  "advisory": "GHSA-49mx-fj45-q3p6",
+  "language": "javascript",
+  "cwe": [
+    "CWE-200",
+    "CWE-668"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "typescript-nodejs-vm-sandbox-raw-buffer-exposed",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: typescript-nodejs-vm-sandbox-raw-buffer-exposed\ntitle: Raw Node.js Buffer exposed to sandboxed code (allocUnsafe leaks uninitialized memory)\nsummary: The task runner's sandbox context exposes the native `Buffer` object directly to user-supplied\n  code. User code can call `Buffer.allocUnsafe` or `Buffer.allocUnsafeSlow` and read uninitialized process\n  memory, which may include secrets or data from other tasks. The Buffer must be wrapped, for example\n  in a Proxy that maps these methods to `Buffer.alloc`.\ncwe:\n- CWE-908\n- CWE-200\nseverity: high\nconfidence: medium\nlanguages:\n- typescript\nsource:\n  kind: fix-commit\n  ref: 2c4c2953199733c791f739a40879ae31ca129aba\n  vulnerable_ref: 2c4c2953199733c791f739a40879ae31ca129aba^\n  patched_ref: 2c4c2953199733c791f739a40879ae31ca129aba\n  repository: https://github.com/n8n-io/n8n\nrule:\n  message: 'The native `Buffer` is exposed directly in an object that becomes the sandbox/VM context.\n    Sandboxed code can use `Buffer.allocUnsafe()` / `allocUnsafeSlow()` to read uninitialized memory.\n    Wrap Buffer in a Proxy that replaces these methods with `Buffer.alloc`.\n\n    '\n  patterns:\n  - pattern-either:\n    - pattern-inside: \"private getNativeVariables() {\\n  ...\\n}\\n\"\n    - pattern-inside: \"function getNativeVariables() {\\n  ...\\n}\\n\"\n    - pattern-inside: \"$FN = () => {\\n  ...\\n}\\n\"\n  - pattern: \"{\\n  ...,\\n  Buffer,\\n  ...\\n}\\n\"\n  - pattern-not: \"{\\n  ...,\\n  Buffer: new Proxy(...),\\n  ...\\n}\\n\"\nfix:\n  guidance: Do not hand the raw Node.js `Buffer` to sandboxed code. Expose a Proxy around Buffer whose\n    `get` trap returns `Buffer.alloc` for `allocUnsafe` and `allocUnsafeSlow` (unless the runner is explicitly\n    in insecure mode), and returns the normal property for everything else.\n  example: \"const { mode } = this;\\nreturn {\\n  Buffer: new Proxy(Buffer, {\\n    get(target, prop) {\\n\\\n    \\      if (mode === 'insecure') return target[prop as keyof typeof Buffer];\\n      if (prop === 'allocUnsafe'\\\n    \\ || prop === 'allocUnsafeSlow') {\\n        return Buffer.alloc;\\n      }\\n      return target[prop\\\n    \\ as keyof typeof Buffer];\\n    },\\n  }),\\n  setTimeout,\\n};\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/js-task-runner.ts\n  patched:\n  - fixtures/patched/js-task-runner.ts\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": []
+}
