@@ -1,0 +1,37 @@
+{
+  "id": "ghsa-4744-96p5-mp2j",
+  "advisory": "GHSA-4744-96p5-mp2j",
+  "language": "python",
+  "cwe": [
+    "CWE-502",
+    "CWE-863"
+  ],
+  "split": "dev",
+  "attempts": 2,
+  "narrowing_attempts": 0,
+  "breadth": [
+    1
+  ],
+  "failures": [
+    "- rule compiles: Rule parse error in rule tmp.cairn-qk7a_jho.python-pyload-set-plugin-config-missing-admin-check: Invalid pattern for Python: Stdlib.Parsing.Parse_error ----- pattern ----- if $COND: ... return ... elif ...: ... self.pyload.config.set_plugin($C, $O, $V) ----- end pattern -----"
+  ],
+  "status": "lesson",
+  "lesson_id": "python-pyload-set-plugin-config-missing-admin-check",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: python-pyload-set-plugin-config-missing-admin-check\ntitle: pyLoad API writes plugin config without an Admin role check\nsummary: 'The API''s config-setting method writes plugin options through `config.set_plugin` without checking\n  the caller''s role. Any user holding the SETTINGS permission could therefore set security-critical plugin\n  options, for example the AntiVirus `avfile` and `avargs` options, and so gain command execution. The\n  role check that did exist covered only some core options, and it failed open when a `RuntimeError` was\n  raised.\n\n  '\ncwe:\n- CWE-269\n- CWE-78\nseverity: high\nconfidence: medium\nlanguages:\n- python\nsource:\n  kind: fix-commit\n  ref: c4cf995a2803bdbe388addfc2b0f323277efc0e1\n  vulnerable_ref: c4cf995a2803bdbe388addfc2b0f323277efc0e1^\n  patched_ref: c4cf995a2803bdbe388addfc2b0f323277efc0e1\n  repository: https://github.com/pyload/pyload\nrule:\n  message: '`config.set_plugin` is called with a caller-controlled category/option/value and no preceding\n\n    guard that returns early when the caller is not an admin. A non-admin user with SETTINGS permission\n\n    can change sensitive plugin options (e.g. AntiVirus avfile/avargs), leading to command execution.\n\n    '\n  patterns:\n  - pattern: self.pyload.config.set_plugin($C, $O, $V)\n  - pattern-inside: \"def $F(self, ...):\\n    ...\\n\"\n  - pattern-not-inside: \"if $COND:\\n    ...\\n    return\\n...\\nself.pyload.config.set_plugin($C, $O, $V)\\n\"\nfix:\n  guidance: 'Before writing a plugin option, compare (category, option) against a set of admin-only plugin\n    options\n\n    (such as AntiVirus avfile and avargs) and refuse with an error log and return if the caller''s role\n    is not\n\n    Role.ADMIN. Determine the role once at the top of the method from flask.g.user_info, falling back\n    to\n\n    flask.session. Treat a call made outside a Flask request (internal use) as admin explicitly. Do not\n    use a\n\n    silent `except RuntimeError: pass` that skips the check.\n\n    '\n  example: \"try:\\n    try:\\n        user_info = flask.g.user_info\\n    except AttributeError:\\n      \\\n    \\  user_info = flask.session\\nexcept RuntimeError:\\n    user_info = {\\\"role\\\": Role.ADMIN}\\nis_admin\\\n    \\ = user_info.get(\\\"role\\\") == Role.ADMIN\\n\\nADMIN_ONLY_PLUGIN_OPTIONS = {(\\\"AntiVirus\\\", \\\"avfile\\\"\\\n    ), (\\\"AntiVirus\\\", \\\"avargs\\\")}\\n\\nelif section == \\\"plugin\\\":\\n    if (category, option) in ADMIN_ONLY_PLUGIN_OPTIONS\\\n    \\ and not is_admin:\\n        self.pyload.log.error(\\\"requires Admin role\\\")\\n        return\\n    self.pyload.config.set_plugin(category,\\\n    \\ option, value)\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/__init__.py\n  patched:\n  - fixtures/patched/__init__.py\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 2\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [
+    {
+      "path": "src/pyload/plugins/addons/MultiHome.py",
+      "line": 50,
+      "review": "different",
+      "reason": "This is internal addon init code that writes its own 'interfaces' option from system-derived values, not an API endpoint exposed to a caller, so no role check applies and it is not a security-critical option."
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 1,
+  "engine_errors": [],
+  "tokens": {
+    "input": 11390,
+    "output": 3418
+  }
+}

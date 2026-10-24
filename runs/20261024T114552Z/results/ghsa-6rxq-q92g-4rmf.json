@@ -1,0 +1,30 @@
+{
+  "id": "ghsa-6rxq-q92g-4rmf",
+  "advisory": "GHSA-6rxq-q92g-4rmf",
+  "language": "go",
+  "cwe": [
+    "CWE-22"
+  ],
+  "split": "dev",
+  "attempts": 3,
+  "narrowing_attempts": 0,
+  "breadth": [
+    0
+  ],
+  "failures": [
+    "- silent on the fix: still matches the patched code at fs_util.go:211, fs_util.go:432",
+    "could not read the answer as YAML: while scanning for the next token\nfound character '`' that cannot start any token\n  in \"<unicode string>\", line 1, column 1:\n    ```yaml\n    ^"
+  ],
+  "status": "lesson",
+  "lesson_id": "go-tar-extraction-unsafe-filepath-join",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: go-tar-extraction-unsafe-filepath-join\ntitle: Tar entry name or link target joined to destination without traversal check or securejoin\nsummary: 'Paths taken from tar headers (the entry name or a hardlink target) are combined with the extraction\n  root using filepath.Join and filepath.Clean. Neither call rejects \"..\" components or resolves symlinks.\n  A malicious layer or archive can write, link or delete files outside the destination (Zip-Slip, symlink\n  escapes). Whiteout handling also reaches os.RemoveAll with the same unchecked path.\n\n  '\ncwe:\n- CWE-22\n- CWE-59\nseverity: high\nconfidence: medium\nlanguages:\n- go\nsource:\n  kind: fix-commit\n  ref: a370e4b1f66e6e842b685c8f70ed507964c4b221\n  vulnerable_ref: a370e4b1f66e6e842b685c8f70ed507964c4b221^\n  patched_ref: a370e4b1f66e6e842b685c8f70ed507964c4b221\n  repository: https://github.com/chainguard-forks/kaniko\nrule:\n  message: 'A path derived from a tar header is joined to the extraction root with filepath.Join without\n    a preceding \"..\" rejection or securejoin.SecureJoin. A crafted archive can escape the destination\n    directory through traversal or symlinks.\n\n    '\n  patterns:\n  - pattern-either:\n    - patterns:\n      - pattern: $P := filepath.Join($D, $N)\n      - pattern-inside: \"func $F(..., $H *tar.Header, ..., $N string, ...) $RET {\\n  ...\\n}\\n\"\n    - patterns:\n      - pattern: $P := filepath.Join($D, $N)\n      - pattern-inside: '$N := filepath.Clean($H.Name)\n\n          ...\n\n          '\n    - pattern: $L := filepath.Clean(filepath.Join($D, $H.Linkname))\n  - pattern-not-inside: \"if $N == \\\"..\\\" || strings.HasPrefix($N, \\\"../\\\") {\\n  ...\\n}\\n...\\n\"\nfix:\n  guidance: 'Reject tar entry names and link targets that equal \"..\" or start with \"../\" after filepath.Clean.\n    Resolve the final destination with securejoin.SecureJoin(root, name) instead of filepath.Join. Use\n    the securely joined path for every file creation, hardlink target and whiteout os.RemoveAll. For symlink\n    entries, check that the effective target stays inside the destination.\n\n    '\n  example: \"cleanedName := filepath.Clean(hdr.Name)\\nif cleanedName == \\\"..\\\" || strings.HasPrefix(cleanedName,\\\n    \\ \\\"../\\\") {\\n    return fmt.Errorf(\\\"tar entry %q is not allowed\\\", hdr.Name)\\n}\\npath, err := securejoin.SecureJoin(dest,\\\n    \\ cleanedName)\\nif err != nil {\\n    return fmt.Errorf(\\\"resolving path for %q: %w\\\", hdr.Name, err)\\n\\\n    }\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/fs_util.go\n  patched:\n  - fixtures/patched/fs_util.go\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 3\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": [],
+  "tokens": {
+    "input": 30273,
+    "output": 8869
+  }
+}

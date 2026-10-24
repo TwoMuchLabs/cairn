@@ -1,0 +1,24 @@
+{
+  "id": "ghsa-2cf7-hpwf-47h9",
+  "advisory": "GHSA-2cf7-hpwf-47h9",
+  "language": "javascript",
+  "cwe": [
+    "CWE-200",
+    "CWE-863"
+  ],
+  "split": "dev",
+  "attempts": 4,
+  "narrowing_attempts": 0,
+  "breadth": [],
+  "failures": [
+    "- matches vulnerable code: no finding in handlers-n8n-manager.js, handlers-n8n-manager.ts\n- matches the code the fix changed: no finding near the fix in handlers-n8n-manager.js (fix changed lines 1814; matches at none); handlers-n8n-manager.ts (fix changed lines 2407; matches at none)",
+    "rule passed against the commit but not as a standalone lesson: - matches vulnerable code: no finding in handlers-n8n-manager.js, handlers-n8n-manager.ts\n- matches the expected lines: expected a finding on handlers-n8n-manager.js:1814, handlers-n8n-manager.ts:2407\n- matches the code the fix changed: ",
+    "- matches vulnerable code: no finding in http-server-single-session.js, http-server-single-session.ts\n- matches the code the fix changed: no finding near the fix in http-server-single-session.js (fix changed lines 967, 969-970; matches at none); http-server-single-session.ts (fix changed lines 1338-",
+    "- matches vulnerable code: no finding in handlers-n8n-manager.js, handlers-n8n-manager.ts\n- matches the code the fix changed: no finding near the fix in handlers-n8n-manager.js (fix changed lines 1814; matches at none); handlers-n8n-manager.ts (fix changed lines 2407; matches at none)"
+  ],
+  "status": "no-lesson",
+  "tokens": {
+    "input": 47198,
+    "output": 9179
+  }
+}

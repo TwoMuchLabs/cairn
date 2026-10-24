@@ -1,0 +1,30 @@
+{
+  "id": "ghsa-3mp7-vp6j-2mxx",
+  "advisory": "GHSA-3mp7-vp6j-2mxx",
+  "language": "python",
+  "cwe": [
+    "CWE-20",
+    "CWE-918"
+  ],
+  "split": "dev",
+  "attempts": 2,
+  "narrowing_attempts": 0,
+  "breadth": [
+    0
+  ],
+  "failures": [
+    "- silent on the fix: still matches the patched code at docker_pull.py:91"
+  ],
+  "status": "lesson",
+  "lesson_id": "python-bbot-www-authenticate-realm-naive-split-unvalidated",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: python-bbot-www-authenticate-realm-naive-split-unvalidated\ntitle: WWW-Authenticate realm extracted by string splitting and used without host validation\nsummary: The bearer token realm is cut out of the registry's WWW-Authenticate header with a naive `split('realm=\"')`\n  and later used as the URL for a token request. A malicious registry can point the realm at an arbitrary\n  or internal host, causing SSRF and leaking scope and service data. The fix parses the header with a\n  dedicated helper and checks that the realm's registered domain matches the registry's before making\n  the request.\ncwe:\n- CWE-918\nseverity: medium\nconfidence: medium\nlanguages:\n- python\nsource:\n  kind: fix-commit\n  ref: c2f4bc0f4e4bb4d00f06750dcabf1d9c74c0d3b4\n  vulnerable_ref: c2f4bc0f4e4bb4d00f06750dcabf1d9c74c0d3b4^\n  patched_ref: c2f4bc0f4e4bb4d00f06750dcabf1d9c74c0d3b4\n  repository: https://github.com/blacklanternsecurity/bbot\nrule:\n  message: 'The realm is taken from the WWW-Authenticate header by naive string splitting and is not validated\n    against\n\n    the registry host. A malicious registry can redirect the token request to an arbitrary or internal\n    host (SSRF).\n\n    Parse the header robustly and validate the realm''s domain against the registry''s.\n\n    '\n  patterns:\n  - pattern-either:\n    - pattern: '$REALM = $HDR.split(''realm=\"'')[1].split(...)[0]\n\n        '\n    - pattern: '$REALM = $HDR.split(\"realm=\\\"\")[1].split(...)[0]\n\n        '\n  - pattern-not-inside: \"def $F(...):\\n    ...\\n    $S._validate_realm(...)\\n    ...\\n\"\n  - pattern-not-inside: \"async def $F(...):\\n    ...\\n    $S._validate_realm(...)\\n    ...\\n\"\nfix:\n  guidance: Parse the WWW-Authenticate header with a dedicated helper that reads the realm, service and\n    scope parameters, and require all three to be present. Before requesting a token, parse the realm\n    URL and verify that its registered domain matches the registry's domain. Abort authentication if they\n    differ.\n  example: \"realm, service, scope = self._parse_www_authenticate(www_auth)\\nif not all([realm, service,\\\n    \\ scope]):\\n    break\\nif not self._validate_realm(url, realm):\\n    break\\nauth_url = f\\\"{realm}?service={service}&scope={scope}\\\"\\\n    \\nauth_response = await self.helpers.request(auth_url)\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/docker_pull.py\n  patched:\n  - fixtures/patched/docker_pull.py\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 2\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": [],
+  "tokens": {
+    "input": 9899,
+    "output": 2104
+  }
+}

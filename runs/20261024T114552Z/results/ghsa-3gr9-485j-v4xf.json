@@ -1,0 +1,29 @@
+{
+  "id": "ghsa-3gr9-485j-v4xf",
+  "advisory": "GHSA-3gr9-485j-v4xf",
+  "language": "go",
+  "cwe": [
+    "CWE-285"
+  ],
+  "split": "dev",
+  "attempts": 2,
+  "narrowing_attempts": 0,
+  "breadth": [
+    0
+  ],
+  "failures": [
+    "- rule compiles: Rule parse error in rule tmp.cairn-7t9oofvi.go-gorm-soft-delete-book-without-revoking-public: Invalid pattern for Go: Parsing_error.Other_error (method has ... for receiver, _NOT_A_FILE_:1:5 \"(\") ----- pattern ----- func (...) $F(...) $RET { ... Update(\"is_public\", false) ... } ----"
+  ],
+  "status": "lesson",
+  "lesson_id": "go-gorm-book-soft-delete-without-revoking-public",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: go-gorm-book-soft-delete-without-revoking-public\ntitle: Soft-deleting a Book directly on db.DB without clearing is_public\nsummary: 'A book is deleted with a GORM soft delete (`Delete(&db.Book{})`) directly on the global `db.DB`\n  handle, without first setting `is_public` to false. The soft-deleted row keeps `is_public = true`. Queries\n  that check only the public flag, such as those for the book''s notes, can still expose the content after\n  the owner deleted it. The visibility revocation and the delete should run together in a transaction.\n\n  '\ncwe:\n- CWE-284\nseverity: medium\nconfidence: medium\nlanguages:\n- go\nsource:\n  kind: fix-commit\n  ref: d1bf845a2a2df01e2eca6f556287db4ec6f773cf\n  vulnerable_ref: d1bf845a2a2df01e2eca6f556287db4ec6f773cf^\n  patched_ref: d1bf845a2a2df01e2eca6f556287db4ec6f773cf\n  repository: https://github.com/enchant97/note-mark\nrule:\n  message: 'Book is soft-deleted directly on db.DB without resetting `is_public`. Content tied to the\n\n    deleted book may stay publicly reachable. Revoke public visibility (`Update(\"is_public\", false)`)\n\n    and delete inside one transaction.\n\n    '\n  pattern-either:\n  - pattern: db.DB.Where(...).Delete(&db.Book{})\n  - pattern: db.DB.Delete(&db.Book{}, ...)\n  - pattern: db.DB.Where(...).Delete(&db.Book{}, ...)\nfix:\n  guidance: 'Wrap the deletion in `db.DB.Transaction`. Inside the transaction, first update the book with\n    `is_public` set to false, scoped to the id and owner. Then perform the delete on the transaction handle\n    with the same ownership condition and check RowsAffected. This way a soft-deleted book can never remain\n    publicly visible.\n\n    '\n  example: \"return db.DB.Transaction(func(tx *gorm.DB) error {\\n    if err := tx.Model(&db.Book{}).\\n\\\n    \\        Where(\\\"id = ? AND owner_id = ?\\\", bookID, currentUserID).\\n        Update(\\\"is_public\\\"\\\n    , false).Error; err != nil {\\n        return dbErrorToServiceError(err)\\n    }\\n    result := tx.Where(\\\"\\\n    id = ? AND owner_id = ?\\\", bookID, currentUserID).Delete(&db.Book{})\\n    if result.Error != nil {\\n\\\n    \\        return dbErrorToServiceError(result.Error)\\n    }\\n    if result.RowsAffected == 0 {\\n  \\\n    \\      return NotFoundError\\n    }\\n    return nil\\n})\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/books.go\n  patched:\n  - fixtures/patched/books.go\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 2\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": [],
+  "tokens": {
+    "input": 6427,
+    "output": 2370
+  }
+}

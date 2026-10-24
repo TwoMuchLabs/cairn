@@ -1,0 +1,28 @@
+{
+  "id": "ghsa-3cw3-5vxw-g2h3",
+  "advisory": "GHSA-3cw3-5vxw-g2h3",
+  "language": "javascript",
+  "cwe": [
+    "CWE-287",
+    "CWE-862"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "narrowing_attempts": 0,
+  "breadth": [
+    0
+  ],
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "typescript-onboarding-untrusted-discovery-url-without-confirm",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: typescript-onboarding-untrusted-discovery-url-without-confirm\ntitle: Discovered (Bonjour/mDNS) gateway endpoint used as URL without user trust confirmation\nsummary: In the onboarding flow, a gateway host and port learned from unauthenticated LAN discovery are\n  assigned directly into the suggested URL. Nothing asks the user to confirm trust, and no TLS fingerprint\n  is pinned. A rogue device on the LAN can advertise a malicious gateway, and the user can accept it by\n  default and send credentials to it.\ncwe:\n- CWE-295\nseverity: medium\nconfidence: medium\nlanguages:\n- typescript\nsource:\n  kind: fix-commit\n  ref: d6affb17d85f5f5ab08ef9f2b994b257af12e75a\n  vulnerable_ref: d6affb17d85f5f5ab08ef9f2b994b257af12e75a^\n  patched_ref: d6affb17d85f5f5ab08ef9f2b994b257af12e75a\n  repository: https://github.com/openclaw/openclaw\nrule:\n  message: 'A URL is built from a discovered endpoint ($TARGET.endpoint host/port) and used without a\n    trust confirmation (prompter.confirm) or TLS fingerprint pinning. Unauthenticated LAN discovery results\n    can be spoofed. Ask the user to confirm the host and fingerprint, and persist the fingerprint.\n\n    '\n  patterns:\n  - pattern-inside: 'const $TARGET = buildGatewayDiscoveryTarget($BEACON);\n\n      ...\n\n      '\n  - pattern-either:\n    - pattern: '$URL = `wss://${$HOST}:${$PORT}`;\n\n        '\n    - pattern: '$URL = `ws://${$HOST}:${$PORT}`;\n\n        '\n  - pattern-not-inside: \"if ($MODE === \\\"direct\\\") {\\n  ...\\n  await $P.confirm({...});\\n  ...\\n}\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/onboard-remote.ts\n  patched:\n  - fixtures/patched/onboard-remote.ts\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": [],
+  "tokens": {
+    "input": 6125,
+    "output": 892
+  }
+}

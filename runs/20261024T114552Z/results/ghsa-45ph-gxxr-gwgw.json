@@ -1,0 +1,58 @@
+{
+  "id": "ghsa-45ph-gxxr-gwgw",
+  "advisory": "GHSA-45ph-gxxr-gwgw",
+  "language": "java",
+  "cwe": [
+    "CWE-862"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "narrowing_attempts": 0,
+  "breadth": [
+    5
+  ],
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "java-xwiki-saving-document-without-checksavingdocument",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: java-xwiki-saving-document-without-checksavingdocument\ntitle: XWiki document saved via saveDocument without checkSavingDocument after setting author\nsummary: Code sets the document author to the current user and calls XWiki#saveDocument directly, without\n  first calling checkSavingDocument. Skipping that check bypasses the content-author and required-rights\n  verification that XWiki performs when a user saves a document. A user could therefore persist changes\n  that they are not entitled to make, or have content saved with an inappropriate author.\ncwe:\n- CWE-862\nseverity: medium\nconfidence: medium\nlanguages:\n- java\nsource:\n  kind: fix-commit\n  ref: 448b0f074cc6711410eb2647c4740454c92d1626\n  vulnerable_ref: 448b0f074cc6711410eb2647c4740454c92d1626^\n  patched_ref: 448b0f074cc6711410eb2647c4740454c92d1626\n  repository: https://github.com/xwiki/xwiki-platform\nrule:\n  message: 'Document is saved with saveDocument() after the author is set, but XWiki#checkSavingDocument()\n    is not\n\n    called first. Call checkSavingDocument(userReference, document, comment, true, xcontext) before saving.\n\n    '\n  patterns:\n  - pattern: $XC.getWiki().saveDocument($DOC, $COMMENT, $MINOR, $XC);\n  - pattern-inside: \"$RET $METHOD(...) {\\n  ...\\n  $DOC.setAuthorReference(...);\\n  ...\\n}\\n\"\n  - pattern-not-inside: \"$RET $METHOD(...) {\\n  ...\\n  $XC.getWiki().checkSavingDocument(...);\\n  ...\\n\\\n      }\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/ModelBridge.java\n  patched:\n  - fixtures/patched/ModelBridge.java\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [
+    {
+      "path": "xwiki-platform-core/xwiki-platform-tag/xwiki-platform-tag-api/src/main/java/com/xpn/xwiki/plugin/tag/TagPlugin.java",
+      "line": 492,
+      "review": "same",
+      "reason": "TagPlugin sets the author to the current user and saves directly without checkSavingDocument, so a user could persist a tag change they may not be entitled to make."
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-tag/xwiki-platform-tag-api/src/main/java/com/xpn/xwiki/plugin/tag/TagPlugin.java",
+      "line": 565,
+      "review": "same",
+      "reason": "Removing a tag follows the same pattern: the author is set to the current user and the document is saved without checkSavingDocument."
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-tag/xwiki-platform-tag-api/src/main/java/com/xpn/xwiki/plugin/tag/TagPlugin.java",
+      "line": 619,
+      "review": "same",
+      "reason": "Renaming a tag across documents sets the author and calls saveDocument directly, with no checkSavingDocument verification."
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/XWiki.java",
+      "line": 5022,
+      "review": "unsure",
+      "reason": "Legacy backlink-rename code sets the author and saves without checkSavingDocument, but the callers and any rights checks on the backlink documents are not visible here."
+    },
+    {
+      "path": "xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/doc/DefaultDocumentAccessBridge.java",
+      "line": 1050,
+      "review": "different",
+      "reason": "DefaultDocumentAccessBridge is an internal trusted bridge component that deliberately does not do user-level rights checks, so this is not the user-facing save path the lesson is about."
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 5,
+  "engine_errors": [],
+  "tokens": {
+    "input": 9229,
+    "output": 1733
+  }
+}

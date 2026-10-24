@@ -1,0 +1,30 @@
+{
+  "id": "ghsa-3cjv-h753-qf7h",
+  "advisory": "GHSA-3cjv-h753-qf7h",
+  "language": "go",
+  "cwe": [
+    "CWE-22"
+  ],
+  "split": "dev",
+  "attempts": 3,
+  "narrowing_attempts": 0,
+  "breadth": [
+    0
+  ],
+  "failures": [
+    "- matches vulnerable code: no finding in backend.go\n- matches the code the fix changed: no finding near the fix in backend.go (fix changed lines 147, 181, 300, 306-308; matches at none)",
+    "- silent on the fix: still matches the patched code at backend.go:148, sync.go:48"
+  ],
+  "status": "lesson",
+  "lesson_id": "go-islo-workdir-not-contained-under-workspace",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: go-islo-workdir-not-contained-under-workspace\ntitle: Islo workdir resolved or passed to the sandbox API without checking it stays under /workspace\nsummary: 'The configured Islo workdir is passed to the sandbox create call as-is, or resolved by a helper\n  that returns only a string with no error path. Absolute paths are accepted after `path.Clean`, and relative\n  paths can escape through `..`. A malicious or mistaken config can then point sandbox creation, `rm -rf`,\n  `mkdir -p` and `tar -x` at directories outside the intended /workspace.\n\n  '\ncwe:\n- CWE-22\nseverity: medium\nconfidence: medium\nlanguages:\n- go\nsource:\n  kind: fix-commit\n  ref: 6b07193fb5670aac315ea47215651c67b8127868\n  vulnerable_ref: 6b07193fb5670aac315ea47215651c67b8127868^\n  patched_ref: 6b07193fb5670aac315ea47215651c67b8127868\n  repository: https://github.com/openclaw/crabbox\nrule:\n  message: 'The configured workdir is used without being validated as a relative path under the workspace\n    root. Absolute paths and `..` traversal are not rejected. Resolve it with a helper that returns an\n    error for absolute or escaping paths, and propagate that error to every caller.\n\n    '\n  pattern-either:\n  - pattern: '$C.Workdir = $F($CFG.Islo.Workdir)\n\n      '\n  - pattern: \"func isloWorkspacePath($CFG Config) string {\\n    ...\\n}\\n\"\n  - pattern-regex: (?m)^\\s*\\w+ := isloWorkspacePath\\(\nfix:\n  guidance: 'Require the workdir to be relative, clean it, and reject `.`, `..` and anything starting\n    with `../` before joining it to the workspace root. Return an error from the resolver and have every\n    caller (sandbox creation, sync, run) propagate it. Pass the cleaned relative workdir to the sandbox\n    create call instead of the raw configured value.\n\n    '\n  example: \"func isloRelativeWorkdir(cfg Config) (string, error) {\\n    workdir := strings.TrimSpace(cfg.Islo.Workdir)\\n\\\n    \\    if workdir == \\\"\\\" {\\n        workdir = \\\"crabbox\\\"\\n    }\\n    if strings.HasPrefix(workdir,\\\n    \\ \\\"/\\\") {\\n        return \\\"\\\", exit(2, \\\"islo workdir %q must be relative under /workspace\\\", workdir)\\n\\\n    \\    }\\n    workdir = path.Clean(workdir)\\n    if workdir == \\\".\\\" || workdir == \\\"..\\\" || strings.HasPrefix(workdir,\\\n    \\ \\\"../\\\") {\\n        return \\\"\\\", exit(2, \\\"islo workdir %q escapes /workspace\\\", workdir)\\n    }\\n\\\n    \\    return workdir, nil\\n}\\n\\n// caller\\nworkdir, err := isloRelativeWorkdir(b.cfg)\\nif err != nil\\\n    \\ {\\n    return err\\n}\\ncreate.Workdir = stringValue(workdir)\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/backend.go\n  - fixtures/vulnerable/sync.go\n  patched:\n  - fixtures/patched/backend.go\n  - fixtures/patched/sync.go\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 3\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": [],
+  "tokens": {
+    "input": 37885,
+    "output": 4828
+  }
+}

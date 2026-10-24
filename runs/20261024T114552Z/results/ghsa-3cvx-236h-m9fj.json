@@ -1,0 +1,31 @@
+{
+  "id": "ghsa-3cvx-236h-m9fj",
+  "advisory": "GHSA-3cvx-236h-m9fj",
+  "language": "javascript",
+  "cwe": [
+    "CWE-285",
+    "CWE-319",
+    "CWE-78"
+  ],
+  "split": "dev",
+  "attempts": 2,
+  "narrowing_attempts": 0,
+  "breadth": [
+    0
+  ],
+  "failures": [
+    "- matches vulnerable code: no finding in audit.ts\n- matches the code the fix changed: no finding near the fix in audit.ts (fix changed lines 354; matches at none)"
+  ],
+  "status": "lesson",
+  "lesson_id": "typescript-gateway-controlui-insecure-auth-bypass-device-auth",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: typescript-gateway-controlui-insecure-auth-bypass-device-auth\ntitle: Control UI allowInsecureAuth flag bypasses secure-context and device-auth checks\nsummary: 'The WebSocket connect handler built its Control UI bypass flag from the `allowInsecureAuth`\n  config toggle. With it set, a Control UI client could skip device identity and the HTTPS/localhost secure-context\n  requirement and authenticate with only a shared token over plain HTTP. That exposes the token to interception\n  and removes device binding of scopes. The security audit text also described this behavior as intended.\n\n  '\ncwe:\n- CWE-287\n- CWE-319\nseverity: high\nconfidence: medium\nlanguages:\n- typescript\nsource:\n  kind: fix-commit\n  ref: 40a292619e1f2be3a3b1db663d7494c9c2dc0abf\n  vulnerable_ref: 40a292619e1f2be3a3b1db663d7494c9c2dc0abf^\n  patched_ref: 40a292619e1f2be3a3b1db663d7494c9c2dc0abf\n  repository: https://github.com/openclaw/openclaw\nrule:\n  message: 'The Control UI bypass decision includes an \"allow insecure auth\" setting, so token-only auth\n    can skip\n\n    device identity and the secure-context requirement over HTTP. Only the explicit\n\n    dangerouslyDisableDeviceAuth setting should relax these checks.\n\n    '\n  pattern-either:\n  - patterns:\n    - pattern-either:\n      - pattern: 'const $BYPASS = $INSECURE || $DISABLE;\n\n          '\n      - pattern: 'const $BYPASS = $DISABLE || $INSECURE;\n\n          '\n    - metavariable-regex:\n        metavariable: $INSECURE\n        regex: (?i).*(allowInsecure|insecureControlUi|insecureAuth).*\n    - metavariable-regex:\n        metavariable: $BYPASS\n        regex: (?i).*bypass.*\n  - pattern-regex: allowInsecureAuth=true allows token-only auth over HTTP\nfix:\n  guidance: 'Do not let the legacy allowInsecureAuth toggle influence the Control UI bypass decision.\n    Derive the bypass flag only from the explicit dangerouslyDisableDeviceAuth setting, and keep requiring\n    a device identity and secure context for the Control UI otherwise. Keep allowInsecureAuth only as\n    a legacy value for audit and logging, and word audit messages to say it no longer bypasses device\n    auth.\n\n    '\n  example: \"const allowInsecureControlUi =\\n  isControlUi && configSnapshot.gateway?.controlUi?.allowInsecureAuth\\\n    \\ === true;\\nconst disableControlUiDeviceAuth =\\n  isControlUi && configSnapshot.gateway?.controlUi?.dangerouslyDisableDeviceAuth\\\n    \\ === true;\\n// allowInsecureAuth is retained for compatibility but must not bypass device auth\\n\\\n    const allowControlUiBypass = disableControlUiDeviceAuth;\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/message-handler.ts\n  - fixtures/vulnerable/audit.ts\n  patched:\n  - fixtures/patched/message-handler.ts\n  - fixtures/patched/audit.ts\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 2\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": [],
+  "tokens": {
+    "input": 17880,
+    "output": 2569
+  }
+}

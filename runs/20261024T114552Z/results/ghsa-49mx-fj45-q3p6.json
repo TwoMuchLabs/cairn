@@ -1,0 +1,31 @@
+{
+  "id": "ghsa-49mx-fj45-q3p6",
+  "advisory": "GHSA-49mx-fj45-q3p6",
+  "language": "javascript",
+  "cwe": [
+    "CWE-200",
+    "CWE-668"
+  ],
+  "split": "dev",
+  "attempts": 3,
+  "narrowing_attempts": 0,
+  "breadth": [
+    0
+  ],
+  "failures": [
+    "- matches vulnerable code: no finding in js-task-runner.ts\n- matches the code the fix changed: no finding near the fix in js-task-runner.ts (fix changed lines 213, 216; matches at none)",
+    "rule passed against the commit but not as a standalone lesson: - matches vulnerable code: no finding in js-task-runner.ts\n- matches the expected lines: expected a finding on js-task-runner.ts:216\n- matches the code the fix changed: no finding near the fix in js-task-runner.ts (fix changed lines 213,"
+  ],
+  "status": "lesson",
+  "lesson_id": "typescript-nodejs-sandbox-raw-buffer-exposed",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: typescript-nodejs-sandbox-raw-buffer-exposed\ntitle: Raw Node.js Buffer exposed to sandboxed user code (allocUnsafe leaks memory)\nsummary: The task runner exposes the unwrapped Node.js `Buffer` global to user-supplied code through the\n  globals object of a vm context. `Buffer.allocUnsafe` and `allocUnsafeSlow` return uninitialized pooled\n  memory, which can leak secrets from other tasks or the host process. The fix wraps Buffer in a Proxy\n  that redirects these methods to `Buffer.alloc` outside insecure mode.\ncwe:\n- CWE-908\n- CWE-200\nseverity: high\nconfidence: medium\nlanguages:\n- typescript\nsource:\n  kind: fix-commit\n  ref: 2c4c2953199733c791f739a40879ae31ca129aba\n  vulnerable_ref: 2c4c2953199733c791f739a40879ae31ca129aba^\n  patched_ref: 2c4c2953199733c791f739a40879ae31ca129aba\n  repository: https://github.com/n8n-io/n8n\nrule:\n  message: 'Raw `Buffer` is exposed as a sandbox global. Untrusted code can call\n\n    `Buffer.allocUnsafe()` or `allocUnsafeSlow()` and read uninitialized memory. Wrap Buffer in a\n\n    Proxy that maps these methods to `Buffer.alloc`.\n\n    '\n  patterns:\n  - pattern-either:\n    - pattern: 'return { ..., Buffer, ... };\n\n        '\n    - pattern: 'return { ..., Buffer: Buffer, ... };\n\n        '\n  - pattern-not: 'return { ..., Buffer: new Proxy(...), ... };\n\n      '\nfix:\n  guidance: Do not expose the raw `Buffer` to sandboxed code. Expose a Proxy around Buffer whose getter\n    returns `Buffer.alloc` for `allocUnsafe` and `allocUnsafeSlow` (unless running in an explicitly insecure\n    mode), and returns the normal property otherwise.\n  example: \"private getNativeVariables() {\\n  const { mode } = this;\\n  return {\\n    Buffer: new Proxy(Buffer,\\\n    \\ {\\n      get(target, prop) {\\n        if (mode !== 'insecure' && (prop === 'allocUnsafe' || prop\\\n    \\ === 'allocUnsafeSlow')) {\\n          return Buffer.alloc;\\n        }\\n        return target[prop\\\n    \\ as keyof typeof Buffer];\\n      },\\n    }),\\n    setTimeout,\\n  };\\n}\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/js-task-runner.ts\n  patched:\n  - fixtures/patched/js-task-runner.ts\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 3\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": [],
+  "tokens": {
+    "input": 11730,
+    "output": 3829
+  }
+}

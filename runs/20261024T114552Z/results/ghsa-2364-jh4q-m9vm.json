@@ -1,0 +1,30 @@
+{
+  "id": "ghsa-2364-jh4q-m9vm",
+  "advisory": "GHSA-2364-jh4q-m9vm",
+  "language": "javascript",
+  "cwe": [
+    "CWE-639"
+  ],
+  "split": "dev",
+  "attempts": 3,
+  "narrowing_attempts": 0,
+  "breadth": [
+    0
+  ],
+  "failures": [
+    "- matches vulnerable code: no finding in tenantRequestGuards.ts\n- matches the code the fix changed: no finding near the fix in tenantRequestGuards.ts (fix changed lines 67; matches at none)\n- silent on the fix: still matches the patched code at organization.controller.ts:87, organization.controller.",
+    "- matches vulnerable code: no finding in tenantRequestGuards.ts\n- matches the code the fix changed: no finding near the fix in tenantRequestGuards.ts (fix changed lines 67; matches at none)"
+  ],
+  "status": "lesson",
+  "lesson_id": "typescript-express-flowise-stripe-id-without-session-ownership-check",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: typescript-express-flowise-stripe-id-without-session-ownership-check\ntitle: Stripe subscriptionId/customerId from request used in identityManager without matching the session's\n  organization\nsummary: Controller handlers read a Stripe subscriptionId or customerId from req.query or req.body and\n  pass it straight to identityManager billing calls. They never check that the ID belongs to the caller's\n  active organization. An authenticated user can read or modify billing data, seats and plans of other\n  tenants (IDOR). The tenant request guards module also lacks the helper that enforces this check.\ncwe:\n- CWE-639\n- CWE-862\nseverity: high\nconfidence: medium\nlanguages:\n- typescript\nsource:\n  kind: fix-commit\n  ref: 4d7899d02ca370a5510406be5c91483085a412f9\n  vulnerable_ref: 4d7899d02ca370a5510406be5c91483085a412f9^\n  patched_ref: 4d7899d02ca370a5510406be5c91483085a412f9\n  repository: https://github.com/FlowiseAI/Flowise\nrule:\n  message: 'A Stripe subscription/customer ID taken from the request is used for billing calls without\n    being\n\n    compared to the session''s active organization subscription/customer ID (or the tenant guards module\n\n    has no assertStripeIdMatchesSession helper). Compare the ID with the session value first.\n\n    '\n  pattern-either:\n  - patterns:\n    - pattern-inside: 'const { ..., $ID, ... } = req.$SRC\n\n        ...\n\n        '\n    - metavariable-regex:\n        metavariable: $ID\n        regex: ^(subscriptionId|customerId)$\n    - metavariable-regex:\n        metavariable: $IM\n        regex: (?i)identityManager$\n    - pattern-either:\n      - pattern: $IM.$METHOD(..., $ID, ...)\n      - pattern: $IM.$METHOD(..., $ID as string, ...)\n    - pattern-not-inside: 'assertStripeIdMatchesSession(...)\n\n        ...\n\n        '\n  - patterns:\n    - pattern: \"export function userMayManageOrgUsers(...): $T {\\n  ...\\n}\\n\"\n    - pattern-not-inside: \"export function assertStripeIdMatchesSession(...): $R {\\n  ...\\n}\\n...\\n\"\nfix:\n  guidance: Before using a subscriptionId or customerId that comes from the request, compare it with the\n    value stored on the authenticated session (req.user.activeOrganizationSubscriptionId or activeOrganizationCustomerId).\n    Reject with 403 if the session value is missing or differs. Use assertStripeIdMatchesSession from\n    the tenant request guards, or ignore the client-supplied ID and use the session value directly.\n  example: \"export function assertStripeIdMatchesSession(requestedId: string, activeId: string | undefined):\\\n    \\ void {\\n    if (!activeId || requestedId !== activeId) {\\n        throw new InternalFlowiseError(StatusCodes.FORBIDDEN,\\\n    \\ GeneralErrorMessage.FORBIDDEN)\\n    }\\n}\\n\\nconst { subscriptionId } = req.query\\nif (!subscriptionId)\\\n    \\ return res.status(400).json({ error: 'Subscription ID is required' })\\nassertStripeIdMatchesSession(subscriptionId\\\n    \\ as string, req.user?.activeOrganizationSubscriptionId)\\nconst identityManager = getRunningExpressApp().identityManager\\n\\\n    const result = await identityManager.getAdditionalSeatsQuantity(subscriptionId as string)\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/organization.controller.ts\n  - fixtures/vulnerable/tenantRequestGuards.ts\n  patched:\n  - fixtures/patched/organization.controller.ts\n  - fixtures/patched/tenantRequestGuards.ts\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 3\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": [],
+  "tokens": {
+    "input": 27599,
+    "output": 6393
+  }
+}

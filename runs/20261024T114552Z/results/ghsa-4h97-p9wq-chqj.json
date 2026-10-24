@@ -1,0 +1,34 @@
+{
+  "id": "ghsa-4h97-p9wq-chqj",
+  "advisory": "GHSA-4h97-p9wq-chqj",
+  "language": "python",
+  "cwe": [
+    "CWE-862"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "narrowing_attempts": 0,
+  "breadth": [
+    1
+  ],
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "python-flask-lemur-export-private-key-without-authz",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: python-flask-lemur-export-private-key-without-authz\ntitle: Certificate export passes cert.private_key to plugin.export regardless of plugin.requires_key authz\n  gate\nsummary: The export endpoint only performed the ownership/permission check inside the `plugin.requires_key`\n  branch, but then always passed `cert.private_key` to `plugin.export`. A plugin that does not declare\n  `requires_key` could receive and leak the private key to a user who was never authorized to view it,\n  and the key_view audit log was written unconditionally. Key material must only be passed after the authorization\n  check and only when the plugin requires it.\ncwe:\n- CWE-862\n- CWE-285\nseverity: high\nconfidence: medium\nlanguages:\n- python\nsource:\n  kind: fix-commit\n  ref: 5683bbea8b10cce07f9a8abf1e4a7d3b2031c585\n  vulnerable_ref: 5683bbea8b10cce07f9a8abf1e4a7d3b2031c585^\n  patched_ref: 5683bbea8b10cce07f9a8abf1e4a7d3b2031c585\n  repository: https://github.com/Netflix/lemur\nrule:\n  message: '`$CERT.private_key` is passed directly to `$PLUGIN.export(...)`. The authorization check is\n    only done when `$PLUGIN.requires_key` is true, so other plugins can receive the private key without\n    any permission check. Use a local `private_key` variable that is set only after the authz check inside\n    the requires_key branch.\n\n    '\n  patterns:\n  - pattern: $PLUGIN.export($CERT.body, $CERT.chain, $CERT.private_key, $OPTS)\n  - pattern-not-inside: \"if $PLUGIN.requires_key:\\n    ...\\n    $PLUGIN.export($CERT.body, $CERT.chain,\\\n      \\ $CERT.private_key, $OPTS)\\n\"\nfix:\n  guidance: Initialise `private_key = None` before the check. Inside the `if plugin.requires_key:` block,\n    verify the key exists, enforce the CertificatePermission check for non-creators, write the key_view\n    audit log, and only then assign `private_key = cert.private_key`. Pass the local `private_key` variable\n    to `plugin.export` instead of reading `cert.private_key` directly.\n  example: \"private_key = None\\nif plugin.requires_key:\\n    if not cert.private_key:\\n        return\\\n    \\ dict(message=\\\"no key\\\"), 400\\n    if g.current_user != cert.user:\\n        permission = CertificatePermission(owner_role,\\\n    \\ [x.name for x in cert.roles])\\n        if not permission.can():\\n            return dict(message=\\\"\\\n    You are not authorized to export this certificate.\\\"), 403\\n    log_service.create(g.current_user,\\\n    \\ \\\"key_view\\\", certificate=cert)\\n    private_key = cert.private_key\\nextension, passphrase, data\\\n    \\ = plugin.export(cert.body, cert.chain, private_key, options)\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/views.py\n  patched:\n  - fixtures/patched/views.py\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [
+    {
+      "path": "lemur/certificates/service.py",
+      "line": 364,
+      "review": "unsure",
+      "reason": "This service helper passes cert.private_key to plugin.export without checking plugin.requires_key or authorization, which is the lesson's pattern, but the authz check belongs to the calling endpoint and the callers are not shown."
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 1,
+  "engine_errors": [],
+  "tokens": {
+    "input": 7283,
+    "output": 1422
+  }
+}

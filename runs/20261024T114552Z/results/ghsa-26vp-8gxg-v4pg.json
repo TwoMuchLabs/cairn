@@ -1,0 +1,27 @@
+{
+  "id": "ghsa-26vp-8gxg-v4pg",
+  "advisory": "GHSA-26vp-8gxg-v4pg",
+  "language": "java",
+  "cwe": [
+    "CWE-95"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "narrowing_attempts": 0,
+  "breadth": [
+    0
+  ],
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "java-xwiki-xhtml-printer-raw-output-unescaped-html-macro-close",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: java-xwiki-xhtml-printer-raw-output-unescaped-html-macro-close\ntitle: XHTML printer printRaw passes raw content to super without escaping {{/html}}\nsummary: An XHTML printer override of printRaw forwards the raw string straight to the parent printer.\n  Raw content containing \"{{/html}}\", or ending with a prefix of it, can close the surrounding HTML macro\n  when the output is re-parsed as wiki syntax. This lets an attacker break out of the macro and inject\n  arbitrary wiki content or macros, leading to XSS or code execution.\ncwe:\n- CWE-79\n- CWE-74\nseverity: high\nconfidence: medium\nlanguages:\n- java\nsource:\n  kind: fix-commit\n  ref: 92bc8095ed3acce15ab200c8525e1623b4898be5\n  vulnerable_ref: 92bc8095ed3acce15ab200c8525e1623b4898be5^\n  patched_ref: 92bc8095ed3acce15ab200c8525e1623b4898be5\n  repository: https://github.com/xwiki/xwiki-rendering\nrule:\n  message: 'printRaw forwards the raw argument to super.printRaw without escaping \"{{/html}}\" (or its\n    prefixes at the end of the content). The raw content can close the enclosing HTML macro and inject\n    wiki syntax.\n\n    '\n  patterns:\n  - pattern-inside: \"public void printRaw(String $RAW)\\n{\\n  ...\\n}\\n\"\n  - pattern: super.printRaw($RAW)\n  - pattern-not-inside: \"public void printRaw(String $RAW)\\n{\\n  ...\\n  $RAW.replace(\\\"{{/html}}\\\", ...);\\n\\\n      \\  ...\\n}\\n\"\nfix:\n  guidance: Before delegating to the parent printRaw, replace every \"{{/html}}\" in the raw content with\n    an escaped form such as \"&#123;&#123;/html}}\". Also escape any trailing prefix of \"{{/html}}\" (for\n    example \"{\", \"{{\", \"{{/h\") at the end of the content, so that raw output followed by plain text cannot\n    assemble the closing macro marker. Pass the escaped string to super.printRaw.\n  example: \"@Override\\npublic void printRaw(String raw)\\n{\\n    handleSpaceWhenStartElement();\\n    String\\\n    \\ escapedRaw = raw.replace(\\\"{{/html}}\\\", \\\"&#123;&#123;/html}}\\\");\\n    StringBuilder prefix = new\\\n    \\ StringBuilder();\\n    for (Character c : List.of('{', '/', 'h', 't', 'm', 'l', '}', '}')) {\\n  \\\n    \\      prefix.append(c);\\n        if (escapedRaw.endsWith(prefix.toString())) {\\n            escapedRaw\\\n    \\ = escapedRaw.substring(0, escapedRaw.length() - prefix.length())\\n                + \\\"&#123;\\\" +\\\n    \\ prefix.substring(1);\\n            break;\\n        }\\n    }\\n    super.printRaw(escapedRaw);\\n  \\\n    \\  this.elementEnded = true;\\n}\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/XHTMLWikiPrinter.java\n  patched:\n  - fixtures/patched/XHTMLWikiPrinter.java\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": [],
+  "tokens": {
+    "input": 4874,
+    "output": 851
+  }
+}

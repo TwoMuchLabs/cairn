@@ -1,0 +1,27 @@
+{
+  "id": "ghsa-42h5-h8qh-vv9v",
+  "advisory": "GHSA-42h5-h8qh-vv9v",
+  "language": "python",
+  "cwe": [
+    "CWE-22"
+  ],
+  "split": "dev",
+  "attempts": 1,
+  "narrowing_attempts": 0,
+  "breadth": [
+    0
+  ],
+  "failures": [],
+  "status": "lesson",
+  "lesson_id": "python-mlflow-prompt-request-skips-source-validation",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: python-mlflow-prompt-request-skips-source-validation\ntitle: Model version source validation skipped when request is flagged as prompt\nsummary: 'The create-model-version handler skips all source validation whenever the request is flagged\n  as a prompt. The flag is derived from client-supplied tags, so an attacker can add the prompt tag and\n  supply a local path or file:// URI as the source. The registry later reads from that source, giving\n  arbitrary file read on the server. Prompt requests must still reject local sources (file:// and absolute\n  paths) and relative-path traversal.\n\n  '\ncwe:\n- CWE-22\n- CWE-73\nseverity: high\nconfidence: medium\nlanguages:\n- python\nsource:\n  kind: fix-commit\n  ref: 6e801f4259d96804c73107315b24cef0f6aa115a\n  vulnerable_ref: 6e801f4259d96804c73107315b24cef0f6aa115a^\n  patched_ref: 6e801f4259d96804c73107315b24cef0f6aa115a\n  repository: https://github.com/mlflow/mlflow\nrule:\n  message: 'Source validation is only applied in the non-prompt branch. The prompt flag comes from client-controlled\n    tags, so attackers can bypass source validation and point the source at local files. Validate prompt\n    sources too (reject file:// and absolute paths).\n\n    '\n  patterns:\n  - pattern: \"$IS_PROMPT = _is_prompt_request($REQ)\\n...\\nif not $IS_PROMPT:\\n    ...\\n    _validate_source_run(...)\\n\"\n  - pattern-not-inside: \"if $IS_PROMPT:\\n    ...\\n    urllib.parse.urlparse(...)\\n    ...\\nelse:\\n   \\\n      \\ ...\\n\"\nfix:\n  guidance: 'Do not exempt prompt requests from source validation. For prompts, parse the source and reject\n    file:// URIs and absolute local paths, and for sources with a URL scheme call the relative path traversal\n    validator. Only the schemeless placeholder sources used internally (such as \"prompt-template\") should\n    be accepted. Keep running the model or run source validation for non-prompt requests.\n\n    '\n  example: \"is_prompt = _is_prompt_request(request_message)\\nif is_prompt:\\n    source = request_message.source\\n\\\n    \\    parsed = urllib.parse.urlparse(source)\\n    if parsed.scheme == \\\"file\\\" or (parsed.scheme ==\\\n    \\ \\\"\\\" and source.startswith(\\\"/\\\")):\\n        raise MlflowException(\\n            f\\\"Invalid prompt\\\n    \\ source: '{source}'. Local source paths are not allowed for prompts.\\\",\\n            INVALID_PARAMETER_VALUE,\\n\\\n    \\        )\\n    if parsed.scheme:\\n        _validate_non_local_source_contains_relative_paths(source)\\n\\\n    else:\\n    if request_message.model_id:\\n        _validate_source_model(request_message.source, request_message.model_id)\\n\\\n    \\    else:\\n        _validate_source_run(request_message.source, request_message.run_id)\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/handlers.py\n  patched:\n  - fixtures/patched/handlers.py\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 1\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": [],
+  "tokens": {
+    "input": 3614,
+    "output": 834
+  }
+}

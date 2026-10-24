@@ -1,0 +1,42 @@
+{
+  "id": "ghsa-3gmf-p6r4-q8m6",
+  "advisory": "GHSA-3gmf-p6r4-q8m6",
+  "language": "java",
+  "cwe": [
+    "CWE-22"
+  ],
+  "split": "dev",
+  "attempts": 2,
+  "narrowing_attempts": 0,
+  "breadth": [
+    2
+  ],
+  "failures": [
+    "- silent on the fix: still matches the patched code at FolderUploadsFileManager.java:96, FolderUploadsFileManager.java:101"
+  ],
+  "status": "lesson",
+  "lesson_id": "java-wicket-upload-path-traversal-unvalidated-filename",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: java-wicket-upload-path-traversal-unvalidated-filename\ntitle: Upload file path built from client-supplied name or field id without canonical containment check\nsummary: A file path is built directly from a client-supplied upload file name or field id, for example\n  `new File(new File(base, fieldId), clientFileName)`. Values such as `../../x` escape the base folder,\n  allowing arbitrary file write or read. The path must be canonicalized and checked to start with the\n  base directory before use.\ncwe:\n- CWE-22\nseverity: high\nconfidence: medium\nlanguages:\n- java\nsource:\n  kind: fix-commit\n  ref: 72470983f689c61e6a6c0b7388ef955f23bb1e16\n  vulnerable_ref: 72470983f689c61e6a6c0b7388ef955f23bb1e16^\n  patched_ref: 72470983f689c61e6a6c0b7388ef955f23bb1e16\n  repository: https://github.com/apache/wicket\nrule:\n  message: 'A file path is built from a client-controlled upload file name or field id without a canonical-path\n\n    containment check. This permits path traversal (`../`). Resolve the canonical path\n\n    (getCanonicalFile/toRealPath) and verify it stays within the base folder.\n\n    '\n  patterns:\n  - pattern-either:\n    - pattern: new File($BASE, $UP.getClientFileName())\n    - pattern: new java.io.File($BASE, $UP.getClientFileName())\n    - patterns:\n      - pattern-inside: \"$R $M(..., String $ID, String $NAME, ...) {\\n  ...\\n}\\n\"\n      - pattern-either:\n        - pattern: new File(new File($B, $ID), $NAME)\n        - pattern: new java.io.File(new java.io.File($B, $ID), $NAME)\n    - patterns:\n      - pattern-inside: \"$R $M(..., FileUpload $F, String $ID, ...) {\\n  ...\\n}\\n\"\n      - pattern-either:\n        - pattern: new File($B, $ID)\n        - pattern: new java.io.File($B, $ID)\n  - pattern-not-inside: new File(...).getCanonicalFile()\n  - pattern-not-inside: new java.io.File(...).getCanonicalFile()\n  - pattern-not-inside: new File(...).getCanonicalPath()\nfix:\n  guidance: Never combine a client-supplied file name or upload field id with the base folder directly.\n    Resolve the base folder with toRealPath, resolve the target with getCanonicalFile, and reject with\n    a SecurityException unless the canonical target path startsWith the canonical base (and upload sub-folder).\n    Use one shared resolver for both save and getFile.\n  example: \"Path base = getFolder().toPath().toRealPath();\\njava.io.File dir = new File(getFolder(), uploadFieldId).getCanonicalFile();\\n\\\n    if (!dir.toPath().startsWith(base)) {\\n    throw new SecurityException(\\\"Path traversal detected in\\\n    \\ uploadFieldId\\\");\\n}\\njava.io.File target = new File(dir, clientFileName).getCanonicalFile();\\n\\\n    if (!target.toPath().startsWith(dir.toPath())) {\\n    throw new SecurityException(\\\"Path traversal\\\n    \\ detected in client filename\\\");\\n}\\n\"\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/FolderUploadsFileManager.java\n  patched:\n  - fixtures/patched/FolderUploadsFileManager.java\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 2\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [
+    {
+      "path": "wicket-examples/src/main/java/org/apache/wicket/examples/upload/MultiUploadPage.java",
+      "line": 142,
+      "review": "different",
+      "reason": "Wicket's FileUpload.getClientFileName() strips directory components (to my recollection, via lastPathComponent on '/' and '\\'), so '../' cannot escape the upload folder; this is demo code, and I could not confirm the stripping from the code shown."
+    },
+    {
+      "path": "wicket-examples/src/main/java/org/apache/wicket/examples/upload/UploadPage.java",
+      "line": 128,
+      "review": "different",
+      "reason": "Same pattern as match 1: the client file name is reduced to its last path component by the library before use, so traversal is not plausible; this is example code."
+    }
+  ],
+  "sibling_hits_outside_fixed_files": 2,
+  "engine_errors": [],
+  "tokens": {
+    "input": 9683,
+    "output": 3669
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "ghsa-58r7-4wr5-hfx8",
+  "advisory": "GHSA-58r7-4wr5-hfx8",
+  "language": "python",
+  "cwe": [
+    "CWE-200"
+  ],
+  "split": "dev",
+  "attempts": 2,
+  "narrowing_attempts": 0,
+  "breadth": [
+    0
+  ],
+  "failures": [
+    "- silent on the fix: still matches the patched code at forms.py:675, html_tools.py:423, html_tools.py:430"
+  ],
+  "status": "lesson",
+  "lesson_id": "python-jq-compile-without-validate-jq-expression",
+  "lesson_yaml": "schema: cairn/lesson/v0.1\nid: python-jq-compile-without-validate-jq-expression\ntitle: jq.compile() on user-supplied expression without validate_jq_expression() blocklist check\nsummary: A jq expression derived from user-supplied filter text is compiled and executed with `jq.compile()`\n  without first being checked for dangerous builtins. jq builtins such as `env`, `$ENV`, `include`/`import`,\n  `input`, `debug` and `halt` let an attacker read process environment variables (secrets, API keys),\n  read files, or crash the process. The fix calls `validate_jq_expression()` on the same expression before\n  compiling it.\ncwe:\n- CWE-200\n- CWE-526\nseverity: high\nconfidence: medium\nlanguages:\n- python\nsource:\n  kind: fix-commit\n  ref: 65517a9c74a0cbe1a4661314470b28131ef5557f\n  vulnerable_ref: 65517a9c74a0cbe1a4661314470b28131ef5557f^\n  patched_ref: 65517a9c74a0cbe1a4661314470b28131ef5557f\n  repository: https://github.com/dgtlmoon/changedetection.io\nrule:\n  message: 'jq expression `$EXPR` is compiled without calling validate_jq_expression() on it first. User-supplied\n    jq can use `env`/`$ENV`, `include`, `input` and similar builtins to leak environment variables or\n    files. Validate the expression against a blocklist of dangerous builtins before compiling it.\n\n    '\n  patterns:\n  - pattern: jq.compile($EXPR)\n  - pattern-not-inside: 'validate_jq_expression($EXPR)\n\n      ...\n\n      jq.compile($EXPR)\n\n      '\nfix:\n  guidance: Before every `jq.compile()` call on an expression that comes from a user, a watch setting\n    or a form field, call `validate_jq_expression()` from `changedetectionio.html_tools` on the very same\n    expression. It raises ValueError for env, $ENV, include, import, input(s), debug, stderr, halt, $__loc__,\n    builtins, modulemeta and $JQ_BUILD_CONFIGURATION. Apply it both in the form validator and where the\n    filter is executed at runtime. Only allow bypassing it through the explicit JQ_ALLOW_RISKY_EXPRESSIONS\n    opt-in.\n  example: 'from changedetectionio.html_tools import validate_jq_expression\n\n\n    expr = json_filter.removeprefix(\"jq:\")\n\n    validate_jq_expression(expr)  # raises ValueError on env/$ENV/include/...\n\n    jq_expression = jq.compile(expr)\n\n    match = jq_expression.input(json_data).all()\n\n    '\nfixtures:\n  vulnerable:\n  - fixtures/vulnerable/forms.py\n  - fixtures/vulnerable/html_tools.py\n  patched:\n  - fixtures/patched/forms.py\n  - fixtures/patched/html_tools.py\nprovenance:\n  author: cairn learn\n  created: '2026-10-24'\n  synthesized_by:\n    tool: cairn 0.1.0.dev0\n    model: anthropic:claude-sonnet-5-5\n    prompt_version: learn-v1\n    attempts: 2\nrevalidate:\n  ttl_days: 180\nstatus: proposed\n",
+  "unfixed_in_fix_commit": [],
+  "confidence": "medium",
+  "sibling_hits": [],
+  "sibling_hits_outside_fixed_files": 0,
+  "engine_errors": [],
+  "tokens": {
+    "input": 19128,
+    "output": 2197
+  }
+}
