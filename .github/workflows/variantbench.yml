@@ -19,6 +19,8 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # publish results to the bench-results branch (main stays protected)
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,3 +51,26 @@ jobs:
           name: variantbench-${{ inputs.split }}
           path: runs/
           retention-days: 30
+      - name: Publish results to the bench-results branch
+        if: always() && hashFiles('runs/*/results/*.json') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SPLIT: ${{ inputs.split }}
+        run: |
+          # A run that stopped early still gets a summary of the cases it finished.
+          for d in runs/*/; do [ -f "$d/summary.md" ] || python bench/variantbench/run.py --report "$d" > /dev/null; done
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+          if git fetch --depth=1 "$remote" bench-results 2>/dev/null; then
+            git worktree add -B bench-results ../results FETCH_HEAD
+          else
+            git worktree add --orphan -b bench-results ../results
+          fi
+          mkdir -p ../results/runs
+          cp -r runs/* ../results/runs/
+          cd ../results
+          git add runs
+          git commit -q -m "VariantBench run $(ls runs | tail -1) (${SPLIT:-dev})"
+          git push -q "$remote" bench-results
+
