@@ -1,0 +1,14 @@
+{
+  "name": "cairn",
+  "owner": { "name": "TwoMuchLabs", "url": "https://github.com/TwoMuchLabs" },
+  "description": "Cairn security memory for coding agents.",
+  "plugins": [
+    {
+      "name": "cairn",
+      "source": "./plugins/cairn",
+      "description": "Checks every agent edit against your team's security lessons and blocks permission-skipping agent flags.",
+      "category": "security",
+      "tags": ["security", "appsec", "devsecops"]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+name: variantbench
+
+# Manual only: runs real model calls against VariantBench and costs money.
+on:
+  workflow_dispatch:
+    inputs:
+      split:
+        description: Which split to run. Use holdout only for release numbers.
+        type: choice
+        options: [dev, holdout]
+        default: dev
+      limit:
+        description: Maximum number of cases (start small to see cost and quality).
+        default: "30"
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet -e . "semgrep==1.182.1"
+      - name: Run VariantBench
+        env:
+          CAIRN_MODEL: ${{ vars.CAIRN_MODEL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL }}
+          SPLIT: ${{ inputs.split }}
+          LIMIT: ${{ inputs.limit }}
+        run: |
+          if [ -z "$CAIRN_MODEL" ]; then
+            echo "::error::Set the repository variable CAIRN_MODEL (e.g. anthropic:claude-sonnet-5-5) and the matching API key secret."
+            exit 1
+          fi
+          python bench/variantbench/run.py --split "$SPLIT" --limit "$LIMIT" --out runs
+          cat runs/*/summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: variantbench-${{ inputs.split }}
+          path: runs/
+          retention-days: 30

@@ -65,6 +65,16 @@ export CAIRN_MODEL=ollama:<model>                # local; code never leaves your
 
 Lessons that `learn` writes are saved to `.cairn/lessons/` as **proposed**. A person reviews them and sets `status: approved` (with `approved_by` and `approved`). Only approved lessons can fail CI.
 
+## In your coding agent
+
+Cairn ships a Claude Code plugin. After every edit the agent makes, it checks the change against your approved lessons and tells the agent what to fix (only for mistakes the edit introduced, not old debt). It also blocks shell commands that launch another coding agent with its safety checks switched off.
+
+```text
+/plugin install cairn --marketplace TwoMuchLabs/cairn
+```
+
+The plugin calls the `cairn` CLI, so install that first.
+
 ## In CI
 
 ```yaml

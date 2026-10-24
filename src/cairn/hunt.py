@@ -92,10 +92,39 @@ def hunt(
     if baseline_ref:
         extra += ["--baseline-commit", baseline_ref]
 
-    by_id = {lesson.id: lesson for lesson in lessons}
-    result: EngineResult = run(
-        engine, [lesson.engine_rule() for lesson in lessons], [target], extra_args=extra, cwd=target
+    return _collect(
+        run(
+            engine,
+            [lesson.engine_rule() for lesson in lessons],
+            [target],
+            extra_args=extra,
+            cwd=target,
+        ),
+        lessons,
     )
+
+
+def hunt_files(
+    engine: Engine, lessons: Sequence[Lesson], files: Sequence[Path], *, cwd: Path
+) -> tuple[list[Finding], list[str]]:
+    """Run lessons on specific files only (used by editor and agent hooks)."""
+    if not files or not lessons:
+        return [], []
+    return _collect(
+        run(
+            engine,
+            [lesson.engine_rule() for lesson in lessons],
+            [Path(f).resolve() for f in files],
+            extra_args=["--no-git-ignore"],
+            cwd=cwd,
+            timeout=60,
+        ),
+        lessons,
+    )
+
+
+def _collect(result: EngineResult, lessons: Sequence[Lesson]) -> tuple[list[Finding], list[str]]:
+    by_id = {lesson.id: lesson for lesson in lessons}
     findings = []
     for raw in result.findings:
         lesson = by_id.get(str(raw.metadata.get("cairn_lesson", ""))) or by_id.get(raw.rule_id)

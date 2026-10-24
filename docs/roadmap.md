@@ -10,10 +10,12 @@ Cairn grows from one loop that works well, not from a platform that does everyth
 - [x] SARIF output, GitHub annotations, baseline mode for pull requests
 - [x] GitHub Action that installs from the pinned commit
 - [x] VariantBench harvester, verifier and runner
+- [x] Manual VariantBench workflow (needs CAIRN_MODEL + key)
 - [ ] VariantBench dev run with a real model; publish numbers
 - [ ] Opengrep as the default engine in CI (pinned release and checksum)
 - [ ] MCP server: "have we seen this before?" answered from lessons, for coding agents
-- [ ] Claude Code plugin: lessons and secret scanning on every agent edit; block permission-skip flags
+- [x] Claude Code plugin: lesson check on every agent edit (new mistakes only); block permission-skip agent flags
+- [ ] Plugin: secret scanning on agent edits; dependency (slopsquatting) checks
 - [ ] 100+ community-quality lessons in the starter pack
 - [ ] Usability sessions with developers who have never seen Cairn
 

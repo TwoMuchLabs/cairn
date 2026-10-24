@@ -1,0 +1,11 @@
+{
+  "name": "cairn",
+  "displayName": "Cairn security memory",
+  "version": "0.1.0",
+  "description": "Checks every agent edit against your team's proven security lessons, tells the agent what to fix, and blocks commands that switch off other agents' safety checks.",
+  "author": { "name": "TwoMuchLabs", "url": "https://github.com/TwoMuchLabs" },
+  "homepage": "https://github.com/TwoMuchLabs/cairn",
+  "repository": "https://github.com/TwoMuchLabs/cairn",
+  "license": "Apache-2.0",
+  "keywords": ["security", "appsec", "sast", "lessons", "guardrails"]
+}
