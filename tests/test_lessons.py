@@ -82,3 +82,19 @@ def test_missing_fixture_is_a_load_problem(tmp_path):
     lesson = load(d)
     assert not lesson.is_valid
     assert any("not found" in p for p in lesson.problems)
+
+
+def test_engine_crash_is_an_error_not_a_clean_result(tmp_path, monkeypatch):
+    # A rule engine that dies without output must never look like "no findings".
+    from cairn.engine import Engine, run
+
+    fake = tmp_path / "semgrep"
+    fake.write_text("#!/bin/sh\necho 'Traceback: boom' >&2\nexit 2\n")
+    fake.chmod(0o755)
+    result = run(
+        Engine("semgrep", str(fake)),
+        [{"id": "x", "pattern": "x", "message": "x", "languages": ["python"], "severity": "INFO"}],
+        [tmp_path],
+    )
+    assert result.errors and "no output" in result.errors[0]
+    assert not result.findings

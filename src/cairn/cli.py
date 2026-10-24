@@ -143,6 +143,8 @@ def hunt_cmd(target, lesson_paths, approved_only, min_confidence, sarif_path, as
     with err.status("Hunting…", spinner="dots"):
         findings, errors = hunt(engine, lessons, root, exclude=_lesson_excludes(lesson_paths))
     _report_engine_errors(errors)
+    if errors and not findings:
+        raise CairnError("the rule engine failed, so these results cannot be trusted (see above)")
     _write_sarif(sarif_path, findings, lessons, root)
     if as_json:
         click.echo(json.dumps([_finding_json(f, root) for f in findings], indent=2))
@@ -375,7 +377,14 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
             findings, errors = hunt(engine, [lesson], repo_path, exclude=[dest_root])
         _report_engine_errors(errors)
         out.print()
-        if findings:
+        if errors and not findings:
+            out.print(
+                Text(
+                    "Could not hunt for siblings: the rule engine failed (see above).",
+                    style="yellow",
+                )
+            )
+        elif findings:
             n = len(findings)
             plural = "s" if n != 1 else ""
             out.print(

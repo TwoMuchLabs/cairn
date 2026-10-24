@@ -57,10 +57,20 @@ runs:
         while IFS= read -r p; do [ -n "$p" ] && args+=(--lessons "$p"); done <<< "$INPUT_LESSONS"
         baseline="$INPUT_BASELINE"
         if [ -z "$baseline" ] && [ -n "$BASE_REF" ]; then
-          git fetch --no-tags --depth=1 origin "$BASE_REF" >/dev/null 2>&1 || true
           baseline="origin/$BASE_REF"
+          git fetch --no-tags origin "$BASE_REF" >/dev/null 2>&1 || true
         fi
-        [ -n "$baseline" ] && args+=(--baseline-ref "$baseline")
+        if [ -n "$baseline" ]; then
+          # Comparing against a baseline needs shared history; shallow checkouts do not have it.
+          if [ "$(git rev-parse --is-shallow-repository 2>/dev/null)" = "true" ]; then
+            git fetch --no-tags --unshallow origin >/dev/null 2>&1 || true
+          fi
+          if git merge-base HEAD "$baseline" >/dev/null 2>&1; then
+            args+=(--baseline-ref "$baseline")
+          else
+            echo "::warning title=Cairn::Could not find history shared with $baseline, so every finding in the code is reported, not only new ones. Use actions/checkout with fetch-depth: 0."
+          fi
+        fi
         if [ -n "$INPUT_SARIF" ]; then
           args+=(--sarif "$INPUT_SARIF")
           echo "sarif=$INPUT_SARIF" >> "$GITHUB_OUTPUT"
