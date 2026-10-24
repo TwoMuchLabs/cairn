@@ -1,0 +1,437 @@
+"""Command line interface. Output goes to stdout; progress and diagnostics go to stderr."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+from pathlib import Path
+from typing import Sequence
+
+import click
+from rich.text import Text
+
+from . import __version__, render, sarif
+from .engine import Engine, EngineNotFound, find_engine
+from .gate import accept
+from .hunt import CONFIDENCE_ORDER, Finding, hunt, select_lessons
+from .lesson import SEVERITY_ORDER, Lesson, LessonError, default_roots, discover, load, severity_at_least
+
+out = render.make_console()
+err = render.make_console(stderr=True)
+
+EXIT_FINDINGS = 1
+EXIT_ERROR = 2
+
+
+class CairnError(click.ClickException):
+    exit_code = EXIT_ERROR
+
+    def show(self, file=None) -> None:  # noqa: D401 - click hook
+        msg = Text()
+        msg.append("error ", style="bold red")
+        msg.append(self.format_message())
+        err.print(msg)
+
+
+def _engine() -> Engine:
+    try:
+        return find_engine()
+    except EngineNotFound as exc:
+        raise CairnError(str(exc)) from exc
+
+
+def _load_lessons(paths: Sequence[str]) -> list[Lesson]:
+    roots = [Path(p) for p in paths] if paths else default_roots()
+    for r in roots:
+        if not r.exists():
+            raise CairnError(f"lesson path not found: {r}")
+    lessons = []
+    for d in discover(roots):
+        try:
+            lessons.append(load(d))
+        except LessonError as exc:
+            raise CairnError(str(exc)) from exc
+    if not lessons:
+        raise CairnError("no lessons found in " + ", ".join(str(r) for r in roots))
+    return lessons
+
+
+def _header(engine: Engine, n_lessons: int, target: Path, verb: str) -> None:
+    t = Text(style="dim")
+    t.append(f"cairn {__version__} · {verb} {target} · {n_lessons} lesson{'s' if n_lessons != 1 else ''} · ")
+    t.append(f"{engine.name} {engine.version()}")
+    err.print(t)
+
+
+def _write_sarif(path: str | None, findings: list[Finding], lessons: list[Lesson], root: Path) -> None:
+    if not path:
+        return
+    Path(path).write_text(json.dumps(sarif.build(findings, lessons, root), indent=2), "utf-8")
+    err.print(Text(f"SARIF written to {path}", style="dim"))
+
+
+def _lesson_excludes(paths: Sequence[str]) -> list[Path]:
+    roots = [Path(p) for p in paths] if paths else default_roots()
+    return [r for r in roots if r.exists()]
+
+
+lessons_option = click.option(
+    "--lessons",
+    "lesson_paths",
+    multiple=True,
+    type=click.Path(),
+    help="Lesson pack or lesson directory. Repeatable. Default: built-in starter pack + ./.cairn/lessons",
+)
+
+
+@click.group(context_settings={"help_option_names": ["-h", "--help"]})
+@click.version_option(__version__, prog_name="cairn")
+def main() -> None:
+    """Security memory for your codebase.
+
+    Cairn turns fixed vulnerabilities into proven rules (lessons), hunts for their siblings,
+    and stops the same mistake from coming back.
+
+    \b
+    Start here:
+      cairn hunt                  look for known mistakes in this repo
+      cairn learn --commit <sha>  turn a security fix into a lesson
+      cairn check                 enforce approved lessons in CI
+    """
+
+
+# --------------------------------------------------------------------------- hunt
+@main.command("hunt")
+@click.argument("target", default=".", type=click.Path(exists=True, file_okay=False))
+@lessons_option
+@click.option("--approved-only", is_flag=True, help="Skip lessons that are still 'proposed'.")
+@click.option(
+    "--min-confidence",
+    type=click.Choice(CONFIDENCE_ORDER),
+    default="medium",
+    show_default=True,
+    help="Hide lessons below this confidence.",
+)
+@click.option("--sarif", "sarif_path", type=click.Path(dir_okay=False), help="Also write SARIF 2.1.0 here.")
+@click.option("--json", "as_json", is_flag=True, help="Print findings as JSON instead of cards.")
+def hunt_cmd(target, lesson_paths, approved_only, min_confidence, sarif_path, as_json):
+    """Look for known mistakes in TARGET (default: current directory)."""
+    root = Path(target).resolve()
+    engine = _engine()
+    all_lessons = _load_lessons(lesson_paths)
+    statuses = ("approved",) if approved_only else ("approved", "proposed")
+    lessons, skipped = select_lessons(all_lessons, statuses=statuses, min_confidence=min_confidence)
+    if not lessons:
+        render.skipped(err, skipped)
+        raise CairnError("none of the lessons are runnable; see the reasons above")
+    _header(engine, len(lessons), root, "hunting")
+    with err.status("Hunting…", spinner="dots"):
+        findings, errors = hunt(engine, lessons, root, exclude=_lesson_excludes(lesson_paths))
+    _report_engine_errors(errors)
+    _write_sarif(sarif_path, findings, lessons, root)
+    if as_json:
+        click.echo(json.dumps([_finding_json(f, root) for f in findings], indent=2))
+    else:
+        if findings:
+            out.print()
+            render.findings(out, findings, root)
+            out.print()
+        out.print(render.summary_line(findings, len(lessons)))
+        if findings and not sarif_path:
+            err.print(Text("Tip: add --sarif results.sarif to upload these to code scanning.", style="dim"))
+    if skipped:
+        render.skipped(err, skipped)
+    sys.exit(EXIT_ERROR if errors and not findings else 0)
+
+
+# --------------------------------------------------------------------------- check
+@main.command("check")
+@click.argument("target", default=".", type=click.Path(exists=True, file_okay=False))
+@lessons_option
+@click.option(
+    "--fail-on",
+    type=click.Choice(SEVERITY_ORDER),
+    default="high",
+    show_default=True,
+    help="Exit non-zero when a finding is at least this severe.",
+)
+@click.option(
+    "--baseline-ref",
+    help="Only report findings introduced since this git ref (e.g. origin/main). Recommended for PRs.",
+)
+@click.option("--sarif", "sarif_path", type=click.Path(dir_okay=False), help="Also write SARIF 2.1.0 here.")
+def check_cmd(target, lesson_paths, fail_on, baseline_ref, sarif_path):
+    """Enforce approved lessons (for CI). Exits 1 if a finding reaches --fail-on."""
+    root = Path(target).resolve()
+    engine = _engine()
+    lessons, skipped = select_lessons(_load_lessons(lesson_paths), statuses=("approved",), min_confidence="low")
+    if not lessons:
+        raise CairnError("no approved lessons to enforce")
+    _header(engine, len(lessons), root, "checking")
+    findings, errors = hunt(
+        engine, lessons, root, exclude=_lesson_excludes(lesson_paths), baseline_ref=baseline_ref
+    )
+    _report_engine_errors(errors)
+    if errors and not findings:
+        raise CairnError("the rule engine reported errors; refusing to pass the check without a clean run")
+    _write_sarif(sarif_path, findings, lessons, root)
+    if findings:
+        out.print()
+        render.findings(out, findings, root)
+        out.print()
+    out.print(render.summary_line(findings, len(lessons), baseline_ref))
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        for f in findings:
+            level = "error" if severity_at_least(f.severity, fail_on) else "warning"
+            msg = f.lesson.summary.replace("\n", " ")
+            print(
+                f"::{level} file={f.relpath(root)},line={f.start_line},endLine={f.end_line},"
+                f"title={f.lesson.title}::{msg}"
+            )
+    blocking = [f for f in findings if severity_at_least(f.severity, fail_on)]
+    if blocking:
+        err.print(
+            Text(
+                f"{len(blocking)} finding(s) at or above '{fail_on}'. Fix them, or adjust the lesson if it is wrong.",
+                style="bold red",
+            )
+        )
+        sys.exit(EXIT_FINDINGS)
+
+
+# --------------------------------------------------------------------------- validate
+@main.command("validate")
+@click.argument("paths", nargs=-1, type=click.Path(exists=True))
+def validate_cmd(paths):
+    """Run the acceptance test on lessons (default: built-in pack + ./.cairn/lessons).
+
+    A lesson passes when its rule matches every vulnerable fixture (and every cairn-expect
+    line), stays silent on every patched fixture, and keeps clean fixtures within budget.
+    """
+    engine = _engine()
+    lessons = _load_lessons(paths)
+    err.print(Text(f"cairn {__version__} · validating {len(lessons)} lesson(s) · {engine.name}", style="dim"))
+    reports = []
+    with err.status("Running acceptance tests…", spinner="dots"):
+        for lesson in lessons:
+            reports.append(accept(lesson, engine))
+    render.acceptance(out, reports)
+    failed = [r for r in reports if not r.passed]
+    out.print()
+    if failed:
+        out.print(Text(f"{len(failed)} of {len(reports)} lesson(s) failed.", style="bold red"))
+        sys.exit(EXIT_FINDINGS)
+    out.print(Text(f"All {len(reports)} lesson(s) passed.", style="bold green"))
+
+
+# --------------------------------------------------------------------------- learn
+@main.command("learn")
+@click.option("--commit", "ref", required=True, help="The security fix commit (SHA, tag or branch).")
+@click.option("--repo", default=".", type=click.Path(exists=True, file_okay=False), show_default=True)
+@click.option(
+    "--out",
+    "out_dir",
+    default=".cairn/lessons",
+    show_default=True,
+    type=click.Path(file_okay=False),
+    help="Where to save the proposed lesson (relative to --repo).",
+)
+@click.option("--model", "model_spec", help="Override CAIRN_MODEL, e.g. anthropic:claude-sonnet-5-5.")
+@click.option("--max-attempts", default=4, show_default=True, type=click.IntRange(1, 10))
+@click.option("--no-hunt", is_flag=True, help="Save the lesson without hunting for variants.")
+def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
+    """Turn a security fix commit into a lesson, then hunt for its siblings.
+
+    The model proposes a rule; cairn accepts it only if it matches the pre-fix code near the
+    lines the fix changed and stays silent on the fixed code. Accepted lessons are saved as
+    'proposed' for a human to review.
+    """
+    from .gitsource import GitError, load_fix_commit
+    from .models import ModelError, from_spec
+    from .synth import save, synthesize
+
+    repo_path = Path(repo).resolve()
+    engine = _engine()
+    try:
+        model = from_spec(model_spec)
+    except ModelError as exc:
+        raise CairnError(str(exc)) from exc
+    try:
+        commit = load_fix_commit(repo_path, ref)
+    except GitError as exc:
+        raise CairnError(str(exc)) from exc
+
+    err.print(Text(f"cairn {__version__} · {model.name} · {engine.name}", style="dim"))
+    head = Text("Learning from ")
+    head.append(commit.sha[:12], style="cyan")
+    head.append(f"  {commit.subject}", style="italic")
+    err.print(head)
+    for f in commit.files:
+        err.print(Text(f"  {f.path}  ({len(f.removed_lines)} changed line(s))", style="dim"))
+
+    def progress(a):
+        t = Text("  attempt %d  " % a.number)
+        if a.acceptance and a.acceptance.passed and not a.problem:
+            t.append("✓ matches the vulnerable code, silent on the fix", style="green")
+        else:
+            t.append("✗ ", style="yellow")
+            if a.problem:
+                t.append(a.problem.splitlines()[0][:160])
+            elif a.acceptance:
+                c = a.acceptance.failures[0]
+                t.append(_FRIENDLY.get(c.name, c.name))
+                if c.detail:
+                    where = c.detail.split(" at ", 1)[-1] if " at " in c.detail else c.detail
+                    t.append(f"  {where[:120]}", style="dim")
+        err.print(t)
+
+    try:
+        with err.status("Asking the model for a rule…", spinner="dots"):
+            result = synthesize(commit, model, engine, max_attempts=max_attempts, on_attempt=progress)
+    except ModelError as exc:
+        raise CairnError(str(exc)) from exc
+
+    if not result.passed:
+        last = result.attempts[-1] if result.attempts else None
+        out.print(Text(f"\nNo lesson after {len(result.attempts)} attempt(s). Nothing was saved.", style="bold"))
+        if last:
+            out.print(Text(last.problem or (last.acceptance.feedback() if last.acceptance else "")))
+        out.print(
+            Text(
+                "This usually means the fix is broad or the mistake is hard to express as a pattern. "
+                f"The last candidate is in {result.workdir} if you want to finish it by hand, then run "
+                "'cairn validate' on it.",
+                style="dim",
+            )
+        )
+        sys.exit(EXIT_FINDINGS)
+
+    dest_root = (repo_path / out_dir) if not Path(out_dir).is_absolute() else Path(out_dir)
+    dest = save(result, dest_root)
+    lesson = load(dest)
+    out.print()
+    t = Text()
+    t.append("✓ ", style="bold green")
+    t.append("New lesson: ", style="bold")
+    t.append(lesson.title)
+    out.print(t)
+    out.print(Text(f"  {lesson.id} · {', '.join(lesson.cwe)} · {lesson.severity}", style="dim"))
+    out.print(Text(f"  saved to {_short(dest)}", style="dim"))
+    out.print()
+    out.print(render._labelled("Why", lesson.summary, "bold", min(out.width, 100)))
+
+    if not no_hunt:
+        with err.status("Hunting for siblings…", spinner="dots"):
+            findings, errors = hunt(engine, [lesson], repo_path, exclude=[dest_root])
+        _report_engine_errors(errors)
+        out.print()
+        if findings:
+            out.print(Text(f"Found {len(findings)} possible sibling(s) in the current code:", style="bold"))
+            out.print()
+            render.findings(out, findings, repo_path)
+        else:
+            out.print(Text("No siblings in the current code. The lesson will guard future changes."))
+    out.print()
+    out.print(
+        Text(
+            "Review the lesson, then set 'status: approved' (with approved_by and approved) "
+            "to enforce it with 'cairn check'.",
+            style="dim",
+        )
+    )
+
+
+# --------------------------------------------------------------------------- doctor
+@main.command("doctor")
+def doctor_cmd():
+    """Check that cairn is ready to run here."""
+    ok = True
+
+    def line(good: bool, label: str, detail: str = "") -> None:
+        t = Text()
+        t.append("✓ " if good else "✗ ", style="bold green" if good else "bold red")
+        t.append(label)
+        if detail:
+            t.append("  " + detail, style="dim")
+        out.print(t)
+
+    try:
+        e = find_engine()
+        line(True, "rule engine", f"{e.name} {e.version()} ({e.path})")
+        if e.name != "opengrep":
+            out.print(Text("    Opengrep is recommended for CI; Semgrep CE works the same locally.", style="dim"))
+    except EngineNotFound as exc:
+        ok = False
+        line(False, "rule engine", str(exc))
+
+    import shutil as _sh
+
+    line(bool(_sh.which("git")), "git", "" if _sh.which("git") else "needed for 'learn' and --baseline-ref")
+
+    from .models import ModelError, from_spec
+
+    try:
+        m = from_spec()
+        line(True, "model for 'learn'", m.name)
+    except ModelError as exc:
+        line(False, "model for 'learn'", "not configured (hunt, check and validate work without one)")
+        out.print(Text("    " + str(exc).replace("\n", "\n    "), style="dim"))
+
+    try:
+        lessons = _load_lessons(())
+        bad = [l for l in lessons if not l.is_valid]
+        line(not bad, "lessons", f"{len(lessons)} found, {len(bad)} invalid")
+        for b in bad:
+            out.print(Text(f"    {b.id}: {b.problems[0]}", style="red"))
+        ok = ok and not bad
+    except CairnError as exc:
+        ok = False
+        line(False, "lessons", exc.format_message())
+    sys.exit(0 if ok else EXIT_ERROR)
+
+
+# --------------------------------------------------------------------------- helpers
+_FRIENDLY = {
+    "matches vulnerable code": "too narrow: does not match the vulnerable code",
+    "matches the expected lines": "misses a line it should match",
+    "matches the code the fix changed": "matches something other than what the fix changed",
+    "silent on the fix": "too broad: still matches the fixed code",
+    "false positives within budget": "too broad: matches unrelated clean code",
+    "rule compiles": "rule does not compile",
+    "schema": "lesson is malformed",
+}
+
+
+def _short(p: Path) -> str:
+    try:
+        return "./" + str(p.resolve().relative_to(Path.cwd().resolve()))
+    except ValueError:
+        return str(p)
+
+
+def _report_engine_errors(errors: list[str]) -> None:
+    for e in errors[:5]:
+        err.print(Text("engine: " + e[:400], style="yellow"))
+    if len(errors) > 5:
+        err.print(Text(f"engine: …and {len(errors) - 5} more", style="yellow"))
+
+
+def _finding_json(f: Finding, root: Path) -> dict:
+    return {
+        "lesson": f.lesson.id,
+        "title": f.lesson.title,
+        "severity": f.severity,
+        "confidence": f.lesson.confidence,
+        "cwe": f.lesson.cwe,
+        "path": f.relpath(root),
+        "start_line": f.start_line,
+        "end_line": f.end_line,
+        "message": f.message,
+        "fix": f.lesson.fix_guidance,
+        "status": f.lesson.status,
+    }
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()

@@ -1,0 +1,71 @@
+schema: cairn/lesson/v0.1
+id: js-aws-sdk-unvalidated-region
+title: User-controlled AWS region passed to an SDK client
+summary: >
+  A region value taken from the request (body, query, params or headers) is passed straight
+  into an AWS SDK client. Older AWS SDKs build the endpoint hostname by inserting the region
+  into a template without validating it, so a value like "@attacker.example#" sends signed
+  requests, including STS AssumeRoleWithWebIdentity calls that carry a bearer token, to an
+  attacker's host. Upgrading the SDK fixes the library; validating the region at your own
+  boundary fixes every path, including ones the upgrade misses.
+cwe: [CWE-918, CWE-20]
+severity: high
+confidence: high
+languages: [javascript, typescript]
+source:
+  kind: advisory
+  ref: CVE-2026-22611
+  notes: >
+    Region-parameter SSRF in several AWS SDKs (JS v3 fixed via @smithy/config-resolver 4.4.0).
+    Lesson written as a boundary-validation guardrail that holds regardless of SDK version.
+rule:
+  mode: taint
+  message: >
+    AWS SDK client region comes from request data without passing through assertAwsRegion().
+    A crafted region can redirect signed AWS calls (and STS tokens) to another host.
+  pattern-sources:
+    - pattern-either:
+        - pattern: $REQ.body
+        - pattern: $REQ.query
+        - pattern: $REQ.params
+        - pattern: $REQ.headers
+  pattern-sanitizers:
+    - pattern: assertAwsRegion(...)
+  pattern-sinks:
+    - patterns:
+        - pattern-inside: |
+            new $CLIENT({..., region: $SINK, ...})
+        - metavariable-regex:
+            metavariable: $CLIENT
+            regex: ^[A-Z][A-Za-z0-9]*Client$
+        - focus-metavariable: $SINK
+fix:
+  guidance: >
+    Validate the region before it reaches any SDK client. Accept only values from your
+    allowlist of supported regions, or at minimum a strict host-label pattern, and reject
+    everything else. Keep the SDK patched as well.
+  example: |
+    const SUPPORTED = new Set(["ap-southeast-1", "ap-south-1", "eu-west-1", "us-east-1"]);
+    function assertAwsRegion(value) {
+      if (typeof value !== "string" || !SUPPORTED.has(value)) {
+        throw new BadRequest("Unsupported region");
+      }
+      return value;
+    }
+  references:
+    - https://www.pi.security/blog/one-word-aws-sdk-cloud-takeover
+fixtures:
+  vulnerable: [fixtures/vulnerable/tenant-settings.js]
+  patched: [fixtures/patched/tenant-settings.js]
+  clean: [fixtures/clean/config-and-jobs.js]
+acceptance:
+  max_clean_findings: 0
+provenance:
+  author: twomuchlabs
+  created: "2026-10-24"
+  approved_by: twomuchlabs
+  approved: "2026-10-24"
+revalidate:
+  ttl_days: 180
+status: approved
+tags: [ssrf, aws, cloud, credentials]

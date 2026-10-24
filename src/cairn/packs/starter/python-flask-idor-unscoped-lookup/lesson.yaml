@@ -1,0 +1,60 @@
+schema: cairn/lesson/v0.1
+id: python-flask-idor-unscoped-lookup
+title: Object fetched by ID in a route without an ownership check
+summary: >
+  A Flask route loads a record by the ID in the URL (Model.query.get or get_or_404) and
+  returns or changes it without checking that it belongs to the current user. Any logged-in
+  user can read or modify other users' records by changing the number in the URL. This is an
+  insecure direct object reference (IDOR / BOLA), the most common finding in API pentests.
+cwe: [CWE-639, CWE-862]
+severity: high
+confidence: medium
+languages: [python]
+source:
+  kind: manual
+  notes: >
+    Reference lesson for the format. Teams should replace the admin decorator name and the
+    ownership idiom with their own.
+rule:
+  message: >
+    $MODEL.query lookup by a URL parameter in a route handler, with no ownership scoping.
+    Any authenticated user can access other users' records by changing the ID.
+  patterns:
+    - pattern-inside: |
+        @$BP.$VERB(...)
+        def $FUNC(..., $ID, ...):
+            ...
+    - metavariable-regex:
+        metavariable: $VERB
+        regex: ^(get|post|put|patch|delete|route)$
+    - pattern-not-inside: |
+        @admin_required
+        def $FUNC(...):
+            ...
+    - pattern-either:
+        - pattern: $MODEL.query.get($ID)
+        - pattern: $MODEL.query.get_or_404($ID)
+fix:
+  guidance: >
+    Scope the query to the caller, for example filter_by(id=..., owner_id=current_user.id),
+    so a record that is not theirs is indistinguishable from one that does not exist (404).
+    If the route is admin-only, mark it with the admin decorator so the intent is explicit.
+  example: |
+    invoice = Invoice.query.filter_by(id=invoice_id, owner_id=current_user.id).first_or_404()
+  references:
+    - https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/
+fixtures:
+  vulnerable: [fixtures/vulnerable/invoices.py]
+  patched: [fixtures/patched/invoices.py]
+  clean: [fixtures/clean/admin_and_helpers.py]
+acceptance:
+  max_clean_findings: 0
+provenance:
+  author: twomuchlabs
+  created: "2026-10-24"
+  approved_by: twomuchlabs
+  approved: "2026-10-24"
+revalidate:
+  ttl_days: 180
+status: approved
+tags: [idor, bola, authorization, flask]

@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/twomuchlabs/cairn/spec/lesson-v0.1.schema.json",
+  "title": "Cairn security lesson v0.1",
+  "description": "A portable, testable record of one security lesson: what went wrong, the rule that detects it, and the fixtures that prove the rule.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "title", "summary", "cwe", "severity", "languages", "source", "rule", "fixtures", "provenance", "status"],
+  "properties": {
+    "schema": { "const": "cairn/lesson/v0.1" },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{2,79}$",
+      "description": "Stable, globally unique slug. Lowercase letters, digits and hyphens."
+    },
+    "title": { "type": "string", "minLength": 8, "maxLength": 120 },
+    "summary": {
+      "type": "string",
+      "minLength": 40,
+      "description": "Plain-language explanation of the mistake and why it is dangerous here. Shown to developers."
+    },
+    "cwe": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "pattern": "^CWE-[0-9]{1,5}$" }
+    },
+    "severity": { "enum": ["critical", "high", "medium", "low", "info"] },
+    "confidence": {
+      "enum": ["high", "medium", "low"],
+      "default": "medium",
+      "description": "How confident the author is that a match is a real instance. Drives default reporting: low-confidence lessons are hidden unless --show-low-confidence."
+    },
+    "languages": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["fix-commit", "advisory", "pentest", "bug-bounty", "incident", "manual"] },
+        "ref": { "type": "string", "description": "Commit SHA, advisory ID (GHSA/CVE/OSV), report ID or URL." },
+        "repository": { "type": "string" },
+        "vulnerable_ref": { "type": "string" },
+        "patched_ref": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "description": "A single Opengrep/Semgrep rule body. 'id', 'languages' and 'severity' are filled from the lesson if omitted.",
+      "required": ["message"],
+      "properties": {
+        "message": { "type": "string", "minLength": 10 }
+      },
+      "anyOf": [
+        { "required": ["pattern"] },
+        { "required": ["patterns"] },
+        { "required": ["pattern-either"] },
+        { "required": ["pattern-regex"] },
+        { "required": ["pattern-sources", "pattern-sinks"] }
+      ]
+    },
+    "fix": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "guidance": { "type": "string", "minLength": 10 },
+        "example": { "type": "string" },
+        "references": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "fixtures": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["vulnerable", "patched"],
+      "properties": {
+        "vulnerable": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" },
+          "description": "Files (relative to the lesson directory) the rule MUST match. Lines marked with a 'cairn-expect' comment must each be matched."
+        },
+        "patched": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" },
+          "description": "Files the rule MUST NOT match. Usually the fixed version of each vulnerable file."
+        },
+        "clean": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Optional unrelated code used to measure false positives against the budget."
+        }
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_clean_findings": { "type": "integer", "minimum": 0, "default": 0 }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "include": { "type": "array", "items": { "type": "string" } },
+        "exclude": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["author", "created"],
+      "properties": {
+        "author": { "type": "string" },
+        "created": { "type": "string", "format": "date" },
+        "approved_by": { "type": "string" },
+        "approved": { "type": "string", "format": "date" },
+        "synthesized_by": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "tool": { "type": "string" },
+            "model": { "type": "string" },
+            "prompt_version": { "type": "string" },
+            "attempts": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+    "revalidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ttl_days": { "type": "integer", "minimum": 1, "default": 180 },
+        "on_change": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "status": { "enum": ["proposed", "approved", "retired"] },
+    "tags": { "type": "array", "items": { "type": "string" } }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "approved" } } },
+      "then": {
+        "properties": { "provenance": { "required": ["author", "created", "approved_by", "approved"] } }
+      }
+    }
+  ]
+}
