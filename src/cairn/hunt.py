@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, Sequence
 
 from .engine import Engine, EngineResult, run
-from .lesson import Lesson, SEVERITY_ORDER
+from .lesson import SEVERITY_ORDER, Lesson
 
 CONFIDENCE_ORDER = ["low", "medium", "high"]
 

@@ -33,7 +33,9 @@ class Model(Protocol):
 
 def _post(url: str, headers: dict[str, str], body: dict, timeout: int = 300) -> dict:
     req = urllib.request.Request(
-        url, data=json.dumps(body).encode("utf-8"), headers={"content-type": "application/json", **headers}
+        url,
+        data=json.dumps(body).encode("utf-8"),
+        headers={"content-type": "application/json", **headers},
     )
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -66,7 +68,9 @@ class Anthropic:
                 "messages": [{"role": "user", "content": prompt}],
             },
         )
-        return "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text")
+        return "".join(
+            b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"
+        )
 
 
 @dataclass
@@ -170,7 +174,9 @@ def from_spec(spec: str | None = None) -> Model:
         if not key:
             raise ModelError("OPENAI_API_KEY is not set.")
         return OpenAICompatible(
-            model=model, api_key=key, base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
+            model=model,
+            api_key=key,
+            base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
         )
     if provider == "ollama":
         return Ollama(model=model, host=os.environ.get("OLLAMA_HOST", "http://localhost:11434"))

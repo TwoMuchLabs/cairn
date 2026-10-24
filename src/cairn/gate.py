@@ -146,7 +146,8 @@ def accept(
                 report.unfixed.append(f)
                 continue
             if rp in region and not any(
-                f.start_line - near_window <= line <= f.end_line + near_window for line in region[rp]
+                f.start_line - near_window <= line <= f.end_line + near_window
+                for line in region[rp]
             ):
                 report.unfixed.append(f)
                 continue

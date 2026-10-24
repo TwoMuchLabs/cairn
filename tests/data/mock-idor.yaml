@@ -1,0 +1,39 @@
+- |
+  ```yaml
+  id: python-flask-idor-get-by-id
+  title: Record loaded by URL ID without scoping to the current user
+  summary: A route loads a model instance by the ID from the URL and uses it without checking ownership, so any logged-in user can access other users' records.
+  cwe: [CWE-639]
+  severity: high
+  confidence: medium
+  rule:
+    message: Unscoped lookup by ID
+    pattern: $MODEL.query.$GET(...)
+  fix:
+    guidance: Filter by owner_id=current_user.id.
+  ```
+- |
+  ```yaml
+  id: python-flask-idor-get-by-id
+  title: Record loaded by URL ID without scoping to the current user
+  summary: >
+    A route loads a model instance by the ID from the URL with Model.query.get or get_or_404
+    and uses it without checking ownership, so any logged-in user can read or change other
+    users' records by editing the ID.
+  cwe: [CWE-639, CWE-862]
+  severity: high
+  confidence: medium
+  rule:
+    message: $MODEL loaded by URL parameter $ID without scoping to current_user.
+    patterns:
+      - pattern-inside: |
+          @$BP.$VERB(...)
+          def $FUNC(..., $ID, ...):
+              ...
+      - pattern-either:
+          - pattern: $MODEL.query.get($ID)
+          - pattern: $MODEL.query.get_or_404($ID)
+  fix:
+    guidance: Use $MODEL.query.filter_by(id=..., owner_id=current_user.id).first_or_404().
+    example: order = Order.query.filter_by(id=order_id, owner_id=current_user.id).first_or_404()
+  ```

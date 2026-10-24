@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 import os
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 import click
 from rich.text import Text
@@ -15,7 +15,15 @@ from . import __version__, render, sarif
 from .engine import Engine, EngineNotFound, find_engine
 from .gate import accept
 from .hunt import CONFIDENCE_ORDER, Finding, hunt, select_lessons
-from .lesson import SEVERITY_ORDER, Lesson, LessonError, default_roots, discover, load, severity_at_least
+from .lesson import (
+    SEVERITY_ORDER,
+    Lesson,
+    LessonError,
+    default_roots,
+    discover,
+    load,
+    severity_at_least,
+)
 
 out = render.make_console()
 err = render.make_console(stderr=True)
@@ -27,7 +35,7 @@ EXIT_ERROR = 2
 class CairnError(click.ClickException):
     exit_code = EXIT_ERROR
 
-    def show(self, file=None) -> None:  # noqa: D401 - click hook
+    def show(self, file=None) -> None:
         msg = Text()
         msg.append("error ", style="bold red")
         msg.append(self.format_message())
@@ -59,12 +67,16 @@ def _load_lessons(paths: Sequence[str]) -> list[Lesson]:
 
 def _header(engine: Engine, n_lessons: int, target: Path, verb: str) -> None:
     t = Text(style="dim")
-    t.append(f"cairn {__version__} · {verb} {target} · {n_lessons} lesson{'s' if n_lessons != 1 else ''} · ")
+    t.append(
+        f"cairn {__version__} · {verb} {target} · {n_lessons} lesson{'s' if n_lessons != 1 else ''} · "
+    )
     t.append(f"{engine.name} {engine.version()}")
     err.print(t)
 
 
-def _write_sarif(path: str | None, findings: list[Finding], lessons: list[Lesson], root: Path) -> None:
+def _write_sarif(
+    path: str | None, findings: list[Finding], lessons: list[Lesson], root: Path
+) -> None:
     if not path:
         return
     Path(path).write_text(json.dumps(sarif.build(findings, lessons, root), indent=2), "utf-8")
@@ -113,7 +125,9 @@ def main() -> None:
     show_default=True,
     help="Hide lessons below this confidence.",
 )
-@click.option("--sarif", "sarif_path", type=click.Path(dir_okay=False), help="Also write SARIF 2.1.0 here.")
+@click.option(
+    "--sarif", "sarif_path", type=click.Path(dir_okay=False), help="Also write SARIF 2.1.0 here."
+)
 @click.option("--json", "as_json", is_flag=True, help="Print findings as JSON instead of cards.")
 def hunt_cmd(target, lesson_paths, approved_only, min_confidence, sarif_path, as_json):
     """Look for known mistakes in TARGET (default: current directory)."""
@@ -139,7 +153,11 @@ def hunt_cmd(target, lesson_paths, approved_only, min_confidence, sarif_path, as
             out.print()
         out.print(render.summary_line(findings, len(lessons)))
         if findings and not sarif_path:
-            err.print(Text("Tip: add --sarif results.sarif to upload these to code scanning.", style="dim"))
+            err.print(
+                Text(
+                    "Tip: add --sarif results.sarif to upload these to code scanning.", style="dim"
+                )
+            )
     if skipped:
         render.skipped(err, skipped)
     sys.exit(EXIT_ERROR if errors and not findings else 0)
@@ -160,12 +178,16 @@ def hunt_cmd(target, lesson_paths, approved_only, min_confidence, sarif_path, as
     "--baseline-ref",
     help="Only report findings introduced since this git ref (e.g. origin/main). Recommended for PRs.",
 )
-@click.option("--sarif", "sarif_path", type=click.Path(dir_okay=False), help="Also write SARIF 2.1.0 here.")
+@click.option(
+    "--sarif", "sarif_path", type=click.Path(dir_okay=False), help="Also write SARIF 2.1.0 here."
+)
 def check_cmd(target, lesson_paths, fail_on, baseline_ref, sarif_path):
     """Enforce approved lessons (for CI). Exits 1 if a finding reaches --fail-on."""
     root = Path(target).resolve()
     engine = _engine()
-    lessons, skipped = select_lessons(_load_lessons(lesson_paths), statuses=("approved",), min_confidence="low")
+    lessons, skipped = select_lessons(
+        _load_lessons(lesson_paths), statuses=("approved",), min_confidence="low"
+    )
     if not lessons:
         raise CairnError("no approved lessons to enforce")
     _header(engine, len(lessons), root, "checking")
@@ -174,7 +196,9 @@ def check_cmd(target, lesson_paths, fail_on, baseline_ref, sarif_path):
     )
     _report_engine_errors(errors)
     if errors and not findings:
-        raise CairnError("the rule engine reported errors; refusing to pass the check without a clean run")
+        raise CairnError(
+            "the rule engine reported errors; refusing to pass the check without a clean run"
+        )
     _write_sarif(sarif_path, findings, lessons, root)
     if findings:
         out.print()
@@ -211,7 +235,12 @@ def validate_cmd(paths):
     """
     engine = _engine()
     lessons = _load_lessons(paths)
-    err.print(Text(f"cairn {__version__} · validating {len(lessons)} lesson(s) · {engine.name}", style="dim"))
+    err.print(
+        Text(
+            f"cairn {__version__} · validating {len(lessons)} lesson(s) · {engine.name}",
+            style="dim",
+        )
+    )
     reports = []
     with err.status("Running acceptance tests…", spinner="dots"):
         for lesson in lessons:
@@ -227,8 +256,12 @@ def validate_cmd(paths):
 
 # --------------------------------------------------------------------------- learn
 @main.command("learn")
-@click.option("--commit", "ref", required=True, help="The security fix commit (SHA, tag or branch).")
-@click.option("--repo", default=".", type=click.Path(exists=True, file_okay=False), show_default=True)
+@click.option(
+    "--commit", "ref", required=True, help="The security fix commit (SHA, tag or branch)."
+)
+@click.option(
+    "--repo", default=".", type=click.Path(exists=True, file_okay=False), show_default=True
+)
 @click.option(
     "--out",
     "out_dir",
@@ -237,7 +270,9 @@ def validate_cmd(paths):
     type=click.Path(file_okay=False),
     help="Where to save the proposed lesson (relative to --repo).",
 )
-@click.option("--model", "model_spec", help="Override CAIRN_MODEL, e.g. anthropic:claude-sonnet-5-5.")
+@click.option(
+    "--model", "model_spec", help="Override CAIRN_MODEL, e.g. anthropic:claude-sonnet-5-5."
+)
 @click.option("--max-attempts", default=4, show_default=True, type=click.IntRange(1, 10))
 @click.option("--no-hunt", is_flag=True, help="Save the lesson without hunting for variants.")
 def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
@@ -271,7 +306,7 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
         err.print(Text(f"  {f.path}  ({len(f.removed_lines)} changed line(s))", style="dim"))
 
     def progress(a):
-        t = Text("  attempt %d  " % a.number)
+        t = Text(f"  attempt {a.number}  ")
         if a.acceptance and a.acceptance.passed and not a.problem:
             t.append("✓ matches the vulnerable code, silent on the fix", style="green")
         else:
@@ -288,13 +323,20 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
 
     try:
         with err.status("Asking the model for a rule…", spinner="dots"):
-            result = synthesize(commit, model, engine, max_attempts=max_attempts, on_attempt=progress)
+            result = synthesize(
+                commit, model, engine, max_attempts=max_attempts, on_attempt=progress
+            )
     except ModelError as exc:
         raise CairnError(str(exc)) from exc
 
     if not result.passed:
         last = result.attempts[-1] if result.attempts else None
-        out.print(Text(f"\nNo lesson after {len(result.attempts)} attempt(s). Nothing was saved.", style="bold"))
+        out.print(
+            Text(
+                f"\nNo lesson after {len(result.attempts)} attempt(s). Nothing was saved.",
+                style="bold",
+            )
+        )
         if last:
             out.print(Text(last.problem or (last.acceptance.feedback() if last.acceptance else "")))
         out.print(
@@ -327,11 +369,17 @@ def learn_cmd(ref, repo, out_dir, model_spec, max_attempts, no_hunt):
         _report_engine_errors(errors)
         out.print()
         if findings:
-            out.print(Text(f"Found {len(findings)} possible sibling(s) in the current code:", style="bold"))
+            out.print(
+                Text(
+                    f"Found {len(findings)} possible sibling(s) in the current code:", style="bold"
+                )
+            )
             out.print()
             render.findings(out, findings, repo_path)
         else:
-            out.print(Text("No siblings in the current code. The lesson will guard future changes."))
+            out.print(
+                Text("No siblings in the current code. The lesson will guard future changes.")
+            )
     out.print()
     out.print(
         Text(
@@ -360,14 +408,23 @@ def doctor_cmd():
         e = find_engine()
         line(True, "rule engine", f"{e.name} {e.version()} ({e.path})")
         if e.name != "opengrep":
-            out.print(Text("    Opengrep is recommended for CI; Semgrep CE works the same locally.", style="dim"))
+            out.print(
+                Text(
+                    "    Opengrep is recommended for CI; Semgrep CE works the same locally.",
+                    style="dim",
+                )
+            )
     except EngineNotFound as exc:
         ok = False
         line(False, "rule engine", str(exc))
 
     import shutil as _sh
 
-    line(bool(_sh.which("git")), "git", "" if _sh.which("git") else "needed for 'learn' and --baseline-ref")
+    line(
+        bool(_sh.which("git")),
+        "git",
+        "" if _sh.which("git") else "needed for 'learn' and --baseline-ref",
+    )
 
     from .models import ModelError, from_spec
 
@@ -375,12 +432,14 @@ def doctor_cmd():
         m = from_spec()
         line(True, "model for 'learn'", m.name)
     except ModelError as exc:
-        line(False, "model for 'learn'", "not configured (hunt, check and validate work without one)")
+        line(
+            False, "model for 'learn'", "not configured (hunt, check and validate work without one)"
+        )
         out.print(Text("    " + str(exc).replace("\n", "\n    "), style="dim"))
 
     try:
         lessons = _load_lessons(())
-        bad = [l for l in lessons if not l.is_valid]
+        bad = [lesson for lesson in lessons if not lesson.is_valid]
         line(not bad, "lessons", f"{len(lessons)} found, {len(bad)} invalid")
         for b in bad:
             out.print(Text(f"    {b.id}: {b.problems[0]}", style="red"))

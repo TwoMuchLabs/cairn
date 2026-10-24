@@ -5,8 +5,8 @@ from __future__ import annotations
 import os
 import sys
 import textwrap
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 from rich.console import Console, Group
 from rich.text import Text
@@ -25,7 +25,9 @@ _SEV_STYLE = {
 
 
 def make_console(stderr: bool = False) -> Console:
-    no_color = bool(os.environ.get("NO_COLOR")) or not (sys.stderr if stderr else sys.stdout).isatty()
+    no_color = (
+        bool(os.environ.get("NO_COLOR")) or not (sys.stderr if stderr else sys.stdout).isatty()
+    )
     return Console(stderr=stderr, highlight=False, no_color=no_color, soft_wrap=False)
 
 

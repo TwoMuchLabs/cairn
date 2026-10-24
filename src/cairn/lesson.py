@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from importlib import resources
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import yaml
 from jsonschema import Draft202012Validator, FormatChecker
@@ -147,7 +148,7 @@ def _validator() -> Draft202012Validator:
 def schema_problems(data: Any) -> list[str]:
     """Human-readable schema violations, most specific first."""
     if not isinstance(data, dict):
-        return ["lesson.yaml must be a mapping of fields (got %s)" % type(data).__name__]
+        return [f"lesson.yaml must be a mapping of fields (got {type(data).__name__})"]
     if data.get("schema") not in SUPPORTED_SCHEMAS:
         return [
             f"unsupported schema {data.get('schema')!r}; this version of cairn reads "

@@ -7,9 +7,10 @@ import os
 import shutil
 import subprocess
 import tempfile
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 import yaml
 
@@ -31,7 +32,12 @@ class Engine:
             if self.name.startswith("semgrep"):
                 cmd.append("--disable-version-check")
             out = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=60, stdin=subprocess.DEVNULL
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=60,
+                stdin=subprocess.DEVNULL,
+                check=False,
             )
             return (out.stdout or out.stderr).strip().splitlines()[0]
         except (OSError, subprocess.SubprocessError, IndexError):
@@ -72,7 +78,9 @@ def find_engine() -> Engine:
     )
 
 
-def _command(engine: Engine, config: Path, targets: Sequence[Path], extra: Sequence[str]) -> list[str]:
+def _command(
+    engine: Engine, config: Path, targets: Sequence[Path], extra: Sequence[str]
+) -> list[str]:
     cmd = [engine.path, "scan", "--config", str(config), "--json", "--quiet"]
     if engine.name.startswith("semgrep"):
         cmd += ["--metrics=off", "--disable-version-check"]
@@ -105,6 +113,7 @@ def run(
                 timeout=timeout,
                 cwd=cwd,
                 stdin=subprocess.DEVNULL,
+                check=False,
             )
         except subprocess.TimeoutExpired:
             return EngineResult(errors=[f"{engine.name} timed out after {timeout}s"])

@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from . import __version__
 from .hunt import Finding
@@ -12,7 +13,13 @@ from .lesson import Lesson
 
 _LEVEL = {"critical": "error", "high": "error", "medium": "warning", "low": "note", "info": "note"}
 # GitHub maps security-severity to its critical/high/medium/low bands.
-_SECURITY_SEVERITY = {"critical": "9.5", "high": "8.0", "medium": "5.5", "low": "3.0", "info": "1.0"}
+_SECURITY_SEVERITY = {
+    "critical": "9.5",
+    "high": "8.0",
+    "medium": "5.5",
+    "low": "3.0",
+    "info": "1.0",
+}
 
 
 def _rule(lesson: Lesson) -> dict[str, Any]:
@@ -39,7 +46,7 @@ def _rule(lesson: Lesson) -> dict[str, Any]:
 
 def _fingerprint(f: Finding, root: Path) -> str:
     _, lines = f.snippet(context=0)
-    material = "|".join([f.lesson.id, f.relpath(root), "\n".join(l.strip() for l in lines)])
+    material = "|".join([f.lesson.id, f.relpath(root), "\n".join(line.strip() for line in lines)])
     return hashlib.sha256(material.encode("utf-8")).hexdigest()
 
 

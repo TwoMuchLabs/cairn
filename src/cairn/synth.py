@@ -7,9 +7,10 @@ import re
 import shutil
 import subprocess
 import tempfile
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import yaml
 
@@ -84,7 +85,9 @@ def _numbered_window(text: str, focus: list[int]) -> str:
     else:
         keep = set()
         for n in focus:
-            keep.update(range(max(1, n - _CONTEXT_WINDOW), min(len(lines), n + _CONTEXT_WINDOW) + 1))
+            keep.update(
+                range(max(1, n - _CONTEXT_WINDOW), min(len(lines), n + _CONTEXT_WINDOW) + 1)
+            )
     out, prev = [], 0
     for n in sorted(keep):
         if prev and n != prev + 1:
@@ -127,7 +130,7 @@ def repair_prompt(attempt: Attempt) -> str:
     )
 
 
-_FENCE = re.compile(r"```(?:yaml|yml)?\s*\n(.*?)```", re.S)
+_FENCE = re.compile(r"```(?:yaml|yml)?\s*\n(.*?)```", re.DOTALL)
 
 
 def parse_answer(raw: str) -> dict[str, Any]:
@@ -142,7 +145,10 @@ def parse_answer(raw: str) -> dict[str, Any]:
 def _git_author(repo: Path) -> str:
     try:
         out = subprocess.run(
-            ["git", "-C", str(repo), "config", "user.name"], capture_output=True, text=True
+            ["git", "-C", str(repo), "config", "user.name"],
+            capture_output=True,
+            text=True,
+            check=False,
         )
         return out.stdout.strip() or "cairn learn"
     except OSError:
@@ -152,7 +158,10 @@ def _git_author(repo: Path) -> str:
 def _remote(repo: Path) -> str:
     try:
         out = subprocess.run(
-            ["git", "-C", str(repo), "remote", "get-url", "origin"], capture_output=True, text=True
+            ["git", "-C", str(repo), "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            check=False,
         )
         return out.stdout.strip()
     except OSError:
@@ -169,7 +178,9 @@ def _fixture_names(commit: FixCommit) -> list[str]:
     return names
 
 
-def _assemble(commit: FixCommit, answer: dict[str, Any], model: Model, attempts: int, author: str) -> dict:
+def _assemble(
+    commit: FixCommit, answer: dict[str, Any], model: Model, attempts: int, author: str
+) -> dict:
     names = _fixture_names(commit)
     today = _dt.date.today().isoformat()
     rule = answer.get("rule")
@@ -225,7 +236,7 @@ def _write_lesson(directory: Path, commit: FixCommit, data: dict) -> None:
         shutil.rmtree(directory)
     (directory / "fixtures" / "vulnerable").mkdir(parents=True)
     (directory / "fixtures" / "patched").mkdir(parents=True)
-    for name, f in zip(_fixture_names(commit), commit.files):
+    for name, f in zip(_fixture_names(commit), commit.files, strict=True):
         (directory / "fixtures" / "vulnerable" / name).write_text(f.before, "utf-8")
         (directory / "fixtures" / "patched" / name).write_text(f.after, "utf-8")
     (directory / "lesson.yaml").write_text(
@@ -244,7 +255,7 @@ def _mark_line(path: Path, line_no: int, marker: str, language: str) -> bool:
     body = line.rstrip("\r\n")
     if body.rstrip().endswith("\\") or marker in body:
         return False
-    lines[line_no - 1] = f"{body}  {_COMMENT.get(language, '//')} {marker}" + line[len(body):]
+    lines[line_no - 1] = f"{body}  {_COMMENT.get(language, '//')} {marker}" + line[len(body) :]
     path.write_text("".join(lines), "utf-8")
     return True
 
@@ -258,11 +269,13 @@ def _add_markers(lesson: Lesson, commit: FixCommit, acceptance: Acceptance) -> N
     unfixed: dict[Path, set[int]] = {}
     for f in acceptance.unfixed:
         unfixed.setdefault(f.path.resolve(), set()).add(f.start_line)
-    for name, changed in zip(_fixture_names(commit), commit.files):
+    for name, changed in zip(_fixture_names(commit), commit.files, strict=True):
         vuln = lesson.directory / "fixtures" / "vulnerable" / name
         hits = by_file.get(vuln.resolve(), [])
         if hits:
-            target = min(hits, key=lambda h: min((abs(h - c) for c in changed.removed_lines), default=0))
+            target = min(
+                hits, key=lambda h: min((abs(h - c) for c in changed.removed_lines), default=0)
+            )
             _mark_line(vuln, target, EXPECT_MARKER, changed.language)
         patched = lesson.directory / "fixtures" / "patched" / name
         for line_no in sorted(unfixed.get(patched.resolve(), ())):
@@ -297,8 +310,10 @@ def synthesize(
                 lesson_dir = workdir / "candidate"
                 _write_lesson(lesson_dir, commit, data)
                 lesson = load(lesson_dir)
-                pairs = list(zip(_fixture_names(commit), commit.files))
-                near = {lesson_dir / "fixtures" / "vulnerable" / n: f.removed_lines for n, f in pairs}
+                pairs = list(zip(_fixture_names(commit), commit.files, strict=True))
+                near = {
+                    lesson_dir / "fixtures" / "vulnerable" / n: f.removed_lines for n, f in pairs
+                }
                 region = {lesson_dir / "fixtures" / "patched" / n: f.added_lines for n, f in pairs}
                 attempt.acceptance = accept(lesson, engine, near_fix=near, fix_region=region)
                 if attempt.acceptance.passed:
