@@ -16,4 +16,9 @@ files:
 - internal/providers/islo/sync.go
 changed_lines: 39
 split: dev
-labels: []
+labels:
+- path: internal/providers/e2b/backend.go
+  line: 482
+  verdict: tp
+  by: claude-prelabel
+  note: e2b provider returns absolute workdir as-is, same escape as Islo

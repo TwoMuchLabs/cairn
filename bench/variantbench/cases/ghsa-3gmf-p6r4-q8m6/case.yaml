@@ -14,4 +14,64 @@ files:
 - wicket-core/src/main/java/org/apache/wicket/markup/html/form/upload/resource/FolderUploadsFileManager.java
 changed_lines: 70
 split: dev
-labels: []
+labels:
+- path: wicket-core/src/main/java/org/apache/wicket/pageStore/DiskPageStore.java
+  line: 96
+  verdict: fp
+  by: claude-prelabel
+- path: wicket-core/src/main/java/org/apache/wicket/pageStore/DiskPageStore.java
+  line: 235
+  verdict: fp
+  by: claude-prelabel
+- path: wicket-core/src/main/java/org/apache/wicket/pageStore/DiskPageStore.java
+  line: 263
+  verdict: fp
+  by: claude-prelabel
+- path: wicket-core/src/main/java/org/apache/wicket/pageStore/DiskPageStore.java
+  line: 540
+  verdict: fp
+  by: claude-prelabel
+- path: wicket-core/src/main/java/org/apache/wicket/pageStore/FilePageStore.java
+  line: 82
+  verdict: fp
+  by: claude-prelabel
+- path: wicket-core/src/main/java/org/apache/wicket/pageStore/FilePageStore.java
+  line: 99
+  verdict: fp
+  by: claude-prelabel
+- path: wicket-core/src/main/java/org/apache/wicket/pageStore/disk/NestedFolders.java
+  line: 66
+  verdict: fp
+  by: claude-prelabel
+- path: wicket-core/src/main/java/org/apache/wicket/protocol/http/mock/MockServletContext.java
+  line: 492
+  verdict: fp
+  by: claude-prelabel
+- path: wicket-examples/src/main/java/org/apache/wicket/examples/upload/MultiUploadPage.java
+  line: 142
+  verdict: fp
+  by: claude-prelabel
+  note: FileUpload.getClientFileName() strips directory components (lastPathComponent
+    on / and \), so no traversal; corrected after model review flagged it
+- path: wicket-examples/src/main/java/org/apache/wicket/examples/upload/UploadPage.java
+  line: 128
+  verdict: fp
+  by: claude-prelabel
+  note: FileUpload.getClientFileName() strips directory components (lastPathComponent
+    on / and \), so no traversal; corrected after model review flagged it
+- path: wicket-util/src/main/java/org/apache/wicket/util/file/File.java
+  line: 128
+  verdict: fp
+  by: claude-prelabel
+- path: wicket-util/src/main/java/org/apache/wicket/util/file/Path.java
+  line: 73
+  verdict: fp
+  by: claude-prelabel
+- path: wicket-util/src/main/java/org/apache/wicket/util/license/ApacheLicenseHeaderTestCase.java
+  line: 289
+  verdict: fp
+  by: claude-prelabel
+- path: wicket-util/src/main/java/org/apache/wicket/util/resource/ZipResourceStream.java
+  line: 140
+  verdict: fp
+  by: claude-prelabel

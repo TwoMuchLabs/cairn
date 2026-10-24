@@ -16,4 +16,8 @@ files:
 - changedetectionio/validate_url.py
 changed_lines: 78
 split: dev
-labels: []
+labels:
+- path: changedetectionio/is_safe_url.py
+  line: 108
+  verdict: fp
+  by: claude-prelabel

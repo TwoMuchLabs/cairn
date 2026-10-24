@@ -15,4 +15,79 @@ files:
 - xwiki-platform-core/xwiki-platform-livedata/xwiki-platform-livedata-livetable/src/main/java/org/xwiki/livedata/internal/livetable/ModelBridge.java
 changed_lines: 16
 split: dev
-labels: []
+labels:
+- path: xwiki-platform-core/xwiki-platform-attachment/xwiki-platform-attachment-api/src/main/java/org/xwiki/attachment/internal/listener/AttachmentsListener.java
+  line: 91
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-extension/xwiki-platform-extension-handlers/xwiki-platform-extension-handler-xar/src/main/java/org/xwiki/extension/xar/internal/handler/packager/DocumentMergeImporter.java
+  line: 216
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-index/xwiki-platform-index-tree/xwiki-platform-index-tree-api/src/main/java/org/xwiki/index/tree/internal/nestedpages/pinned/PinnedChildPagesManager.java
+  line: 190
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-legacy/xwiki-platform-legacy-events-hibernate/xwiki-platform-legacy-events-hibernate-api/src/main/java/org/xwiki/eventstream/store/internal/EventStreamCleanerJobDocumentInitializer.java
+  line: 196
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/XWiki.java
+  line: 5022
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/api/Document.java
+  line: 2911
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/doc/DefaultDocumentAccessBridge.java
+  line: 1050
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/internal/filter/output/DocumentInstanceOutputFilterStream.java
+  line: 252
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-oldcore/src/main/java/org/xwiki/internal/migration/InvitationInternalDocumentParameterEscapingTaskConsumer.java
+  line: 91
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-ratings/xwiki-platform-ratings-api/src/main/java/org/xwiki/ratings/internal/averagerating/XObjectAverageRatingManager.java
+  line: 124
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-ratings/xwiki-platform-ratings-api/src/main/java/org/xwiki/ratings/internal/averagerating/XObjectAverageRatingManager.java
+  line: 176
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-ratings/xwiki-platform-ratings-api/src/main/java/org/xwiki/ratings/internal/averagerating/XObjectAverageRatingManager.java
+  line: 334
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-refactoring/xwiki-platform-refactoring-default/src/main/java/org/xwiki/refactoring/internal/DefaultReferenceUpdater.java
+  line: 153
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-repository/xwiki-platform-repository-server-api/src/main/java/org/xwiki/repository/internal/RepositoryManager.java
+  line: 237
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-rest/xwiki-platform-rest-server/src/main/java/org/xwiki/rest/internal/resources/user/CurrentUserPropertyResourceImpl.java
+  line: 108
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-security/xwiki-platform-security-authentication/xwiki-platform-security-authentication-default/src/main/java/org/xwiki/security/authentication/internal/DefaultResetPasswordManager.java
+  line: 187
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-security/xwiki-platform-security-authentication/xwiki-platform-security-authentication-default/src/main/java/org/xwiki/security/authentication/internal/DefaultResetPasswordManager.java
+  line: 348
+  verdict: fp
+  by: claude-prelabel
+- path: xwiki-platform-core/xwiki-platform-security/xwiki-platform-security-authentication/xwiki-platform-security-authentication-default/src/main/java/org/xwiki/security/authentication/internal/DefaultResetPasswordManager.java
+  line: 380
+  verdict: fp
+  by: claude-prelabel
+label_notes:
+- 'TagPlugin saves (431/492/565/619) left unlabelled: whether the tag API checks edit
+  rights before these saves needs a human with XWiki knowledge'

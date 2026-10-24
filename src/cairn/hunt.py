@@ -20,6 +20,8 @@ class Finding:
     end_line: int
     message: str
     also_matched: list[str] = field(default_factory=list)
+    review_verdict: str | None = None  # same | different | unsure, when a model reviewed it
+    review_reason: str = ""
 
     @property
     def severity(self) -> str:

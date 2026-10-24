@@ -15,4 +15,28 @@ files:
 - packages/server/src/enterprise/utils/tenantRequestGuards.ts
 changed_lines: 23
 split: dev
-labels: []
+labels:
+- path: packages/server/src/IdentityManager.ts
+  line: 304
+  verdict: fp
+  by: claude-prelabel
+- path: packages/server/src/IdentityManager.ts
+  line: 312
+  verdict: fp
+  by: claude-prelabel
+- path: packages/server/src/IdentityManager.ts
+  line: 325
+  verdict: fp
+  by: claude-prelabel
+- path: packages/server/src/IdentityManager.ts
+  line: 334
+  verdict: fp
+  by: claude-prelabel
+- path: packages/server/src/IdentityManager.ts
+  line: 375
+  verdict: fp
+  by: claude-prelabel
+- path: packages/server/src/IdentityManager.ts
+  line: 387
+  verdict: fp
+  by: claude-prelabel

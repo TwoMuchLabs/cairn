@@ -113,3 +113,40 @@ def test_usage_estimates_cost_from_known_prices(monkeypatch):
     unknown = from_spec("anthropic:some-future-model")
     unknown.usage.add(10, 10)
     assert unknown.usage.cost_usd is None and "about $" not in unknown.usage.describe()
+
+
+def test_rule_that_stays_broad_is_saved_as_low_confidence(fix_repo, engine):
+    commit = load_fix_commit(fix_repo, "HEAD")
+    result = synthesize(
+        commit,
+        Mock(DATA / "mock-idor-broad.yaml"),
+        engine,
+        breadth_root=fix_repo,
+        max_siblings=0,
+        narrow_rounds=1,
+    )
+    assert result.passed
+    assert result.breadth == [1, 1]  # one sibling before and after the narrowing attempt
+    assert [a.purpose for a in result.attempts] == ["write", "narrow"]
+    assert result.lesson.confidence == "low"
+    assert "broad" in result.lesson.data["tags"]
+
+
+def test_review_verdicts_are_parsed_defensively():
+    from cairn.review import _parse
+
+    assert _parse('[{"n": 2, "verdict": "same", "reason": "r"}]', 2) == [
+        ("unsure", "review answer could not be read"),
+        ("same", "r"),
+    ]
+    assert _parse("no json here", 1) == [("unsure", "review answer could not be read")]
+    assert _parse('[{"n": 1, "verdict": "maybe"}]', 1)[0][0] == "unsure"
+
+
+def test_learn_hides_siblings_the_review_dismisses(fix_repo, engine, monkeypatch):
+    monkeypatch.setenv("CAIRN_MODEL", f"mock:{DATA / 'mock-idor-review.yaml'}")
+    monkeypatch.chdir(fix_repo)
+    result = CliRunner().invoke(main, ["learn", "--commit", "HEAD"])
+    assert result.exit_code == 0, result.output
+    assert "app/orders.py:19" not in result.output
+    assert "1 other match dismissed by review" in result.output
