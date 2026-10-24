@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-73wf-9vmv-5pv9
+advisory: GHSA-73wf-9vmv-5pv9
+aliases:
+- CVE-2026-62982
+summary: "Glances: Incomplete fix of CVE-2026-32608: action-template sanitizer is\
+  \ bypassed by nested stat values (process 'cmdline') \u2192 OS command injection"
+language: python
+cwe:
+- CWE-78
+severity: high
+repository: https://github.com/nicolargo/glances
+fix_commit: ea4cf2f54f0d961e24aa0b24fff9584bab39db93
+files:
+- glances/actions.py
+changed_lines: 38
+split: dev
+labels: []

@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import random
+import re
 import shutil
 import subprocess
 import sys
@@ -38,6 +39,13 @@ def _git(*args: str, cwd: Path | None = None, timeout: int = 300) -> subprocess.
         stdin=subprocess.DEVNULL,
         check=False,
     )
+
+
+def _reason(why: str) -> str:
+    """Group rejection messages: drop SHAs and numbers so counts are meaningful."""
+    text = re.sub(r"\b[0-9a-f]{7,40}\b", "<sha>", why)
+    text = re.sub(r"\d+", "N", text)
+    return text.split(":")[0].split(".")[0][:60]
 
 
 def check(
@@ -159,7 +167,7 @@ def main(argv=None) -> int:
                         flush=True,
                     )
                 elif not case:
-                    rejected[why.split(":")[0][:40]] += 1
+                    rejected[_reason(why)] += 1
     print(json.dumps({"kept": kept, "rejected": rejected}, indent=2), file=sys.stderr)
     return 0
 

@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-q2r8-vmq7-fpx2
+advisory: GHSA-q2r8-vmq7-fpx2
+aliases:
+- CVE-2026-2033
+summary: MLflow Tracking Server Artifact Handler Directory Traversal Remote Code Execution
+  Vulnerability
+language: python
+cwe:
+- CWE-22
+severity: high
+repository: https://github.com/mlflow/mlflow
+fix_commit: 5bf2ec2bd4222a18d78631183ac7f6b752afe8a4
+files:
+- mlflow/store/tracking/file_store.py
+changed_lines: 34
+split: dev
+labels: []

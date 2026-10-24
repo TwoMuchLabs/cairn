@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-rrxv-pmq9-x67r
+advisory: GHSA-rrxv-pmq9-x67r
+aliases:
+- CVE-2026-26995
+summary: uTLS has a fingerprint vulnerability from missing padding extension for Chrome
+  120
+language: go
+cwe:
+- CWE-200
+severity: low
+repository: https://github.com/refraction-networking/utls
+fix_commit: 8fe0b08e9a0e7e2d08b268f451f2c79962e6acd0
+files:
+- u_parrots.go
+changed_lines: 2
+split: holdout
+labels: []

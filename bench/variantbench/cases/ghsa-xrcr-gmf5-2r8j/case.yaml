@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-xrcr-gmf5-2r8j
+advisory: GHSA-xrcr-gmf5-2r8j
+aliases:
+- CVE-2026-26022
+summary: 'Gogs: Stored XSS via data URI in issue comments'
+language: go
+cwe:
+- CWE-79
+severity: high
+repository: https://github.com/gogs/gogs
+fix_commit: 441c64d7bd8893b2f4e48660a8be3a7472e14291
+files:
+- internal/markup/sanitizer.go
+changed_lines: 22
+split: dev
+labels: []

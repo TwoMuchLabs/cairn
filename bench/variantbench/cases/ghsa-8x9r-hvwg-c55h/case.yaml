@@ -1,0 +1,17 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-8x9r-hvwg-c55h
+advisory: GHSA-8x9r-hvwg-c55h
+aliases:
+- CVE-2026-35454
+summary: 'Code Extension Marketplace: Zip Slip Path Traversal'
+language: go
+cwe:
+- CWE-22
+severity: high
+repository: https://github.com/coder/code-marketplace
+fix_commit: 988440dee05fceef8400ed725badc604dbf90792
+files:
+- storage/local.go
+changed_lines: 45
+split: dev
+labels: []

@@ -1,0 +1,19 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-f7g3-2cg6-f5hj
+advisory: GHSA-f7g3-2cg6-f5hj
+aliases:
+- CVE-2026-48204
+summary: "Apache Camel: camel-mongodb-gridfs producer allows GridFS operation override\
+  \ and NoSQL operator injection via unfiltered \_gridfs.*\_ HTTP headers"
+language: java
+cwe:
+- CWE-20
+severity: critical
+repository: https://github.com/apache/camel
+fix_commit: 8f0b1acfb89867bc28805d8281fa5c70192e2122
+files:
+- components/camel-mongodb-gridfs/src/main/java/org/apache/camel/component/mongodb/gridfs/GridFsConstants.java
+- dsl/camel-endpointdsl/src/generated/java/org/apache/camel/builder/endpoint/dsl/GridFsEndpointBuilderFactory.java
+changed_lines: 40
+split: dev
+labels: []

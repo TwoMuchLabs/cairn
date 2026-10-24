@@ -1,0 +1,18 @@
+schema: cairn/variantbench-case/v0
+id: ghsa-h259-74h5-4rh9
+advisory: GHSA-h259-74h5-4rh9
+aliases:
+- CVE-2026-33229
+summary: XWiki vulnerable to remote code execution with script right through unprotected
+  Velocity scripting API
+language: java
+cwe:
+- CWE-862
+severity: high
+repository: https://github.com/xwiki/xwiki-platform
+fix_commit: 9fe84da66184c05953df9466cf3a4acd15a46e63
+files:
+- xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/render/ScriptXWikiServletRequest.java
+changed_lines: 21
+split: holdout
+labels: []
