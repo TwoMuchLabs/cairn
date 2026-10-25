@@ -208,16 +208,28 @@ class Mock:
         return out
 
 
+# Used when CAIRN_MODEL is unset but an Anthropic key is: the model the docs recommend.
+DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-5-5"
+
+
 SETUP_HELP = (
-    "Rule synthesis needs a model. Set CAIRN_MODEL, for example:\n"
+    "Rule synthesis needs a model. If ANTHROPIC_API_KEY is set, Cairn uses "
+    f"{DEFAULT_ANTHROPIC_MODEL} automatically. Otherwise set CAIRN_MODEL, for example:\n"
     "  export CAIRN_MODEL=anthropic:claude-sonnet-5-5   ANTHROPIC_API_KEY=...\n"
     "  export CAIRN_MODEL=openai:<model>                OPENAI_API_KEY=...  [OPENAI_BASE_URL=...]\n"
     "  export CAIRN_MODEL=ollama:<model>                (runs locally, nothing leaves your machine)"
 )
 
 
+def default_spec() -> str | None:
+    """The model to use with no configuration: only when the choice is unambiguous."""
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        return f"anthropic:{DEFAULT_ANTHROPIC_MODEL}"
+    return None
+
+
 def from_spec(spec: str | None = None) -> Model:
-    spec = spec or os.environ.get("CAIRN_MODEL")
+    spec = spec or os.environ.get("CAIRN_MODEL") or default_spec()
     if not spec:
         raise ModelError(SETUP_HELP)
     provider, _, model = spec.partition(":")

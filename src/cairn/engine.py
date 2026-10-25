@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 from collections.abc import Sequence
 from dataclasses import dataclass, field
@@ -16,8 +17,17 @@ import yaml
 
 ENGINE_CANDIDATES = ("opengrep", "semgrep")
 
+# The Semgrep CE release Cairn installs for you and that the GitHub Action pins (action.yml).
+# Keep the two in step.
+SEMGREP_PIN = "1.182.1"
+SEMGREP_SIZE_HINT = "about 270 MB"
+
 
 class EngineNotFound(Exception):
+    pass
+
+
+class EngineInstallError(Exception):
     pass
 
 
@@ -69,13 +79,55 @@ def find_engine() -> Engine:
             raise EngineNotFound(f"CAIRN_ENGINE={override!r} was not found on PATH")
         return Engine(name=Path(override).name, path=path)
     for name in ENGINE_CANDIDATES:
-        path = shutil.which(name)
+        path = shutil.which(name) or _beside_python(name)
         if path:
             return Engine(name=name, path=path)
     raise EngineNotFound(
-        "No rule engine found. Install Opengrep (recommended: "
-        "https://github.com/opengrep/opengrep) or Semgrep CE (pip install semgrep)."
+        "Cairn needs a rule engine to read your code, and none is installed. "
+        "Run 'cairn doctor --fix' to install Semgrep CE, or install Opengrep "
+        "(https://github.com/opengrep/opengrep)."
     )
+
+
+def _beside_python(name: str) -> str | None:
+    """Find an engine installed into Cairn's own environment (pipx, venvs), even off PATH."""
+    scripts = Path(sys.executable).parent
+    for candidate in (scripts / name, scripts / f"{name}.exe"):
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+    return None
+
+
+def install_engine() -> Engine:
+    """Install the pinned Semgrep CE into the Python environment Cairn runs from."""
+    cmd = [
+        sys.executable,
+        "-m",
+        "pip",
+        "install",
+        "--disable-pip-version-check",
+        "--quiet",
+        f"semgrep=={SEMGREP_PIN}",
+    ]
+    try:
+        proc = subprocess.run(
+            cmd, capture_output=True, text=True, stdin=subprocess.DEVNULL, check=False
+        )
+    except OSError as exc:
+        raise EngineInstallError(f"could not run pip: {exc}") from exc
+    if proc.returncode != 0:
+        detail = (proc.stderr or proc.stdout).strip().splitlines()
+        raise EngineInstallError(
+            "pip could not install Semgrep CE"
+            + (f": {detail[-1]}" if detail else "")
+            + f"\nTry it yourself: {sys.executable} -m pip install semgrep=={SEMGREP_PIN}"
+        )
+    try:
+        return find_engine()
+    except EngineNotFound as exc:
+        raise EngineInstallError(
+            "Semgrep CE installed, but Cairn still cannot find it. Open a new terminal and try again."
+        ) from exc
 
 
 def _command(

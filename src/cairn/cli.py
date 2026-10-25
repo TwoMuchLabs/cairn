@@ -12,7 +12,15 @@ import click
 from rich.text import Text
 
 from . import __version__, render, sarif
-from .engine import Engine, EngineNotFound, find_engine
+from .engine import (
+    SEMGREP_PIN,
+    SEMGREP_SIZE_HINT,
+    Engine,
+    EngineInstallError,
+    EngineNotFound,
+    find_engine,
+    install_engine,
+)
 from .gate import accept
 from .hunt import CONFIDENCE_ORDER, Finding, hunt, select_lessons
 from .lesson import (
@@ -42,11 +50,77 @@ class CairnError(click.ClickException):
         err.print(msg)
 
 
+def _interactive() -> bool:
+    """A person at a terminal, not CI or a pipe."""
+    if os.environ.get("CI"):
+        return False
+    try:
+        return sys.stdin.isatty() and sys.stderr.isatty()
+    except (AttributeError, ValueError):
+        return False
+
+
+def _install_engine_now() -> Engine:
+    with err.status(f"Installing Semgrep CE {SEMGREP_PIN}…", spinner="dots"):
+        try:
+            engine = install_engine()
+        except EngineInstallError as exc:
+            raise CairnError(str(exc)) from exc
+    err.print(Text(f"✓ Rule engine ready: {engine.name} {engine.version()}", style="green"))
+    return engine
+
+
 def _engine() -> Engine:
+    """Find the rule engine. At a terminal, offer to install one instead of stopping."""
     try:
         return find_engine()
     except EngineNotFound as exc:
-        raise CairnError(str(exc)) from exc
+        if not _interactive():
+            raise CairnError(str(exc)) from exc
+    err.print(
+        Text(
+            "Cairn needs a rule engine to read your code. This is a one-time setup.",
+            style="bold",
+        )
+    )
+    if not click.confirm(
+        f"Install Semgrep CE {SEMGREP_PIN} now ({SEMGREP_SIZE_HINT}, into Cairn's own environment)?",
+        default=True,
+        err=True,
+    ):
+        raise CairnError(
+            "No rule engine, so nothing to scan with. Run 'cairn doctor --fix' whenever you're ready."
+        )
+    return _install_engine_now()
+
+
+def _shown(path: Path) -> str:
+    """A path as a person would say it: '.', 'app/api' or '~/code/shop' rather than /full/path."""
+    cwd = Path.cwd().resolve()
+    try:
+        rel = path.resolve().relative_to(cwd)
+        return "." if str(rel) == "." else str(rel)
+    except ValueError:
+        pass
+    try:
+        return "~/" + str(path.resolve().relative_to(Path.home().resolve()))
+    except ValueError:
+        return str(path)
+
+
+def _in_git_repo(path: Path) -> bool:
+    import subprocess
+
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(path), "rev-parse", "--is-inside-work-tree"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return False
+    return proc.returncode == 0 and proc.stdout.strip() == "true"
 
 
 def _load_lessons(paths: Sequence[str]) -> list[Lesson]:
@@ -68,7 +142,7 @@ def _load_lessons(paths: Sequence[str]) -> list[Lesson]:
 def _header(engine: Engine, n_lessons: int, target: Path, verb: str) -> None:
     t = Text(style="dim")
     t.append(
-        f"cairn {__version__} · {verb} {target} · {n_lessons} lesson{'s' if n_lessons != 1 else ''} · "
+        f"cairn {__version__} · {verb} {_shown(target)} · {n_lessons} lesson{'s' if n_lessons != 1 else ''} · "
     )
     t.append(f"{engine.name} {engine.version()}")
     err.print(t)
@@ -97,9 +171,10 @@ lessons_option = click.option(
 )
 
 
-@click.group(context_settings={"help_option_names": ["-h", "--help"]})
+@click.group(context_settings={"help_option_names": ["-h", "--help"]}, invoke_without_command=True)
 @click.version_option(__version__, prog_name="cairn")
-def main() -> None:
+@click.pass_context
+def main(ctx: click.Context) -> None:
     """Security memory for your codebase.
 
     Cairn turns fixed vulnerabilities into proven rules (lessons), hunts for their siblings,
@@ -107,10 +182,18 @@ def main() -> None:
 
     \b
     Start here:
-      cairn hunt                  look for known mistakes in this repo
+      cairn                       inside a project: scan it (same as cairn hunt)
       cairn learn --commit <sha>  turn a security fix into a lesson
       cairn check                 enforce approved lessons in CI
     """
+    if ctx.invoked_subcommand is not None:
+        return
+    if _in_git_repo(Path.cwd()):
+        ctx.invoke(hunt_cmd)
+        return
+    out.print(Text("Cairn · security memory for your codebase", style="bold"))
+    out.print("Open a terminal in one of your projects and run: cairn")
+    out.print(Text("Everything else: cairn --help", style="dim"))
 
 
 # --------------------------------------------------------------------------- hunt
@@ -462,8 +545,11 @@ def learn_cmd(
 
 # --------------------------------------------------------------------------- doctor
 @main.command("doctor", short_help="Check that cairn is ready to run here.")
-def doctor_cmd():
-    """Check that cairn is ready to run here."""
+@click.option(
+    "--fix", is_flag=True, help=f"Install what's missing (Semgrep CE {SEMGREP_PIN}) without asking."
+)
+def doctor_cmd(fix):
+    """Check that cairn is ready to run here. With --fix, install what's missing."""
     ok = True
 
     def line(good: bool | None, label: str, detail: str = "") -> None:
@@ -479,7 +565,7 @@ def doctor_cmd():
 
     try:
         e = find_engine()
-        line(True, "rule engine", f"{e.name} {e.version()} ({e.path})")
+        line(True, "rule engine", f"{e.name} {e.version()} ({_shown(Path(e.path))})")
         if e.name != "opengrep":
             out.print(
                 Text(
@@ -487,9 +573,13 @@ def doctor_cmd():
                     style="dim",
                 )
             )
-    except EngineNotFound as exc:
-        ok = False
-        line(False, "rule engine", str(exc))
+    except EngineNotFound:
+        if fix:
+            e = _install_engine_now()
+            line(True, "rule engine", f"{e.name} {e.version()} ({_shown(Path(e.path))})")
+        else:
+            ok = False
+            line(False, "rule engine", "not installed. Run: cairn doctor --fix")
 
     import shutil as _sh
 

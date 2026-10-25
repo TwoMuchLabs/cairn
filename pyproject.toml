@@ -28,6 +28,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# The rule engine, pinned to the release the GitHub Action uses. Cairn also offers to install it on first run.
+engine = ["semgrep==1.182.1"]
 mcp = ["mcp>=1.20"]
 dev = ["pytest>=8", "ruff>=0.6", "mcp>=1.20"]
 
