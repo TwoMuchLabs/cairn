@@ -56,6 +56,7 @@ def test_learn_cli_saves_a_proposed_lesson_and_hunts_siblings(fix_repo, engine, 
 
 def test_learn_without_a_model_explains_how_to_configure_one(fix_repo, monkeypatch):
     monkeypatch.delenv("CAIRN_MODEL", raising=False)
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     result = CliRunner().invoke(main, ["learn", "--commit", "HEAD", "--repo", str(fix_repo)])
     assert result.exit_code == 2
     assert "CAIRN_MODEL" in result.output

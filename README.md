@@ -40,22 +40,27 @@ Cairn keeps what your team has learned as **lessons**: small, reviewable files c
 ## Install
 
 ```bash
-pip install cairn-security   # coming with the first release; until then:
-pip install git+https://github.com/twomuchlabs/cairn
+pipx install git+https://github.com/twomuchlabs/cairn     # `pip install cairn-security` from the first release
 ```
 
-Cairn needs a rule engine on your PATH: [Opengrep](https://github.com/opengrep/opengrep) (recommended) or Semgrep CE (`pip install semgrep`). Run `cairn doctor` to check your setup.
+Then open a terminal in any project and run:
+
+```bash
+cairn
+```
+
+That's it. The first time, Cairn asks once to install its rule engine (Semgrep CE, pinned) and then scans the project. Already have [Opengrep](https://github.com/opengrep/opengrep) or Semgrep? Cairn uses it. Setting up a script or CI? `cairn doctor --fix` installs the engine without asking.
 
 ## Use
 
 ```bash
-cairn hunt                         # look for known mistakes in this repo
+cairn                              # scan this project for known mistakes (same as cairn hunt)
 cairn learn --commit <fix-sha>     # turn a security fix into a lesson, then hunt its siblings
 cairn validate                     # re-prove every lesson (run this in CI)
 cairn check --baseline-ref origin/main --sarif cairn.sarif   # enforce approved lessons on a PR
 ```
 
-`hunt`, `check` and `validate` need no model and no network. `learn` needs one model:
+Scanning, checking and validating need no model and no network. `learn` needs one model. If `ANTHROPIC_API_KEY` is set, Cairn uses Claude Sonnet automatically. To choose another:
 
 ```bash
 export CAIRN_MODEL=anthropic:claude-sonnet-5-5   ANTHROPIC_API_KEY=...
