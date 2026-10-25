@@ -137,6 +137,26 @@ We publish how we measure, including where Cairn fails:
 
 Lessons are the most valuable contribution. See [CONTRIBUTING.md](CONTRIBUTING.md). Report vulnerabilities in Cairn itself via [SECURITY.md](SECURITY.md).
 
+## Open source, and what comes later
+
+Cairn is open core. Everything you need to find, prove and enforce lessons on your own code is open source under Apache-2.0, and stays that way:
+
+- the CLI: `hunt`, `learn`, `check`, `validate`, `doctor`
+- the lesson format and its schema, so your lessons are portable
+- the starter pack and every community lesson
+- the GitHub Action, the coding-agent plugin and the MCP server
+- VariantBench, and every result we publish from it
+
+A paid edition for teams is planned. It will add things organisations need on top of the open core: lesson sharing and review across many repositories, curated lesson packs we maintain, findings from other scanners merged into one view, exploitability statements and validated fixes, compliance evidence, and a hosted service. The [roadmap](docs/roadmap.md) marks which is which.
+
+Three promises:
+
+1. **Nothing moves from open to paid.** The paid edition only adds.
+2. **Contributed lessons stay Apache-2.0.** We will not relicense them.
+3. **The lesson format stays open.** Lessons you write work with the open CLI, whatever you use alongside it.
+
 ## License
 
 Apache-2.0, including the lesson format and every bundled lesson. Community lessons stay under the same license; we will not relicense them.
+
+The license covers the code, not the Cairn name (Apache-2.0, section 6). Forks are welcome under their own name.

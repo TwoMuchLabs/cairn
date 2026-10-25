@@ -1,5 +1,7 @@
 # Roadmap
 
+Items marked **(teams)** are planned for the paid team edition. Everything else is open source under Apache-2.0. See [Open source, and what comes later](../README.md#open-source-and-what-comes-later).
+
 Cairn grows from one loop that works well, not from a platform that does everything badly. Each phase ships only when it meets its quality gate.
 
 ## Now: lesson loop (0–90 days)
@@ -23,16 +25,17 @@ Cairn grows from one loop that works well, not from a platform that does everyth
 
 ## Next: evidence (3–6 months)
 
-- Ingest SARIF from other scanners (Opengrep, CodeQL, Trivy, OSV-Scanner, Betterleaks) into one deduplicated finding graph
-- Exploitability adjudication that writes signed OpenVEX statements
-- Validated single-file fixes, gated by a failing security test or proof of vulnerability
+- **(teams)** Ingest SARIF from other scanners (Opengrep, CodeQL, Trivy, OSV-Scanner, Betterleaks) into one deduplicated finding graph
+- **(teams)** Exploitability adjudication that writes signed OpenVEX statements
+- **(teams)** Validated single-file fixes, gated by a failing security test or proof of vulnerability
 - Signed lessons (Sigstore) and quarantine for imported packs
 - Revalidation on TTL and on code change
 - VS Code / Open VSX extension
 
 ## Later (6–12 months)
 
-- Compliance evidence crosswalk (EU CRA, NIST SSDF, PCI DSS 6.x, ISO 27001 A.8.28, MAS TRM, SEBI, CERT-In)
-- Policy generation for Kyverno/OPA from lessons
+- **(teams)** Compliance evidence crosswalk (EU CRA, NIST SSDF, PCI DSS 6.x, ISO 27001 A.8.28, MAS TRM, SEBI, CERT-In)
+- **(teams)** Policy generation for Kyverno/OPA from lessons
 - C/C++ via integration with open-sourced AIxCC cyber reasoning systems
-- Organisation-wide lesson sharing; OpenSSF sandbox application
+- **(teams)** Organisation-wide lesson sharing and review
+- OpenSSF sandbox application for the open core
