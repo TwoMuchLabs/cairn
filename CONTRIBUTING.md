@@ -33,3 +33,5 @@ git commit -s -m "Add lesson for unsafe yaml.load in Flask apps"
 ## License
 
 By contributing you agree that your contribution is licensed under Apache-2.0, the license of this repository, including lessons and fixtures.
+
+Cairn is open core: a paid team edition is planned on top of this repository (see the [README](README.md#open-source-and-what-comes-later)). Apache-2.0 already allows that, which is why we ask only for a DCO sign-off and no CLA. What you contribute here stays open, and nothing moves from the open project to the paid one.
