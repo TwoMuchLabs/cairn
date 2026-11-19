@@ -31,6 +31,9 @@ Cairn grows from one loop that works well, not from a platform that does everyth
 - Signed lessons (Sigstore) and quarantine for imported packs
 - Revalidation on TTL and on code change
 - VS Code / Open VSX extension
+- One-command install once `cairn-security` is on PyPI: no git URL for the CLI, and the plugin's install instructions updated to match
+- Survey other coding-agent hosts for a hook that runs after each edit (candidates: Codex CLI, Gemini CLI, OpenCode, GitHub Copilot CLI); record what each exposes before porting anything
+- Port the edit check to the hosts that have such a hook; where none exists, document the MCP server as the way in, and say plainly that it is on request, not on every edit
 
 ## Later (6–12 months)
 
@@ -39,3 +42,10 @@ Cairn grows from one loop that works well, not from a platform that does everyth
 - C/C++ via integration with open-sourced AIxCC cyber reasoning systems
 - **(teams)** Organisation-wide lesson sharing and review
 - OpenSSF sandbox application for the open core
+
+## Not doing
+
+Proposed on 20 November 2026; open for the owners to accept or strike.
+
+- A coding agent or agent harness of our own. Cairn plugs into the ones developers already use.
+- Any distribution work that does not move the launch gate while the gate is unmet. The three distribution items under **Next** wait for it.
